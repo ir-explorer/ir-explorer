@@ -1,11 +1,14 @@
 from litestar import Controller, get, post
+from litestar.di import Provide
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession  # noqa: TC002
 
-from db import Document, Query
+from db import Document, Query, provide_transaction
 
 
 class PostgresDataStore(Controller):
+    dependencies = {"transaction": Provide(provide_transaction)}
+
     @get(path="/list_queries")
     async def list_queries(
         self, dataset: str, transaction: AsyncSession
@@ -20,7 +23,7 @@ class PostgresDataStore(Controller):
     ) -> Query | None:
         sql = select(Query).where(and_(Query.id == q_id, Query.dataset == dataset))
         sql_result = await transaction.execute(sql)
-        return sql_result.scalar()
+        return sql_result.scalar_one()
 
     @post(path="/add_query")
     async def add_query(self, data: Query, transaction: AsyncSession) -> Query:
@@ -35,7 +38,7 @@ class PostgresDataStore(Controller):
             and_(Document.id == doc_id, Document.corpus == corpus)
         )
         sql_result = await transaction.execute(sql)
-        return sql_result.scalar()
+        return sql_result.scalar_one()
 
     @post(path="/add_document")
     async def add_document(self, data: Document, transaction: AsyncSession) -> Document:

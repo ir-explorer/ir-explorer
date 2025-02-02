@@ -46,8 +46,7 @@ class Query(Base):
     dataset: Mapped[str] = mapped_column(primary_key=True)
     text: Mapped[str] = mapped_column()
     description: Mapped[str] = mapped_column(nullable=True)
-
-    rel_docs: Mapped[list["Document"]] = relationship(secondary=qrels_table)
+    relevant_documents: Mapped[list["Document"]] = relationship(secondary=qrels_table)
 
 
 class Document(Base):
