@@ -7,7 +7,7 @@ from litestar.status_codes import HTTP_409_CONFLICT
 from sqlalchemy import URL
 from sqlalchemy.exc import IntegrityError
 
-from db.schema import DBBase
+from db.schema import ORMBase
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -37,6 +37,6 @@ CONFIG = SQLAlchemyAsyncConfig(
         port=int(os.environ.get("PG_PORT", "5432")),
         database=os.environ.get("PG_DB", "ir-ex"),
     ).__to_string__(hide_password=False),
-    metadata=DBBase.metadata,
+    metadata=ORMBase.metadata,
     create_all=True,
 )

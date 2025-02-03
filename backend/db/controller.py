@@ -5,11 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession  # noqa: TC002
 from sqlalchemy.orm import joinedload
 
 from db import provide_transaction
-from db.schema import DBDocument, DBQRel, DBQuery
+from db.schema import ORMDocument, ORMQRel, ORMQuery
 from models import Document, Query, RelevantDocument
 
 
-class PostgresController(Controller):
+class DBController(Controller):
     dependencies = {"transaction": Provide(provide_transaction)}
 
     @get(path="/list_queries")
@@ -18,10 +18,10 @@ class PostgresController(Controller):
     ) -> list[Query]:
         result = (
             await transaction.execute(
-                select(DBQuery, func.count(DBQRel.document_id))
-                .outerjoin(DBQuery.qrels)
-                .where(DBQuery.dataset == dataset)
-                .group_by(DBQuery.id, DBQuery.dataset)
+                select(ORMQuery, func.count(ORMQRel.document_id))
+                .outerjoin(ORMQuery.qrels)
+                .where(ORMQuery.dataset == dataset)
+                .group_by(ORMQuery.id, ORMQuery.dataset)
             )
         ).all()
         return [
@@ -41,10 +41,10 @@ class PostgresController(Controller):
     ) -> Query:
         db_query, num_rel_docs = (
             await transaction.execute(
-                select(DBQuery, func.count(DBQRel.document_id))
-                .outerjoin(DBQuery.qrels)
-                .where(and_(DBQuery.id == query_id, DBQuery.dataset == dataset))
-                .group_by(DBQuery.id, DBQuery.dataset)
+                select(ORMQuery, func.count(ORMQRel.document_id))
+                .outerjoin(ORMQuery.qrels)
+                .where(and_(ORMQuery.id == query_id, ORMQuery.dataset == dataset))
+                .group_by(ORMQuery.id, ORMQuery.dataset)
             )
         ).one()
         return Query(
@@ -60,9 +60,9 @@ class PostgresController(Controller):
         self, dataset: str, query_id: str, transaction: AsyncSession
     ) -> list[RelevantDocument]:
         sql = (
-            select(DBQRel)
-            .options(joinedload(DBQRel.document))
-            .where(and_(DBQRel.query_id == query_id, DBQRel.dataset == dataset))
+            select(ORMQRel)
+            .options(joinedload(ORMQRel.document))
+            .where(and_(ORMQRel.query_id == query_id, ORMQRel.dataset == dataset))
         )
         result = (await transaction.execute(sql)).scalars()
         return [
@@ -79,7 +79,7 @@ class PostgresController(Controller):
     @post(path="/add_query")
     async def add_query(self, data: Query, transaction: AsyncSession) -> Query:
         transaction.add(
-            DBQuery(
+            ORMQuery(
                 id=data.id,
                 dataset=data.dataset,
                 text=data.text,
@@ -92,8 +92,8 @@ class PostgresController(Controller):
     async def get_document(
         self, corpus: str, doc_id: str, transaction: AsyncSession
     ) -> Document:
-        sql = select(DBDocument).where(
-            and_(DBDocument.id == doc_id, DBDocument.corpus == corpus)
+        sql = select(ORMDocument).where(
+            and_(ORMDocument.id == doc_id, ORMDocument.corpus == corpus)
         )
         result = (await transaction.execute(sql)).scalar_one()
         return Document(result.id, result.corpus, result.title, result.text)
@@ -101,6 +101,8 @@ class PostgresController(Controller):
     @post(path="/add_document")
     async def add_document(self, data: Document, transaction: AsyncSession) -> Document:
         transaction.add(
-            DBDocument(id=data.id, corpus=data.corpus, title=data.title, text=data.text)
+            ORMDocument(
+                id=data.id, corpus=data.corpus, title=data.title, text=data.text
+            )
         )
         return data
