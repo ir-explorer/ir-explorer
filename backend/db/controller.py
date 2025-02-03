@@ -3,10 +3,11 @@ from litestar.di import Provide
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession  # noqa: TC002
 
-from db import Document, Query, provide_transaction
+from db import provide_transaction
+from db.schema import Document, Query
 
 
-class PostgresDataStore(Controller):
+class PostgresController(Controller):
     dependencies = {"transaction": Provide(provide_transaction)}
 
     @get(path="/list_queries")
