@@ -2,6 +2,7 @@ from litestar import Controller, get, post
 from litestar.di import Provide
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession  # noqa: TC002
+from sqlalchemy.orm import joinedload
 
 from db import provide_transaction
 from db.schema import DBDocument, DBQRel, DBQuery
@@ -58,13 +59,12 @@ class PostgresController(Controller):
     async def get_relevant_documents(
         self, dataset: str, query_id: str, transaction: AsyncSession
     ) -> list[RelevantDocument]:
-        result = (
-            await transaction.execute(
-                select(DBQRel, DBDocument).where(
-                    and_(DBQRel.query_id == query_id, DBQRel.dataset == dataset)
-                )
-            )
-        ).scalars()
+        sql = (
+            select(DBQRel)
+            .options(joinedload(DBQRel.document))
+            .where(and_(DBQRel.query_id == query_id, DBQRel.dataset == dataset))
+        )
+        result = (await transaction.execute(sql)).scalars()
         return [
             RelevantDocument(
                 qrel.document.id,
