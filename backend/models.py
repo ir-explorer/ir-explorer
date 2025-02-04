@@ -21,3 +21,12 @@ class Query:
     text: str
     description: str | None
     num_relevant_documents: int
+
+
+@dataclass
+class QRel:
+    query_id: str
+    dataset: str
+    document_id: str
+    corpus: str
+    relevance: int

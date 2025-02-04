@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 
 from db import provide_transaction
 from db.schema import ORMDocument, ORMQRel, ORMQuery
-from models import Document, Query, RelevantDocument
+from models import Document, QRel, Query, RelevantDocument
 
 
 class DBController(Controller):
@@ -103,6 +103,19 @@ class DBController(Controller):
         transaction.add(
             ORMDocument(
                 id=data.id, corpus=data.corpus, title=data.title, text=data.text
+            )
+        )
+        return data
+
+    @post(path="/add_qrel")
+    async def add_qrel(self, data: QRel, transaction: AsyncSession) -> QRel:
+        transaction.add(
+            ORMQRel(
+                query_id=data.query_id,
+                dataset=data.dataset,
+                document_id=data.document_id,
+                corpus=data.corpus,
+                relevance=data.relevance,
             )
         )
         return data
