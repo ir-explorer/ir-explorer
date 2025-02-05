@@ -10,10 +10,14 @@ from sqlalchemy.orm import (
 
 
 class ORMBase(DeclarativeBase):
+    """Declarative base for ORM schema."""
+
     pass
 
 
 class ORMQRel(ORMBase):
+    """ORM class representing a query relevance judgment (QRel)."""
+
     __tablename__ = "qrels"
     __table_args__ = (
         ForeignKeyConstraint(
@@ -41,6 +45,8 @@ class ORMQRel(ORMBase):
 
 
 class ORMQuery(ORMBase):
+    """ORM class representing a query."""
+
     __tablename__ = "queries"
 
     id: Mapped[str] = mapped_column(primary_key=True)
@@ -52,6 +58,8 @@ class ORMQuery(ORMBase):
 
 
 class ORMDocument(ORMBase):
+    """ORM class representing a document."""
+
     __tablename__ = "documents"
 
     id: Mapped[str] = mapped_column(primary_key=True)

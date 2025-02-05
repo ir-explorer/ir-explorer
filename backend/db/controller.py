@@ -10,12 +10,20 @@ from models import Document, QRel, Query, RelevantDocument
 
 
 class DBController(Controller):
+    """Controller that handles database related API endpoints."""
+
     dependencies = {"transaction": Provide(provide_transaction)}
 
     @get(path="/list_queries")
     async def list_queries(
         self, dataset: str, transaction: AsyncSession
     ) -> list[Query]:
+        """List all queries in a dataset.
+
+        :param dataset: The dataset identifier.
+        :param transaction: A DB transaction.
+        :return: All dataset queries.
+        """
         result = (
             await transaction.execute(
                 select(ORMQuery, func.count(ORMQRel.document_id))
@@ -39,6 +47,13 @@ class DBController(Controller):
     async def get_query(
         self, dataset: str, query_id: str, transaction: AsyncSession
     ) -> Query:
+        """Return a single specific query.
+
+        :param dataset: The dataset identifier.
+        :param query_id: The query ID.
+        :param transaction: A DB transaction.
+        :return: The query object.
+        """
         db_query, num_rel_docs = (
             await transaction.execute(
                 select(ORMQuery, func.count(ORMQRel.document_id))
@@ -59,6 +74,13 @@ class DBController(Controller):
     async def get_relevant_documents(
         self, dataset: str, query_id: str, transaction: AsyncSession
     ) -> list[RelevantDocument]:
+        """Return all documents that a relevant w.r.t. a specific query.
+
+        :param dataset: The identifier of the dataset the query is in.
+        :param query_id: The query ID.
+        :param transaction: A DB transaction.
+        :return: All documents relevant w.r.t. the query.
+        """
         sql = (
             select(ORMQRel)
             .options(joinedload(ORMQRel.document))
@@ -78,6 +100,12 @@ class DBController(Controller):
 
     @post(path="/add_query")
     async def add_query(self, data: Query, transaction: AsyncSession) -> Query:
+        """Insert a new query into the database.
+
+        :param data: The query to insert.
+        :param transaction: A DB transaction.
+        :return: The inserted query.
+        """
         transaction.add(
             ORMQuery(
                 id=data.id,
@@ -90,16 +118,29 @@ class DBController(Controller):
 
     @get(path="/get_document")
     async def get_document(
-        self, corpus: str, doc_id: str, transaction: AsyncSession
+        self, corpus: str, document_id: str, transaction: AsyncSession
     ) -> Document:
+        """Return a single specific document.
+
+        :param corpus: The corpus identifier.
+        :param document_id: The document ID.
+        :param transaction: A DB transaction.
+        :return: The document object.
+        """
         sql = select(ORMDocument).where(
-            and_(ORMDocument.id == doc_id, ORMDocument.corpus == corpus)
+            and_(ORMDocument.id == document_id, ORMDocument.corpus == corpus)
         )
         result = (await transaction.execute(sql)).scalar_one()
         return Document(result.id, result.corpus, result.title, result.text)
 
     @post(path="/add_document")
     async def add_document(self, data: Document, transaction: AsyncSession) -> Document:
+        """Insert a new document into the database.
+
+        :param data: The document to insert.
+        :param transaction: A DB transaction.
+        :return: The inserted document.
+        """
         transaction.add(
             ORMDocument(
                 id=data.id, corpus=data.corpus, title=data.title, text=data.text
@@ -109,6 +150,12 @@ class DBController(Controller):
 
     @post(path="/add_qrel")
     async def add_qrel(self, data: QRel, transaction: AsyncSession) -> QRel:
+        """Insert a new query-document relevance into the database.
+
+        :param data: The QRel to insert.
+        :param transaction: A DB transaction.
+        :return: The inserted QRel.
+        """
         transaction.add(
             ORMQRel(
                 query_id=data.query_id,

@@ -1,3 +1,5 @@
+"""Module for database-related functionality."""
+
 import os
 from typing import TYPE_CHECKING
 
@@ -18,6 +20,12 @@ if TYPE_CHECKING:
 async def provide_transaction(
     db_session: "AsyncSession",
 ) -> "AsyncGenerator[AsyncSession, None]":
+    """Provide a database transaction in accordance with SQLAlchemyInitPlugin.
+
+    :param db_session: Asynchronous DB session.
+    :raises ClientException: Upon DB integrity errors.
+    :yield: The DB transaction.
+    """
     try:
         async with db_session.begin():
             yield db_session
