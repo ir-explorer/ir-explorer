@@ -1,12 +1,16 @@
+from typing import TYPE_CHECKING
+
 from litestar import Controller, get, post
 from litestar.di import Provide
 from sqlalchemy import and_, func, select
-from sqlalchemy.ext.asyncio import AsyncSession  # noqa: TC002
 from sqlalchemy.orm import joinedload
 
 from db import provide_transaction
 from db.schema import ORMDocument, ORMQRel, ORMQuery
 from models import Document, QRel, Query, RelevantDocument
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class DBController(Controller):
@@ -16,7 +20,7 @@ class DBController(Controller):
 
     @get(path="/list_queries")
     async def list_queries(
-        self, dataset: str, transaction: AsyncSession
+        self, dataset: str, transaction: "AsyncSession"
     ) -> list[Query]:
         """List all queries in a dataset.
 
@@ -45,7 +49,7 @@ class DBController(Controller):
 
     @get(path="/get_query")
     async def get_query(
-        self, dataset: str, query_id: str, transaction: AsyncSession
+        self, dataset: str, query_id: str, transaction: "AsyncSession"
     ) -> Query:
         """Return a single specific query.
 
@@ -72,7 +76,7 @@ class DBController(Controller):
 
     @get(path="/get_relevant_documents")
     async def get_relevant_documents(
-        self, dataset: str, query_id: str, transaction: AsyncSession
+        self, dataset: str, query_id: str, transaction: "AsyncSession"
     ) -> list[RelevantDocument]:
         """Return all documents that a relevant w.r.t. a specific query.
 
@@ -99,7 +103,7 @@ class DBController(Controller):
         ]
 
     @post(path="/add_query")
-    async def add_query(self, data: Query, transaction: AsyncSession) -> Query:
+    async def add_query(self, data: Query, transaction: "AsyncSession") -> Query:
         """Insert a new query into the database.
 
         :param data: The query to insert.
@@ -118,7 +122,7 @@ class DBController(Controller):
 
     @get(path="/get_document")
     async def get_document(
-        self, corpus: str, document_id: str, transaction: AsyncSession
+        self, corpus: str, document_id: str, transaction: "AsyncSession"
     ) -> Document:
         """Return a single specific document.
 
@@ -134,7 +138,9 @@ class DBController(Controller):
         return Document(result.id, result.corpus, result.title, result.text)
 
     @post(path="/add_document")
-    async def add_document(self, data: Document, transaction: AsyncSession) -> Document:
+    async def add_document(
+        self, data: Document, transaction: "AsyncSession"
+    ) -> Document:
         """Insert a new document into the database.
 
         :param data: The document to insert.
@@ -149,7 +155,7 @@ class DBController(Controller):
         return data
 
     @post(path="/add_qrel")
-    async def add_qrel(self, data: QRel, transaction: AsyncSession) -> QRel:
+    async def add_qrel(self, data: QRel, transaction: "AsyncSession") -> QRel:
         """Insert a new query-document relevance into the database.
 
         :param data: The QRel to insert.
