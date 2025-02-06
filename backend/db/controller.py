@@ -6,8 +6,8 @@ from sqlalchemy import and_, func, select
 from sqlalchemy.orm import joinedload
 
 from db import provide_transaction
-from db.schema import ORMDocument, ORMQRel, ORMQuery
-from models import Document, QRel, Query, RelevantDocument
+from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
+from models import Dataset, Document, QRel, Query, RelevantDocument
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,6 +17,73 @@ class DBController(Controller):
     """Controller that handles database related API endpoints."""
 
     dependencies = {"transaction": Provide(provide_transaction)}
+
+    @post(path="/add_corpus")
+    async def add_corpus(self, data: str, transaction: "AsyncSession") -> None:
+        """Add a new corpus to the database.
+
+        :param data: The corpus name.
+        :param transaction: A DB transaction.
+        """
+        transaction.add(ORMCorpus(name=data))
+
+    @post(path="/add_dataset")
+    async def add_dataset(self, data: Dataset, transaction: "AsyncSession") -> None:
+        """Add a new dataset to the database.
+
+        :param data: The dataset.
+        :param transaction: A DB transaction.
+        """
+        transaction.add(ORMDataset(name=data.name, corpus_name=data.corpus_name))
+
+    @post(path="/add_query")
+    async def add_query(self, data: Query, transaction: "AsyncSession") -> None:
+        """Insert a new query into the database.
+
+        :param data: The query to insert.
+        :param transaction: A DB transaction.
+        """
+        transaction.add(
+            ORMQuery(
+                id=data.id,
+                dataset_name=data.dataset_name,
+                text=data.text,
+                description=data.description,
+            )
+        )
+
+    @post(path="/add_document")
+    async def add_document(self, data: Document, transaction: "AsyncSession") -> None:
+        """Insert a new document into the database.
+
+        :param data: The document to insert.
+        :param transaction: A DB transaction.
+        """
+        transaction.add(
+            ORMDocument(
+                id=data.id,
+                corpus_name=data.corpus_name,
+                title=data.title,
+                text=data.text,
+            )
+        )
+
+    @post(path="/add_qrel")
+    async def add_qrel(self, data: QRel, transaction: "AsyncSession") -> None:
+        """Insert a new query-document relevance into the database.
+
+        :param data: The QRel to insert.
+        :param transaction: A DB transaction.
+        """
+        transaction.add(
+            ORMQRel(
+                query_id=data.query_id,
+                dataset_name=data.dataset_name,
+                document_id=data.document_id,
+                corpus_name=data.corpus_name,
+                relevance=data.relevance,
+            )
+        )
 
     @get(path="/list_queries")
     async def list_queries(
@@ -106,24 +173,6 @@ class DBController(Controller):
             for qrel in result
         ]
 
-    @post(path="/add_query")
-    async def add_query(self, data: Query, transaction: "AsyncSession") -> Query:
-        """Insert a new query into the database.
-
-        :param data: The query to insert.
-        :param transaction: A DB transaction.
-        :return: The inserted query.
-        """
-        transaction.add(
-            ORMQuery(
-                id=data.id,
-                dataset_name=data.dataset_name,
-                text=data.text,
-                description=data.description,
-            )
-        )
-        return data
-
     @get(path="/get_document")
     async def get_document(
         self, corpus_name: str, document_id: str, transaction: "AsyncSession"
@@ -140,42 +189,3 @@ class DBController(Controller):
         )
         result = (await transaction.execute(sql)).scalar_one()
         return Document(result.id, result.corpus_name, result.title, result.text)
-
-    @post(path="/add_document")
-    async def add_document(
-        self, data: Document, transaction: "AsyncSession"
-    ) -> Document:
-        """Insert a new document into the database.
-
-        :param data: The document to insert.
-        :param transaction: A DB transaction.
-        :return: The inserted document.
-        """
-        transaction.add(
-            ORMDocument(
-                id=data.id,
-                corpus_name=data.corpus_name,
-                title=data.title,
-                text=data.text,
-            )
-        )
-        return data
-
-    @post(path="/add_qrel")
-    async def add_qrel(self, data: QRel, transaction: "AsyncSession") -> QRel:
-        """Insert a new query-document relevance into the database.
-
-        :param data: The QRel to insert.
-        :param transaction: A DB transaction.
-        :return: The inserted QRel.
-        """
-        transaction.add(
-            ORMQRel(
-                query_id=data.query_id,
-                dataset_name=data.dataset_name,
-                document_id=data.document_id,
-                corpus_name=data.corpus_name,
-                relevance=data.relevance,
-            )
-        )
-        return data

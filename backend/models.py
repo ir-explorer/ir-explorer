@@ -2,6 +2,14 @@ from dataclasses import dataclass
 
 
 @dataclass
+class Dataset:
+    """A dataset."""
+
+    name: str
+    corpus_name: str
+
+
+@dataclass
 class Document:
     """A single document."""
 
