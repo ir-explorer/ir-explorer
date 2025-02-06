@@ -6,7 +6,7 @@ class Document:
     """A single document."""
 
     id: str
-    corpus: str
+    corpus_name: str
     title: str | None
     text: str
 
@@ -23,7 +23,7 @@ class Query:
     """A single query."""
 
     id: str
-    dataset: str
+    dataset_name: str
     text: str
     description: str | None
     num_relevant_documents: int
@@ -34,7 +34,7 @@ class QRel:
     """A single query-document relevance score."""
 
     query_id: str
-    dataset: str
+    dataset_name: str
     document_id: str
-    corpus: str
+    corpus_name: str
     relevance: int

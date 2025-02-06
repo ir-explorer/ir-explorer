@@ -20,26 +20,26 @@ class DBController(Controller):
 
     @get(path="/list_queries")
     async def list_queries(
-        self, dataset: str, transaction: "AsyncSession"
+        self, dataset_name: str, transaction: "AsyncSession"
     ) -> list[Query]:
         """List all queries in a dataset.
 
-        :param dataset: The dataset identifier.
+        :param dataset_name: The dataset name.
         :param transaction: A DB transaction.
         :return: All dataset queries.
         """
         result = (
             await transaction.execute(
                 select(ORMQuery, func.count(ORMQRel.document_id))
-                .outerjoin(ORMQuery.qrels)
-                .where(ORMQuery.dataset == dataset)
-                .group_by(ORMQuery.id, ORMQuery.dataset)
+                .outerjoin(ORMQRel)
+                .where(ORMQuery.dataset_name == dataset_name)
+                .group_by(ORMQuery.id, ORMQuery.dataset_name)
             )
         ).all()
         return [
             Query(
                 db_query.id,
-                db_query.dataset,
+                db_query.dataset_name,
                 db_query.text,
                 db_query.description,
                 num_rel_docs,
@@ -49,11 +49,11 @@ class DBController(Controller):
 
     @get(path="/get_query")
     async def get_query(
-        self, dataset: str, query_id: str, transaction: "AsyncSession"
+        self, dataset_name: str, query_id: str, transaction: "AsyncSession"
     ) -> Query:
         """Return a single specific query.
 
-        :param dataset: The dataset identifier.
+        :param dataset_name: The dataset name.
         :param query_id: The query ID.
         :param transaction: A DB transaction.
         :return: The query object.
@@ -61,14 +61,16 @@ class DBController(Controller):
         db_query, num_rel_docs = (
             await transaction.execute(
                 select(ORMQuery, func.count(ORMQRel.document_id))
-                .outerjoin(ORMQuery.qrels)
-                .where(and_(ORMQuery.id == query_id, ORMQuery.dataset == dataset))
-                .group_by(ORMQuery.id, ORMQuery.dataset)
+                .outerjoin(ORMQRel)
+                .where(
+                    and_(ORMQuery.id == query_id, ORMQuery.dataset_name == dataset_name)
+                )
+                .group_by(ORMQuery.id, ORMQuery.dataset_name)
             )
         ).one()
         return Query(
             db_query.id,
-            db_query.dataset,
+            db_query.dataset_name,
             db_query.text,
             db_query.description,
             num_rel_docs,
@@ -76,11 +78,11 @@ class DBController(Controller):
 
     @get(path="/get_relevant_documents")
     async def get_relevant_documents(
-        self, dataset: str, query_id: str, transaction: "AsyncSession"
+        self, dataset_name: str, query_id: str, transaction: "AsyncSession"
     ) -> list[RelevantDocument]:
         """Return all documents that a relevant w.r.t. a specific query.
 
-        :param dataset: The identifier of the dataset the query is in.
+        :param dataset_name: The name of the dataset the query is in.
         :param query_id: The query ID.
         :param transaction: A DB transaction.
         :return: All documents relevant w.r.t. the query.
@@ -88,13 +90,15 @@ class DBController(Controller):
         sql = (
             select(ORMQRel)
             .options(joinedload(ORMQRel.document))
-            .where(and_(ORMQRel.query_id == query_id, ORMQRel.dataset == dataset))
+            .where(
+                and_(ORMQRel.query_id == query_id, ORMQRel.dataset_name == dataset_name)
+            )
         )
         result = (await transaction.execute(sql)).scalars()
         return [
             RelevantDocument(
                 qrel.document.id,
-                qrel.document.corpus,
+                qrel.document.corpus_name,
                 qrel.document.title,
                 qrel.document.text,
                 qrel.relevance,
@@ -113,7 +117,7 @@ class DBController(Controller):
         transaction.add(
             ORMQuery(
                 id=data.id,
-                dataset=data.dataset,
+                dataset_name=data.dataset_name,
                 text=data.text,
                 description=data.description,
             )
@@ -122,20 +126,20 @@ class DBController(Controller):
 
     @get(path="/get_document")
     async def get_document(
-        self, corpus: str, document_id: str, transaction: "AsyncSession"
+        self, corpus_name: str, document_id: str, transaction: "AsyncSession"
     ) -> Document:
         """Return a single specific document.
 
-        :param corpus: The corpus identifier.
+        :param corpus_name: The corpus name.
         :param document_id: The document ID.
         :param transaction: A DB transaction.
         :return: The document object.
         """
         sql = select(ORMDocument).where(
-            and_(ORMDocument.id == document_id, ORMDocument.corpus == corpus)
+            and_(ORMDocument.id == document_id, ORMDocument.corpus_name == corpus_name)
         )
         result = (await transaction.execute(sql)).scalar_one()
-        return Document(result.id, result.corpus, result.title, result.text)
+        return Document(result.id, result.corpus_name, result.title, result.text)
 
     @post(path="/add_document")
     async def add_document(
@@ -149,7 +153,10 @@ class DBController(Controller):
         """
         transaction.add(
             ORMDocument(
-                id=data.id, corpus=data.corpus, title=data.title, text=data.text
+                id=data.id,
+                corpus_name=data.corpus_name,
+                title=data.title,
+                text=data.text,
             )
         )
         return data
@@ -165,9 +172,9 @@ class DBController(Controller):
         transaction.add(
             ORMQRel(
                 query_id=data.query_id,
-                dataset=data.dataset,
+                dataset_name=data.dataset_name,
                 document_id=data.document_id,
-                corpus=data.corpus,
+                corpus_name=data.corpus_name,
                 relevance=data.relevance,
             )
         )
