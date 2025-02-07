@@ -13,9 +13,9 @@ def main():
     ap.add_argument("CORPUS_NAME", type=str)
     args = ap.parse_args()
 
-    requests.post(BASE_URL + "/add_corpus", json=args.CORPUS_NAME)
+    requests.post(BASE_URL + "/create_corpus", json=args.CORPUS_NAME)
     requests.post(
-        BASE_URL + "/add_dataset",
+        BASE_URL + "/create_dataset",
         json={"name": args.DATASET_NAME, "corpus_name": args.CORPUS_NAME},
     )
 
@@ -36,6 +36,7 @@ def main():
             BASE_URL + "/add_query",
             json={
                 "id": query.query_id,
+                "corpus_name": args.CORPUS_NAME,
                 "dataset_name": args.DATASET_NAME,
                 "text": query.text,
                 "description": None,
@@ -48,9 +49,9 @@ def main():
             BASE_URL + "/add_qrel",
             json={
                 "query_id": qrel.query_id,
+                "corpus_name": args.CORPUS_NAME,
                 "dataset_name": args.DATASET_NAME,
                 "document_id": qrel.doc_id,
-                "corpus_name": args.CORPUS_NAME,
                 "relevance": max(1, qrel.relevance),  # TODO: fix
             },
         )
