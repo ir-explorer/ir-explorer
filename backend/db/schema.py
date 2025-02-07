@@ -1,16 +1,12 @@
-from sqlalchemy import ForeignKey, ForeignKeyConstraint
+from sqlalchemy import ForeignKey, ForeignKeyConstraint, UniqueConstraint
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
-    DeclarativeBase,
     Mapped,
     mapped_column,
     relationship,
 )
 
-
-class ORMBase(DeclarativeBase):
-    """Declarative base for ORM schema."""
-
-    pass
+ORMBase = declarative_base()
 
 
 class ORMCorpus(ORMBase):
@@ -18,7 +14,8 @@ class ORMCorpus(ORMBase):
 
     __tablename__ = "corpora"
 
-    name: Mapped[str] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(unique=True)
 
     datasets: Mapped[list["ORMDataset"]] = relationship(back_populates="corpus")
 
@@ -27,9 +24,11 @@ class ORMDataset(ORMBase):
     """ORM class representing a dataset."""
 
     __tablename__ = "datasets"
+    __table_args__ = (UniqueConstraint("name", "corpus_id"),)
 
-    name: Mapped[str] = mapped_column(primary_key=True)
-    corpus_name: Mapped[str] = mapped_column(ForeignKey("corpora.name"))
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str]
+    corpus_id: Mapped[int] = mapped_column(ForeignKey("corpora.id"))
 
     corpus: Mapped[ORMCorpus] = relationship(back_populates="datasets")
 
@@ -40,9 +39,7 @@ class ORMQuery(ORMBase):
     __tablename__ = "queries"
 
     id: Mapped[str] = mapped_column(primary_key=True)
-    dataset_name: Mapped[str] = mapped_column(
-        ForeignKey("datasets.name"), primary_key=True
-    )
+    dataset_id: Mapped[int] = mapped_column(ForeignKey("datasets.id"), primary_key=True)
     text: Mapped[str] = mapped_column()
     description: Mapped[str] = mapped_column(nullable=True)
 
@@ -56,9 +53,7 @@ class ORMDocument(ORMBase):
     __tablename__ = "documents"
 
     id: Mapped[str] = mapped_column(primary_key=True)
-    corpus_name: Mapped[str] = mapped_column(
-        ForeignKey("corpora.name"), primary_key=True
-    )
+    corpus_id: Mapped[int] = mapped_column(ForeignKey("corpora.id"), primary_key=True)
     title: Mapped[str] = mapped_column(nullable=True)
     text: Mapped[str] = mapped_column()
 
@@ -72,19 +67,19 @@ class ORMQRel(ORMBase):
     __tablename__ = "qrels"
     __table_args__ = (
         ForeignKeyConstraint(
-            ["query_id", "dataset_name"],
-            ["queries.id", "queries.dataset_name"],
+            ["query_id", "dataset_id"],
+            ["queries.id", "queries.dataset_id"],
         ),
         ForeignKeyConstraint(
-            ["document_id", "corpus_name"],
-            ["documents.id", "documents.corpus_name"],
+            ["document_id", "corpus_id"],
+            ["documents.id", "documents.corpus_id"],
         ),
     )
 
     query_id: Mapped[str] = mapped_column(primary_key=True)
-    dataset_name: Mapped[str] = mapped_column(primary_key=True)
     document_id: Mapped[str] = mapped_column(primary_key=True)
-    corpus_name: Mapped[str] = mapped_column(primary_key=True)
+    dataset_id: Mapped[int] = mapped_column(primary_key=True)
+    corpus_id: Mapped[int] = mapped_column(primary_key=True)
     relevance: Mapped[int]
 
     query: Mapped["ORMQuery"] = relationship(back_populates="qrels")

@@ -31,6 +31,7 @@ class Query:
     """A single query."""
 
     id: str
+    corpus_name: str
     dataset_name: str
     text: str
     description: str | None
@@ -42,7 +43,7 @@ class QRel:
     """A single query-document relevance score."""
 
     query_id: str
-    dataset_name: str
     document_id: str
     corpus_name: str
+    dataset_name: str
     relevance: int
