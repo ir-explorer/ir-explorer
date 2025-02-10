@@ -7,7 +7,14 @@ from sqlalchemy.orm import joinedload
 
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
-from models import Dataset, Document, QRel, Query, RelevantDocument
+from models import (
+    Dataset,
+    Document,
+    DocumentWithRelevance,
+    QRel,
+    Query,
+    QueryWithRelevanceInfo,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -115,7 +122,7 @@ class DBController(Controller):
     @get(path="/list_queries")
     async def list_queries(
         self, corpus_name: str, dataset_name: str, transaction: "AsyncSession"
-    ) -> list[Query]:
+    ) -> list[QueryWithRelevanceInfo]:
         """List all queries in a dataset.
 
         :param corpus_name: The name of the corpus.
@@ -139,7 +146,7 @@ class DBController(Controller):
             )
         ).all()
         return [
-            Query(
+            QueryWithRelevanceInfo(
                 id=db_query.id,
                 corpus_name=corpus_name,
                 dataset_name=dataset_name,
@@ -157,7 +164,7 @@ class DBController(Controller):
         dataset_name: str,
         query_id: str,
         transaction: "AsyncSession",
-    ) -> Query:
+    ) -> QueryWithRelevanceInfo:
         """Return a single specific query.
 
         :param corpus_name: The name of the corpus.
@@ -182,7 +189,7 @@ class DBController(Controller):
                 .group_by(ORMQuery.id, ORMQuery.dataset_id)
             )
         ).one()
-        return Query(
+        return QueryWithRelevanceInfo(
             id=db_query.id,
             corpus_name=corpus_name,
             dataset_name=dataset_name,
@@ -198,7 +205,7 @@ class DBController(Controller):
         dataset_name: str,
         query_id: str,
         transaction: "AsyncSession",
-    ) -> list[RelevantDocument]:
+    ) -> list[DocumentWithRelevance]:
         """Return all documents that a relevant w.r.t. a specific query.
 
         :param corpus_name: The name of the corpus.
@@ -223,12 +230,13 @@ class DBController(Controller):
             )
         ).scalars()
         return [
-            RelevantDocument(
-                qrel.document.id,
-                corpus_name,
-                qrel.document.title,
-                qrel.document.text,
-                qrel.relevance,
+            DocumentWithRelevance(
+                id=qrel.document.id,
+                corpus_name=corpus_name,
+                title=qrel.document.title,
+                text=qrel.document.text,
+                query_id=query_id,
+                relevance=qrel.relevance,
             )
             for qrel in result
         ]

@@ -10,19 +10,13 @@ class Dataset:
 
 
 @dataclass
-class Document:
-    """A single document."""
+class QRel:
+    """A single query-document relevance score."""
 
-    id: str
+    query_id: str
+    document_id: str
     corpus_name: str
-    title: str | None
-    text: str
-
-
-@dataclass
-class RelevantDocument(Document):
-    """A single document with a relevance (w.r.t. a specific query)."""
-
+    dataset_name: str
     relevance: int
 
 
@@ -35,15 +29,28 @@ class Query:
     dataset_name: str
     text: str
     description: str | None
+
+
+@dataclass
+class QueryWithRelevanceInfo(Query):
+    """A single query with relevance information attached."""
+
     num_relevant_documents: int
 
 
 @dataclass
-class QRel:
-    """A single query-document relevance score."""
+class Document:
+    """A single document."""
+
+    id: str
+    corpus_name: str
+    title: str | None
+    text: str
+
+
+@dataclass
+class DocumentWithRelevance(Document):
+    """A single document with a relevance (w.r.t. a specific query)."""
 
     query_id: str
-    document_id: str
-    corpus_name: str
-    dataset_name: str
     relevance: int
