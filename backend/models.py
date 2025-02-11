@@ -54,3 +54,10 @@ class DocumentWithRelevance(Document):
 
     query_id: str
     relevance: int
+
+
+@dataclass
+class DocumentSearchHit(Document):
+    """A document retrieved by a search engine."""
+
+    score: float

@@ -26,7 +26,7 @@ def main():
             json={
                 "id": doc.doc_id,
                 "corpus_name": args.CORPUS_NAME,
-                "title": doc.title,
+                "title": getattr(doc, "title", None),
                 "text": doc.text,
             },
         )

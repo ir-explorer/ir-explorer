@@ -4,7 +4,7 @@ from litestar import Controller, get, post
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
-from sqlalchemy import and_, func, insert, select
+from sqlalchemy import and_, func, insert, literal_column, select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import joinedload
 
@@ -13,6 +13,7 @@ from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
 from models import (
     Dataset,
     Document,
+    DocumentSearchHit,
     DocumentWithRelevance,
     QRel,
     Query,
@@ -330,3 +331,48 @@ class DBController(Controller):
                 extra={"document_id": document_id, "corpus_name": corpus_name},
             )
         return Document(result.id, corpus_name, result.title, result.text)
+
+    @get(path="/search_documents")
+    async def search_documents(
+        self,
+        corpus_name: str,
+        search: str,
+        num_results: int,
+        transaction: "AsyncSession",
+    ) -> list[DocumentSearchHit]:
+        """Search documents within a corpus (using full-text search).
+
+        :param corpus_name: The corpus name.
+        :param search: The search string.
+        :param num_results: How many documents to return.
+        :param transaction: A DB transaction.
+        :return: The resulting documents (ordered by score).
+        """
+        tsv_text = func.to_tsvector(literal_column("'english'"), ORMDocument.text)
+        tsv_search = func.websearch_to_tsquery("english", search)
+        ts_rank = func.ts_rank_cd(tsv_text, tsv_search)
+
+        sql = (
+            select(ORMDocument, ts_rank.label("rank"))
+            .join(ORMCorpus)
+            .where(
+                and_(
+                    tsv_text.bool_op("@@")(tsv_search),
+                    ORMCorpus.name == corpus_name,
+                )
+            )
+            .order_by("rank")
+            .limit(num_results)
+        )
+        result = (await transaction.execute(sql)).all()
+
+        return [
+            DocumentSearchHit(
+                id=doc.id,
+                corpus_name=corpus_name,
+                title=doc.title,
+                text=doc.text,
+                score=score,
+            )
+            for doc, score in result
+        ]

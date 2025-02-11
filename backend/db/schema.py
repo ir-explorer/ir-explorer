@@ -1,4 +1,11 @@
-from sqlalchemy import ForeignKey, ForeignKeyConstraint, UniqueConstraint
+from sqlalchemy import (
+    ForeignKey,
+    ForeignKeyConstraint,
+    Index,
+    UniqueConstraint,
+    func,
+    literal_column,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
     Mapped,
@@ -59,6 +66,14 @@ class ORMDocument(ORMBase):
 
     corpus: Mapped["ORMCorpus"] = relationship()
     qrels: Mapped[list["ORMQRel"]] = relationship(back_populates="document")
+
+    __table_args__ = (
+        Index(
+            "idx_tsv_text",
+            func.to_tsvector(literal_column("'english'"), text.column),
+            postgresql_using="gin",
+        ),
+    )
 
 
 class ORMQRel(ORMBase):
