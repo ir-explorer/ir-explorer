@@ -44,11 +44,11 @@ class DBController(Controller):
 
         try:
             await transaction.execute(sql)
-        except IntegrityError:
+        except IntegrityError as e:
             raise HTTPException(
                 "Failed to add corpus.",
                 status_code=HTTP_409_CONFLICT,
-                extra={"corpus_name": data},
+                extra={"corpus_name": data, "code": e.code},
             )
 
     @post(path="/create_dataset")
@@ -68,11 +68,15 @@ class DBController(Controller):
 
         try:
             await transaction.execute(sql)
-        except IntegrityError:
+        except IntegrityError as e:
             raise HTTPException(
                 "Failed to add dataset.",
                 status_code=HTTP_409_CONFLICT,
-                extra=data.__dict__,
+                extra={
+                    "name": data.name,
+                    "corpus_name": data.corpus_name,
+                    "code": e.code,
+                },
             )
 
     @post(path="/add_queries")
@@ -365,11 +369,15 @@ class DBController(Controller):
         )
         try:
             result = (await transaction.execute(sql)).scalar_one()
-        except NoResultFound:
+        except NoResultFound as e:
             raise HTTPException(
                 "Could not find the requested document.",
                 status_code=HTTP_404_NOT_FOUND,
-                extra={"document_id": document_id, "corpus_name": corpus_name},
+                extra={
+                    "document_id": document_id,
+                    "corpus_name": corpus_name,
+                    "code": e.code,
+                },
             )
         return Document(result.id, corpus_name, result.title, result.text)
 
@@ -379,7 +387,7 @@ class DBController(Controller):
         transaction: "AsyncSession",
         corpus_name: str,
         search: str,
-        num_results: int,
+        num_results: int = 10,
     ) -> list[DocumentSearchHit]:
         """Search documents within a corpus (using full-text search).
 
