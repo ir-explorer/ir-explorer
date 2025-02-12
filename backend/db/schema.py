@@ -23,6 +23,7 @@ class ORMCorpus(ORMBase):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(unique=True)
+    language: Mapped[str]
 
     datasets: Mapped[list["ORMDataset"]] = relationship(back_populates="corpus")
 

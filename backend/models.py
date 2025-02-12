@@ -2,6 +2,14 @@ from dataclasses import dataclass
 
 
 @dataclass
+class Corpus:
+    """A corpus."""
+
+    name: str
+    language: str
+
+
+@dataclass
 class Dataset:
     """A dataset."""
 

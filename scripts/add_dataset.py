@@ -13,9 +13,13 @@ def main():
     ap.add_argument("DATASET_NAME", type=str)
     ap.add_argument("CORPUS_NAME", type=str)
     ap.add_argument("--batch_size", type=int, default=2**10)
+    ap.add_argument("--language", default="english")
     args = ap.parse_args()
 
-    requests.post(BASE_URL + "/create_corpus", json=args.CORPUS_NAME)
+    requests.post(
+        BASE_URL + "/create_corpus",
+        json={"name": args.CORPUS_NAME, "language": args.language},
+    )
     requests.post(
         BASE_URL + "/create_dataset",
         json={"name": args.DATASET_NAME, "corpus_name": args.CORPUS_NAME},

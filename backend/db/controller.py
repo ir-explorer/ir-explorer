@@ -14,6 +14,7 @@ from models import (
     BulkDocument,
     BulkQRel,
     BulkQuery,
+    Corpus,
     Dataset,
     Document,
     DocumentSearchHit,
@@ -33,14 +34,14 @@ class DBController(Controller):
     dependencies = {"transaction": Provide(provide_transaction)}
 
     @post(path="/create_corpus")
-    async def create_corpus(self, transaction: "AsyncSession", data: str) -> None:
+    async def create_corpus(self, transaction: "AsyncSession", data: Corpus) -> None:
         """Create a new corpus in the database.
 
         :param transaction: A DB transaction.
-        :param data: The corpus name.
+        :param data: The corpus.
         :raises HTTPException: When the corpus cannot be added to the database.
         """
-        sql = insert(ORMCorpus).values({"name": data})
+        sql = insert(ORMCorpus).values({"name": data.name, "language": data.language})
 
         try:
             await transaction.execute(sql)
@@ -48,7 +49,7 @@ class DBController(Controller):
             raise HTTPException(
                 "Failed to add corpus.",
                 status_code=HTTP_409_CONFLICT,
-                extra={"corpus_name": data, "code": e.code},
+                extra={"corpus_name": data.name, "code": e.code},
             )
 
     @post(path="/create_dataset")
@@ -209,6 +210,47 @@ class DBController(Controller):
                 status_code=HTTP_409_CONFLICT,
                 extra={"code": e.code},
             )
+
+    @get(path="/get_corpora")
+    async def get_corpora(self, transaction: "AsyncSession") -> list[Corpus]:
+        """List all corpora.
+
+        :param transaction: A DB transaction.
+        :return: All corpora.
+        """
+        sql = select(ORMCorpus)
+        result = (await transaction.execute(sql)).scalars().all()
+        return [
+            Corpus(
+                name=corpus.name,
+                language=corpus.language,
+            )
+            for corpus in result
+        ]
+
+    @get(path="/get_datasets")
+    async def get_datasets(
+        self, transaction: "AsyncSession", corpus_name: str
+    ) -> list[Dataset]:
+        """List all datasets for a corpus.
+
+        :param transaction: A DB transaction.
+        :param corpus_name: The name of the corpus.
+        :return: All datasets.
+        """
+        sql = (
+            select(ORMDataset)
+            .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
+            .where(ORMCorpus.name == corpus_name)
+        )
+        result = (await transaction.execute(sql)).scalars().all()
+        return [
+            Dataset(
+                name=dataset.name,
+                corpus_name=corpus_name,
+            )
+            for dataset in result
+        ]
 
     @get(path="/get_queries")
     async def get_queries(
