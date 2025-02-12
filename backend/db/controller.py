@@ -1,11 +1,10 @@
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from litestar import Controller, get, post
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
-from sqlalchemy import and_, func, insert, literal_column, select, text
+from sqlalchemy import and_, func, insert, literal_column, select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import joinedload
 
@@ -23,6 +22,8 @@ from models import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -32,11 +33,11 @@ class DBController(Controller):
     dependencies = {"transaction": Provide(provide_transaction)}
 
     @post(path="/create_corpus")
-    async def create_corpus(self, data: str, transaction: "AsyncSession") -> None:
+    async def create_corpus(self, transaction: "AsyncSession", data: str) -> None:
         """Create a new corpus in the database.
 
-        :param data: The corpus name.
         :param transaction: A DB transaction.
+        :param data: The corpus name.
         :raises HTTPException: When the corpus cannot be added to the database.
         """
         sql = insert(ORMCorpus).values({"name": data})
@@ -51,11 +52,11 @@ class DBController(Controller):
             )
 
     @post(path="/create_dataset")
-    async def create_dataset(self, data: Dataset, transaction: "AsyncSession") -> None:
+    async def create_dataset(self, transaction: "AsyncSession", data: Dataset) -> None:
         """Create a new dataset in the database.
 
-        :param data: The dataset.
         :param transaction: A DB transaction.
+        :param data: The dataset.
         :raises HTTPException: When the dataset cannot be added to the database.
         """
         sql = insert(ORMDataset).values(
@@ -77,17 +78,17 @@ class DBController(Controller):
     @post(path="/add_queries")
     async def add_queries(
         self,
+        transaction: "AsyncSession",
         dataset_name: str,
         corpus_name: str,
-        data: Sequence[BulkQuery],
-        transaction: "AsyncSession",
+        data: "Sequence[BulkQuery]",
     ) -> None:
         """Insert new queries into the database.
 
+        :param transaction: A DB transaction.
         :param dataset_name: The dataset the queries belong to.
         :param corpus_name: The corpus the dataset belongs to.
         :param data: The queries to insert.
-        :param transaction: A DB transaction.
         :raises HTTPException: When the queries cannot be added to the database.
         """
         dataset_cte = (
@@ -124,15 +125,15 @@ class DBController(Controller):
     @post(path="/add_documents")
     async def add_documents(
         self,
-        corpus_name: str,
-        data: Sequence[BulkDocument],
         transaction: "AsyncSession",
+        corpus_name: str,
+        data: "Sequence[BulkDocument]",
     ) -> None:
         """Insert new documents into the database.
 
+        :param transaction: A DB transaction.
         :param corpus_name: The corpus the documents belong to.
         :param data: The documents to insert.
-        :param transaction: A DB transaction.
         :raises HTTPException: When the documents cannot be added to the database.
         """
         corpus_cte = (select(ORMCorpus).where(ORMCorpus.name == corpus_name)).cte()
@@ -160,17 +161,17 @@ class DBController(Controller):
     @post(path="/add_qrels")
     async def add_qrels(
         self,
+        transaction: "AsyncSession",
         dataset_name: str,
         corpus_name: str,
-        data: Sequence[BulkQRel],
-        transaction: "AsyncSession",
+        data: "Sequence[BulkQRel]",
     ) -> None:
         """Insert QRels into the database.
 
+        :param transaction: A DB transaction.
         :param dataset_name: The dataset the QRels belong to.
         :param corpus_name: The corpus the dataset belongs to.
         :param data: The QRels to insert.
-        :param transaction: A DB transaction.
         :raises HTTPException: When the QRels cannot be added to the database.
         """
         dataset_cte = (
@@ -207,13 +208,13 @@ class DBController(Controller):
 
     @get(path="/get_queries")
     async def get_queries(
-        self, corpus_name: str, dataset_name: str, transaction: "AsyncSession"
+        self, transaction: "AsyncSession", corpus_name: str, dataset_name: str
     ) -> list[QueryWithRelevanceInfo]:
         """List all queries in a dataset.
 
+        :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: The dataset name.
-        :param transaction: A DB transaction.
         :return: All dataset queries.
         """
         sql = (
@@ -245,17 +246,17 @@ class DBController(Controller):
     @get(path="/get_query")
     async def get_query(
         self,
+        transaction: "AsyncSession",
         corpus_name: str,
         dataset_name: str,
         query_id: str,
-        transaction: "AsyncSession",
     ) -> QueryWithRelevanceInfo:
         """Return a single specific query.
 
+        :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: The dataset name.
         :param query_id: The query ID.
-        :param transaction: A DB transaction.
         :raises HTTPException: When the query does not exist.
         :return: The query object.
         """
@@ -299,17 +300,17 @@ class DBController(Controller):
     @get(path="/get_relevant_documents")
     async def get_relevant_documents(
         self,
+        transaction: "AsyncSession",
         corpus_name: str,
         dataset_name: str,
         query_id: str,
-        transaction: "AsyncSession",
     ) -> list[DocumentWithRelevance]:
         """Return all documents that are relevant w.r.t. a specific query.
 
+        :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: The name of the dataset the query is in.
         :param query_id: The query ID.
-        :param transaction: A DB transaction.
         :return: All documents relevant w.r.t. the query.
         """
         sql = (
@@ -342,13 +343,13 @@ class DBController(Controller):
 
     @get(path="/get_document")
     async def get_document(
-        self, corpus_name: str, document_id: str, transaction: "AsyncSession"
+        self, transaction: "AsyncSession", corpus_name: str, document_id: str
     ) -> Document:
         """Return a single specific document.
 
+        :param transaction: A DB transaction.
         :param corpus_name: The corpus name.
         :param document_id: The document ID.
-        :param transaction: A DB transaction.
         :raises HTTPException: When the document does not exist.
         :return: The document object.
         """
@@ -375,17 +376,17 @@ class DBController(Controller):
     @get(path="/search_documents")
     async def search_documents(
         self,
+        transaction: "AsyncSession",
         corpus_name: str,
         search: str,
         num_results: int,
-        transaction: "AsyncSession",
     ) -> list[DocumentSearchHit]:
         """Search documents within a corpus (using full-text search).
 
+        :param transaction: A DB transaction.
         :param corpus_name: The corpus name.
         :param search: The search string.
         :param num_results: How many documents to return.
-        :param transaction: A DB transaction.
         :return: The resulting documents (ordered by score).
         """
         tsv_text = func.to_tsvector(literal_column("'english'"), ORMDocument.text)
