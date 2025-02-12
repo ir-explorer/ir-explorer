@@ -10,25 +10,37 @@ class Dataset:
 
 
 @dataclass
-class QRel:
-    """A single query-document relevance score."""
+class BulkQRel:
+    """A single query-document relevance score for bulk insertion."""
 
     query_id: str
     document_id: str
-    corpus_name: str
-    dataset_name: str
     relevance: int
 
 
 @dataclass
-class Query:
-    """A single query."""
+class QRel(BulkQRel):
+    """A single query-document relevance score."""
 
-    id: str
     corpus_name: str
     dataset_name: str
+
+
+@dataclass
+class BulkQuery:
+    """A single query for bulk insertion."""
+
+    id: str
     text: str
     description: str | None
+
+
+@dataclass
+class Query(BulkQuery):
+    """A single query."""
+
+    corpus_name: str
+    dataset_name: str
 
 
 @dataclass
@@ -39,13 +51,19 @@ class QueryWithRelevanceInfo(Query):
 
 
 @dataclass
-class Document:
-    """A single document."""
+class BulkDocument:
+    """A single document for bulk insertion."""
 
     id: str
-    corpus_name: str
     title: str | None
     text: str
+
+
+@dataclass
+class Document(BulkDocument):
+    """A single document."""
+
+    corpus_name: str
 
 
 @dataclass

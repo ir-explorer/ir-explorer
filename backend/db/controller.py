@@ -1,22 +1,24 @@
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from litestar import Controller, get, post
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
-from sqlalchemy import and_, func, insert, literal_column, select
+from sqlalchemy import and_, func, insert, literal_column, select, text
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import joinedload
 
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
 from models import (
+    BulkDocument,
+    BulkQRel,
+    BulkQuery,
     Dataset,
     Document,
     DocumentSearchHit,
     DocumentWithRelevance,
-    QRel,
-    Query,
     QueryWithRelevanceInfo,
 )
 
@@ -72,97 +74,135 @@ class DBController(Controller):
                 extra=data.__dict__,
             )
 
-    @post(path="/add_query")
-    async def add_query(self, data: Query, transaction: "AsyncSession") -> None:
-        """Insert a new query into the database.
+    @post(path="/add_queries")
+    async def add_queries(
+        self,
+        dataset_name: str,
+        corpus_name: str,
+        data: Sequence[BulkQuery],
+        transaction: "AsyncSession",
+    ) -> None:
+        """Insert new queries into the database.
 
-        :param data: The query to insert.
+        :param dataset_name: The dataset the queries belong to.
+        :param corpus_name: The corpus the dataset belongs to.
+        :param data: The queries to insert.
         :param transaction: A DB transaction.
-        :raises HTTPException: When the query cannot be added to the database.
+        :raises HTTPException: When the queries cannot be added to the database.
         """
+        dataset_cte = (
+            select(ORMDataset)
+            .join(ORMCorpus)
+            .where(
+                and_(
+                    ORMDataset.name == dataset_name,
+                    ORMCorpus.name == corpus_name,
+                )
+            )
+        ).cte()
         sql = insert(ORMQuery).values(
-            {
-                "id": data.id,
-                "dataset_id": select(ORMDataset.id)
-                .join(ORMCorpus)
-                .where(
-                    and_(
-                        ORMDataset.name == data.dataset_name,
-                        ORMCorpus.name == data.corpus_name,
-                    )
-                ),
-                "text": data.text,
-                "description": data.description,
-            }
+            [
+                {
+                    "id": q.id,
+                    "dataset_id": select(dataset_cte.c.id),
+                    "text": q.text,
+                    "description": q.description,
+                }
+                for q in data
+            ]
         )
 
         try:
             await transaction.execute(sql)
-        except IntegrityError:
+        except IntegrityError as e:
             raise HTTPException(
-                "Failed to add query.",
+                "Failed to add queries.",
                 status_code=HTTP_409_CONFLICT,
-                extra=data.__dict__,
+                extra={"code": e.code},
             )
 
-    @post(path="/add_document")
-    async def add_document(self, data: Document, transaction: "AsyncSession") -> None:
-        """Insert a new document into the database.
+    @post(path="/add_documents")
+    async def add_documents(
+        self,
+        corpus_name: str,
+        data: Sequence[BulkDocument],
+        transaction: "AsyncSession",
+    ) -> None:
+        """Insert new documents into the database.
 
-        :param data: The document to insert.
+        :param corpus_name: The corpus the documents belong to.
+        :param data: The documents to insert.
         :param transaction: A DB transaction.
-        :raises HTTPException: When the document cannot be added to the database.
+        :raises HTTPException: When the documents cannot be added to the database.
         """
+        corpus_cte = (select(ORMCorpus).where(ORMCorpus.name == corpus_name)).cte()
         sql = insert(ORMDocument).values(
-            {
-                "id": data.id,
-                "corpus_id": select(ORMCorpus.id).filter_by(name=data.corpus_name),
-                "title": data.title,
-                "text": data.text,
-            }
+            [
+                {
+                    "id": doc.id,
+                    "corpus_id": select(corpus_cte.c.id),
+                    "title": doc.title,
+                    "text": doc.text,
+                }
+                for doc in data
+            ]
         )
 
         try:
             await transaction.execute(sql)
-        except IntegrityError:
+        except IntegrityError as e:
             raise HTTPException(
-                "Failed to add Document.",
+                "Failed to add Documents.",
                 status_code=HTTP_409_CONFLICT,
-                extra=data.__dict__,
+                extra={"code": e.code},
             )
 
-    @post(path="/add_qrel")
-    async def add_qrel(self, data: QRel, transaction: "AsyncSession") -> None:
-        """Insert a new query-document relevance into the database.
+    @post(path="/add_qrels")
+    async def add_qrels(
+        self,
+        dataset_name: str,
+        corpus_name: str,
+        data: Sequence[BulkQRel],
+        transaction: "AsyncSession",
+    ) -> None:
+        """Insert QRels into the database.
 
-        :param data: The QRel to insert.
+        :param dataset_name: The dataset the QRels belong to.
+        :param corpus_name: The corpus the dataset belongs to.
+        :param data: The QRels to insert.
         :param transaction: A DB transaction.
-        :raises HTTPException: When the QRel cannot be added to the database.
+        :raises HTTPException: When the QRels cannot be added to the database.
         """
+        dataset_cte = (
+            select(ORMDataset)
+            .join(ORMCorpus)
+            .where(
+                and_(
+                    ORMDataset.name == dataset_name,
+                    ORMCorpus.name == corpus_name,
+                )
+            )
+        ).cte()
         sql = insert(ORMQRel).values(
-            {
-                "query_id": data.query_id,
-                "document_id": data.document_id,
-                "corpus_id": select(ORMCorpus.id).filter_by(name=data.corpus_name),
-                "dataset_id": select(ORMDataset.id)
-                .join(ORMCorpus)
-                .where(
-                    and_(
-                        ORMCorpus.name == data.corpus_name,
-                        ORMDataset.name == data.dataset_name,
-                    )
-                ),
-                "relevance": data.relevance,
-            }
+            [
+                {
+                    "query_id": qrel.query_id,
+                    "document_id": qrel.document_id,
+                    "corpus_id": select(dataset_cte.c.corpus_id),
+                    "dataset_id": select(dataset_cte.c.id),
+                    "relevance": qrel.relevance,
+                }
+                for qrel in data
+            ]
         )
 
         try:
             await transaction.execute(sql)
-        except IntegrityError:
+        except IntegrityError as e:
             raise HTTPException(
-                "Failed to add QRel.",
+                "Failed to add QRels.",
                 status_code=HTTP_409_CONFLICT,
-                extra=data.__dict__,
+                extra={"code": e.code},
             )
 
     @get(path="/get_queries")
