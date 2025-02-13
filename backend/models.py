@@ -15,6 +15,7 @@ class Dataset:
 
     name: str
     corpus_name: str
+    min_relevance: int
 
 
 @dataclass

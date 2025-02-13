@@ -75,6 +75,7 @@ class DBController(Controller):
             {
                 "name": data.name,
                 "corpus_id": select(ORMCorpus.id).filter_by(name=data.corpus_name),
+                "min_relevance": data.min_relevance,
             }
         )
 
@@ -260,6 +261,7 @@ class DBController(Controller):
             Dataset(
                 name=dataset.name,
                 corpus_name=corpus_name,
+                min_relevance=dataset.min_relevance,
             )
             for dataset in result
         ]
@@ -279,7 +281,13 @@ class DBController(Controller):
             select(ORMQuery, func.count(ORMQRel.document_id))
             .join(ORMDataset)
             .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
-            .outerjoin(ORMQRel)
+            .outerjoin(
+                ORMQRel,
+                and_(
+                    ORMQRel.query_id == ORMQuery.id,
+                    ORMQRel.relevance >= ORMDataset.min_relevance,
+                ),
+            )
             .where(
                 and_(
                     ORMCorpus.name == corpus_name,
@@ -322,7 +330,13 @@ class DBController(Controller):
             select(ORMQuery, func.count(ORMQRel.document_id))
             .join(ORMDataset)
             .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
-            .outerjoin(ORMQRel)
+            .outerjoin(
+                ORMQRel,
+                and_(
+                    ORMQRel.query_id == ORMQuery.id,
+                    ORMQRel.relevance >= ORMDataset.min_relevance,
+                ),
+            )
             .where(
                 and_(
                     ORMQuery.id == query_id,
@@ -332,6 +346,7 @@ class DBController(Controller):
             )
             .group_by(ORMQuery.id, ORMQuery.dataset_id)
         )
+        print(sql)
 
         try:
             db_query, num_rel_docs = (await transaction.execute(sql)).one()
@@ -381,6 +396,7 @@ class DBController(Controller):
                     ORMQRel.query_id == query_id,
                     ORMDataset.name == dataset_name,
                     ORMCorpus.name == corpus_name,
+                    ORMQRel.relevance >= ORMDataset.min_relevance,
                 )
             )
         )

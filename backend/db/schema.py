@@ -42,6 +42,7 @@ class ORMDataset(ORMBase):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str]
     corpus_id: Mapped[int] = mapped_column(ForeignKey("corpora.id"))
+    min_relevance: Mapped[int]
 
     corpus: Mapped[ORMCorpus] = relationship(back_populates="datasets")
 
