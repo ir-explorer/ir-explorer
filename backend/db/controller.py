@@ -4,7 +4,7 @@ from litestar import Controller, get, post
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
-from sqlalchemy import and_, desc, func, insert, select
+from sqlalchemy import and_, desc, func, insert, select, text
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import joinedload
 
@@ -32,6 +32,16 @@ class DBController(Controller):
     """Controller that handles database related API endpoints."""
 
     dependencies = {"transaction": Provide(provide_transaction)}
+
+    @get(path="/get_available_languages")
+    async def get_available_languages(self, transaction: "AsyncSession") -> list[str]:
+        """List all corpus languages supported by the DB engine (for full-text search).
+
+        :return: All available languages.
+        """
+        sql = text("SELECT cfgname FROM pg_catalog.pg_ts_config;")
+        result = (await transaction.execute(sql)).scalars().all()
+        return list(result)
 
     @post(path="/create_corpus")
     async def create_corpus(self, transaction: "AsyncSession", data: Corpus) -> None:
@@ -149,6 +159,7 @@ class DBController(Controller):
                     "corpus_id": select(corpus_cte.c.id),
                     "title": doc.title,
                     "text": doc.text,
+                    "language": select(corpus_cte.c.language),
                 }
                 for doc in data
             ]

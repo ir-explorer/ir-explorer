@@ -6,7 +6,6 @@ from sqlalchemy import (
     Index,
     UniqueConstraint,
     func,
-    literal_column,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
@@ -15,7 +14,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from db.types import TSVectorType
+from db.types import RegConfigType, TSVectorType
 
 ORMBase = declarative_base()
 
@@ -27,7 +26,9 @@ class ORMCorpus(ORMBase):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(unique=True)
-    language: Mapped[str]
+
+    # language used to construct TSVectors
+    language: Mapped[str] = mapped_column(RegConfigType())
 
     datasets: Mapped[list["ORMDataset"]] = relationship(back_populates="corpus")
 
@@ -72,12 +73,14 @@ class ORMDocument(ORMBase):
     corpus: Mapped["ORMCorpus"] = relationship()
     qrels: Mapped[list["ORMQRel"]] = relationship(back_populates="document")
 
+    # language used to construct TSVectors; maintaining this column seems to be the only
+    # way to allow for multiple languages within one table
+    language = Column(RegConfigType())
+
     # full-text search column
     text_tsv = Column(
         TSVectorType(text.column),
-        Computed(
-            func.to_tsvector(literal_column("'english'"), text.column), persisted=True
-        ),
+        Computed(func.to_tsvector(language, text.column), persisted=True),
     )
 
     __table_args__ = (

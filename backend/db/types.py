@@ -1,6 +1,6 @@
 from typing import Any
 
-from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.dialects.postgresql import REGCONFIG, TSVECTOR
 from sqlalchemy.types import TypeDecorator
 
 
@@ -16,6 +16,23 @@ class TSVectorType(TypeDecorator):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize a TSVector type.
+
+        :param args: Columns.
+        :param kwargs: Options.
+        """
+        self.columns = args
+        self.options = kwargs
+        super().__init__()
+
+
+class RegConfigType(TypeDecorator):
+    """RegConfig type for full-text search."""
+
+    impl = REGCONFIG
+    cache_ok = True
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize a RegConfig type.
 
         :param args: Columns.
         :param kwargs: Options.
