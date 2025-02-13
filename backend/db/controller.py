@@ -5,7 +5,7 @@ from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 from sqlalchemy import and_, desc, func, insert, select, text
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
 from sqlalchemy.orm import joinedload
 
 from db import provide_transaction
@@ -55,11 +55,11 @@ class DBController(Controller):
 
         try:
             await transaction.execute(sql)
-        except IntegrityError as e:
+        except (IntegrityError, ProgrammingError) as e:
             raise HTTPException(
                 "Failed to add corpus.",
                 status_code=HTTP_409_CONFLICT,
-                extra={"corpus_name": data.name, "code": e.code},
+                extra={"corpus_name": data.name, "error_code": e.code},
             )
 
     @post(path="/create_dataset")
@@ -86,7 +86,7 @@ class DBController(Controller):
                 extra={
                     "name": data.name,
                     "corpus_name": data.corpus_name,
-                    "code": e.code,
+                    "error_code": e.code,
                 },
             )
 
@@ -134,7 +134,7 @@ class DBController(Controller):
             raise HTTPException(
                 "Failed to add queries.",
                 status_code=HTTP_409_CONFLICT,
-                extra={"code": e.code},
+                extra={"error_code": e.code},
             )
 
     @post(path="/add_documents")
@@ -171,7 +171,7 @@ class DBController(Controller):
             raise HTTPException(
                 "Failed to add Documents.",
                 status_code=HTTP_409_CONFLICT,
-                extra={"code": e.code},
+                extra={"error_code": e.code},
             )
 
     @post(path="/add_qrels")
@@ -219,7 +219,7 @@ class DBController(Controller):
             raise HTTPException(
                 "Failed to add QRels.",
                 status_code=HTTP_409_CONFLICT,
-                extra={"code": e.code},
+                extra={"error_code": e.code},
             )
 
     @get(path="/get_corpora")
@@ -429,7 +429,7 @@ class DBController(Controller):
                 extra={
                     "document_id": document_id,
                     "corpus_name": corpus_name,
-                    "code": e.code,
+                    "error_code": e.code,
                 },
             )
         return Document(result.id, corpus_name, result.title, result.text)
