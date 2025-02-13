@@ -4,7 +4,7 @@ from litestar import Controller, get, post
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
-from sqlalchemy import and_, func, insert, literal_column, select
+from sqlalchemy import and_, desc, func, insert, select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import joinedload
 
@@ -439,20 +439,19 @@ class DBController(Controller):
         :param num_results: How many documents to return.
         :return: The resulting documents (ordered by score).
         """
-        tsv_text = func.to_tsvector(literal_column("'english'"), ORMDocument.text)
-        tsv_search = func.websearch_to_tsquery("english", search)
-        ts_rank = func.ts_rank_cd(tsv_text, tsv_search)
+        ts_query = func.websearch_to_tsquery("english", search)
+        ts_rank = func.ts_rank_cd(ORMDocument.text_tsv, ts_query)
 
         sql = (
             select(ORMDocument, ts_rank.label("rank"))
             .join(ORMCorpus)
             .where(
                 and_(
-                    tsv_text.bool_op("@@")(tsv_search),
+                    ORMDocument.text_tsv.bool_op("@@")(ts_query),
                     ORMCorpus.name == corpus_name,
                 )
             )
-            .order_by("rank")
+            .order_by(desc("rank"))
             .limit(num_results)
         )
         result = (await transaction.execute(sql)).all()

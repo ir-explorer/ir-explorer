@@ -1,4 +1,6 @@
 from sqlalchemy import (
+    Column,
+    Computed,
     ForeignKey,
     ForeignKeyConstraint,
     Index,
@@ -12,6 +14,8 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
+
+from db.types import TSVectorType
 
 ORMBase = declarative_base()
 
@@ -68,12 +72,17 @@ class ORMDocument(ORMBase):
     corpus: Mapped["ORMCorpus"] = relationship()
     qrels: Mapped[list["ORMQRel"]] = relationship(back_populates="document")
 
-    __table_args__ = (
-        Index(
-            "idx_tsv_text",
-            func.to_tsvector(literal_column("'english'"), text.column),
-            postgresql_using="gin",
+    # full-text search column
+    text_tsv = Column(
+        TSVectorType(text.column),
+        Computed(
+            func.to_tsvector(literal_column("'english'"), text.column), persisted=True
         ),
+    )
+
+    __table_args__ = (
+        # full-text search index
+        Index("text_tsv_gin", text_tsv, postgresql_using="gin"),
     )
 
 
