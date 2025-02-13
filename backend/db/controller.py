@@ -346,7 +346,6 @@ class DBController(Controller):
             )
             .group_by(ORMQuery.id, ORMQuery.dataset_id)
         )
-        print(sql)
 
         try:
             db_query, num_rel_docs = (await transaction.execute(sql)).one()

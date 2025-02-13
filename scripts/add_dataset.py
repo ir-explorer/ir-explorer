@@ -14,6 +14,7 @@ def main():
     ap.add_argument("CORPUS_NAME", type=str)
     ap.add_argument("--batch_size", type=int, default=2**10)
     ap.add_argument("--language", default="english")
+    ap.add_argument("--min_relevance", type=int, default=1)
     args = ap.parse_args()
 
     requests.post(
@@ -22,7 +23,11 @@ def main():
     )
     requests.post(
         BASE_URL + "/create_dataset",
-        json={"name": args.DATASET_NAME, "corpus_name": args.CORPUS_NAME},
+        json={
+            "name": args.DATASET_NAME,
+            "corpus_name": args.CORPUS_NAME,
+            "min_relevance": args.min_relevance,
+        },
     )
 
     ds = ir_datasets.load(args.DATASET_NAME)
