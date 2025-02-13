@@ -19,6 +19,7 @@ from models import (
     Document,
     DocumentSearchHit,
     DocumentWithRelevance,
+    Query,
     QueryWithRelevanceInfo,
 )
 
@@ -433,6 +434,50 @@ class DBController(Controller):
                 },
             )
         return Document(result.id, corpus_name, result.title, result.text)
+
+    @get(path="/search_queries")
+    async def search_queries(
+        self,
+        transaction: "AsyncSession",
+        corpus_name: str,
+        dataset_name: str,
+        search: str,
+        num_results: int = 5,
+    ) -> list[Query]:
+        """Search queries within a dataset.
+
+        :param transaction: A DB transaction.
+        :param corpus_name: The corpus name.
+        :param dataset_name: The dataset name.
+        :param search: The search string.
+        :param num_results: How many queries to return.
+        :return: The resulting queries.
+        """
+        sql = (
+            select(ORMQuery)
+            .join(ORMDataset)
+            .join(ORMCorpus)
+            .where(
+                and_(
+                    ORMQuery.text.match(search),
+                    ORMDataset.name == dataset_name,
+                    ORMCorpus.name == corpus_name,
+                )
+            )
+            .limit(num_results)
+        )
+        result = (await transaction.execute(sql)).scalars().all()
+
+        return [
+            Query(
+                id=query.id,
+                text=query.text,
+                description=query.description,
+                corpus_name=corpus_name,
+                dataset_name=dataset_name,
+            )
+            for query in result
+        ]
 
     @get(path="/search_documents")
     async def search_documents(
