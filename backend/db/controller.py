@@ -41,6 +41,7 @@ class DBController(Controller):
         :return: All available languages.
         """
         sql = text("SELECT cfgname FROM pg_catalog.pg_ts_config;")
+
         result = (await transaction.execute(sql)).scalars().all()
         return list(result)
 
@@ -232,6 +233,7 @@ class DBController(Controller):
         :return: All corpora.
         """
         sql = select(ORMCorpus)
+
         result = (await transaction.execute(sql)).scalars().all()
         return [
             Corpus(
@@ -252,18 +254,19 @@ class DBController(Controller):
         :return: All datasets.
         """
         sql = (
-            select(ORMDataset)
-            .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
-            .where(ORMCorpus.name == corpus_name)
+            select(ORMCorpus)
+            .filter_by(name=corpus_name)
+            .options(joinedload(ORMCorpus.datasets))
         )
-        result = (await transaction.execute(sql)).scalars().all()
+
+        result = (await transaction.execute(sql)).unique().scalar_one()
         return [
             Dataset(
                 name=dataset.name,
                 corpus_name=corpus_name,
                 min_relevance=dataset.min_relevance,
             )
-            for dataset in result
+            for dataset in result.datasets
         ]
 
     @get(path="/get_queries")
@@ -296,6 +299,7 @@ class DBController(Controller):
             )
             .group_by(ORMQuery.id, ORMQuery.dataset_id)
         )
+
         result = (await transaction.execute(sql)).all()
         return [
             QueryWithRelevanceInfo(
@@ -359,7 +363,6 @@ class DBController(Controller):
                     "corpus_name": corpus_name,
                 },
             )
-
         return QueryWithRelevanceInfo(
             id=db_query.id,
             corpus_name=corpus_name,
@@ -401,7 +404,6 @@ class DBController(Controller):
         )
 
         result = (await transaction.execute(sql)).scalars()
-
         return [
             DocumentWithRelevance(
                 id=qrel.document.id,
@@ -436,6 +438,7 @@ class DBController(Controller):
                 )
             )
         )
+
         try:
             result = (await transaction.execute(sql)).scalar_one()
         except NoResultFound as e:
@@ -481,8 +484,8 @@ class DBController(Controller):
             )
             .limit(num_results)
         )
-        result = (await transaction.execute(sql)).scalars().all()
 
+        result = (await transaction.execute(sql)).scalars().all()
         return [
             Query(
                 id=query.id,
@@ -528,8 +531,8 @@ class DBController(Controller):
             .order_by(desc("score"))
             .limit(num_results)
         )
-        result = (await transaction.execute(sql)).all()
 
+        result = (await transaction.execute(sql)).all()
         return [
             DocumentSearchHit(
                 id=doc.id,
