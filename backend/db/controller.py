@@ -510,19 +510,22 @@ class DBController(Controller):
         :param num_results: How many documents to return.
         :return: The resulting documents (ordered by score).
         """
-        ts_query = func.websearch_to_tsquery("english", search)
+        ts_query = func.websearch_to_tsquery(
+            select(ORMCorpus.language).filter_by(name=corpus_name).scalar_subquery(),
+            search,
+        )
         ts_rank = func.ts_rank_cd(ORMDocument.text_tsv, ts_query)
 
         sql = (
-            select(ORMDocument, ts_rank.label("rank"))
+            select(ORMDocument, ts_rank.label("score"))
             .join(ORMCorpus)
             .where(
                 and_(
-                    ORMDocument.text_tsv.bool_op("@@")(ts_query),
                     ORMCorpus.name == corpus_name,
-                )
+                    ORMDocument.text_tsv.bool_op("@@")(ts_query),
+                ),
             )
-            .order_by(desc("rank"))
+            .order_by(desc("score"))
             .limit(num_results)
         )
         result = (await transaction.execute(sql)).all()
