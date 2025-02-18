@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING
 
-from litestar import Controller, get, post
+from litestar import Controller, delete, get, post
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 from sqlalchemy import and_, desc, func, insert, select, text
+from sqlalchemy import delete as delete_
 from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
 from sqlalchemy.orm import joinedload
 
@@ -154,7 +155,7 @@ class DBController(Controller):
         :param data: The documents to insert.
         :raises HTTPException: When the documents cannot be added to the database.
         """
-        corpus_cte = (select(ORMCorpus).where(ORMCorpus.name == corpus_name)).cte()
+        corpus_cte = select(ORMCorpus).where(ORMCorpus.name == corpus_name).cte()
         sql = insert(ORMDocument).values(
             [
                 {
@@ -543,3 +544,50 @@ class DBController(Controller):
             )
             for doc, score in result
         ]
+
+    @delete(path="/remove_dataset")
+    async def remove_dataset(
+        self, transaction: "AsyncSession", corpus_name: str, dataset_name: str
+    ) -> None:
+        """Remove a dataset and its associated queries and QRels.
+
+        :param transaction: A DB transaction.
+        :param corpus_name: The name of the corpus the dataset is in.
+        :param dataset_name: The name of the dataset to remove.
+        """
+        dataset_id = (
+            select(ORMDataset.id)
+            .join(ORMCorpus)
+            .where(and_(ORMDataset.name == dataset_name, ORMCorpus.name == corpus_name))
+        ).scalar_subquery()
+        sql_del_qrels = delete_(ORMQRel).filter_by(dataset_id=dataset_id)
+        sql_del_queries = delete_(ORMQuery).filter_by(dataset_id=dataset_id)
+        sql_del_dataset = delete_(ORMDataset).filter_by(id=dataset_id)
+
+        await transaction.execute(sql_del_qrels)
+        await transaction.execute(sql_del_queries)
+        await transaction.execute(sql_del_dataset)
+
+    @delete(path="/remove_corpus")
+    async def remove_corpus(
+        self, transaction: "AsyncSession", corpus_name: str
+    ) -> None:
+        """Remove a corpus and its associated documents.
+
+        :param transaction: A DB transaction.
+        :param corpus_name: The name of the corpus to remove.
+        :raises HTTPException: When the corpus cannot be removed.
+        """
+        corpus_id = select(ORMCorpus.id).filter_by(name=corpus_name).scalar_subquery()
+        sql_del_documents = delete_(ORMDocument).filter_by(corpus_id=corpus_id)
+        sql_del_corpus = delete_(ORMCorpus).filter_by(name=corpus_name)
+
+        try:
+            await transaction.execute(sql_del_documents)
+            await transaction.execute(sql_del_corpus)
+        except IntegrityError as e:
+            raise HTTPException(
+                "Failed to remove corpus.",
+                status_code=HTTP_409_CONFLICT,
+                extra={"corpus_name": corpus_name, "error_code": e.code},
+            )
