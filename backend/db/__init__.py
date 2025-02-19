@@ -39,11 +39,11 @@ async def provide_transaction(
 CONFIG = SQLAlchemyAsyncConfig(
     connection_string=URL.create(
         drivername="postgresql+asyncpg",
-        username=os.environ.get("PG_USER", "pg"),
-        password=os.environ.get("PG_PASSWORD", "pg"),
-        host=os.environ.get("PG_HOST", "localhost"),
-        port=int(os.environ.get("PG_PORT", "5432")),
-        database=os.environ.get("PG_DB", "ir-ex"),
+        username=os.environ.get("POSTGRES_USER", "pg"),
+        password=os.environ.get("POSTGRES_PASSWORD", "pg"),
+        host=os.environ.get("POSTGRES_HOST", "localhost"),
+        port=int(os.environ.get("POSTGRES_PORT", "5432")),
+        database=os.environ.get("POSTGRES_DB", "ir-ex"),
     ).__to_string__(hide_password=False),
     metadata=ORMBase.metadata,
     create_all=True,
