@@ -574,10 +574,12 @@ class DBController(Controller):
     ) -> None:
         """Remove a corpus and its associated documents.
 
+        Any associated datasets must be removed first.
+
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus to remove.
         :raises HTTPException: When the corpus still has associated datasets.
-        :raises HTTPException: When the corpus cannot be removed.
+        :raises HTTPException: When the corpus cannot be removed for other reasons.
         """
         sql_corpus = (
             select(ORMCorpus)
