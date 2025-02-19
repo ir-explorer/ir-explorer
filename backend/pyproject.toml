@@ -1,0 +1,61 @@
+[project]
+name = "ir-explorer-backend"
+version = "0.1.0"
+description = "Backend for IR-Explorer"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "advanced-alchemy>=0.30.3",
+    "asyncpg>=0.30.0",
+    "greenlet>=3.1.1",
+    "litestar>=2.14.0",
+    "sqlalchemy>=2.0.37",
+    "uvicorn>=0.34.0",
+]
+
+[tool.pyright]
+ignore = ["tests"]
+typeCheckingMode = "standard"
+useLibraryCodeForTypes = true
+reportMissingParameterType = true
+
+[dependency-groups]
+dev = ["pyright>=1.1.391", "ruff>=0.9.1"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+exclude = ["tests/*"]
+select = [
+    "F",   # Pyflakes
+    "E",   # pycodestyle
+    "W",   # pycodestyle
+    "I",   # isort
+    "N",   # pep8-naming
+    "D",   # pydocstyle
+    "UP",  # pyupgrade
+    "ANN", # flake8-annotations
+    "ICN", # flake8-import-conventions
+    "LOG", # flake8-logging
+    "G",   # flake8-logging-format
+    "RET", # flake8-return
+    "TID", # flake8-tidy-imports
+    "TC",  # flake8-type-checking
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "PL",  # Pylint
+]
+ignore = [
+    "N803",    # invalid-argument-name
+    "N806",    # non-lowercase-variable-in-function
+    "D100",    # undocumented-public-module
+    "D203",    # one-blank-line-before-class
+    "D213",    # multi-line-summary-second-line
+    "ANN401",  # any-type
+    "PLR0913", # too-many-arguments
+    "PLR2004", # magic-value-comparison
+]
+
+[tool.ruff.lint.flake8-type-checking]
+quote-annotations = true
