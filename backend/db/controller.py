@@ -576,11 +576,24 @@ class DBController(Controller):
 
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus to remove.
+        :raises HTTPException: When the corpus still has associated datasets.
         :raises HTTPException: When the corpus cannot be removed.
         """
-        corpus_id = select(ORMCorpus.id).filter_by(name=corpus_name).scalar_subquery()
-        sql_del_documents = delete_(ORMDocument).filter_by(corpus_id=corpus_id)
-        sql_del_corpus = delete_(ORMCorpus).filter_by(name=corpus_name)
+        sql_corpus = (
+            select(ORMCorpus)
+            .options(joinedload(ORMCorpus.datasets))
+            .filter_by(name=corpus_name)
+        )
+        corpus = (await transaction.execute(sql_corpus)).unique().scalar_one()
+        if len(corpus.datasets) > 0:
+            raise HTTPException(
+                "Associated datasets must be removed first.",
+                status_code=HTTP_409_CONFLICT,
+                extra={"corpus_name": corpus_name},
+            )
+
+        sql_del_documents = delete_(ORMDocument).filter_by(corpus_id=corpus.id)
+        sql_del_corpus = delete_(ORMCorpus).filter_by(id=corpus.id)
 
         try:
             await transaction.execute(sql_del_documents)
