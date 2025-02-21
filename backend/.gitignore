@@ -99,8 +99,3 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-
-# VS Code
-.vscode/
-
-.DS_Store
