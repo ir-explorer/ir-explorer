@@ -5,6 +5,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    restart: always
+    develop:
+      watch:
+        - action: sync+restart
+          path: backend/app
+          target: /backend/app
+        - action: rebuild
+          path: backend/pyproject.toml
     ports:
       - "8000:8000"
     environment:

@@ -1,5 +1,5 @@
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
-ADD . /app
-WORKDIR /app
+COPY . /backend
+WORKDIR /backend
 RUN uv sync
-CMD [ "uv", "run", "litestar", "run", "-H", "0.0.0.0" ]
+CMD [ "uv", "run", "litestar", "--app-dir", "app", "run", "-H", "0.0.0.0", "-d" ]
