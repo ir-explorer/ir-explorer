@@ -4,13 +4,6 @@ from litestar import Controller, delete, get, post
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
-from sqlalchemy import and_, desc, func, insert, select, text
-from sqlalchemy import delete as delete_
-from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
-from sqlalchemy.orm import joinedload
-
-from db import provide_transaction
-from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
 from models import (
     BulkDocument,
     BulkQRel,
@@ -23,6 +16,13 @@ from models import (
     Query,
     QueryWithRelevanceInfo,
 )
+from sqlalchemy import and_, desc, func, insert, select, text
+from sqlalchemy import delete as delete_
+from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
+from sqlalchemy.orm import joinedload
+
+from db import provide_transaction
+from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
