@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
+import { BACKEND_REST_URL } from "$lib/util.js";
 
 export const load: PageServerLoad = async ({ fetch, params, url }) => {
   const query_string = url.searchParams.get("q");
@@ -9,7 +10,8 @@ export const load: PageServerLoad = async ({ fetch, params, url }) => {
   }
 
   const request =
-    "http://127.0.0.1:8000/search_documents?" +
+    BACKEND_REST_URL +
+    "/search_documents?" +
     new URLSearchParams({
       corpus_name: params.corpus,
       search: query_string,

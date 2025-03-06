@@ -1,6 +1,7 @@
+import { BACKEND_REST_URL } from "$lib/util.js";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ fetch }) => {
-  const response = await fetch("http://127.0.0.1:8000/get_corpora");
+  const response = await fetch(BACKEND_REST_URL + "/get_corpora");
   return { corpora: await response.json() };
 };
