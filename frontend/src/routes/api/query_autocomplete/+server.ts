@@ -6,18 +6,23 @@ export async function GET({ url }) {
   const input = url.searchParams.get("input");
   const num_results = url.searchParams.get("num_results");
 
-  if (corpus === null || dataset === null || input === null) {
+  if (corpus === null || input === null) {
     error(400);
   }
 
+  var params = new URLSearchParams({
+    corpus_name: corpus,
+    search: input,
+  });
+  if (dataset !== null) {
+    params.append("dataset_name", dataset);
+  }
+  if (num_results !== null) {
+    params.append("num_results", num_results);
+  }
+
   const response = await fetch(
-    "http://127.0.0.1:8000/search_queries?" +
-      new URLSearchParams({
-        corpus_name: corpus,
-        dataset_name: dataset,
-        search: input,
-        num_results: num_results === null ? "5" : num_results,
-      })
+    "http://127.0.0.1:8000/search_queries?" + params
   );
   return response;
 }
