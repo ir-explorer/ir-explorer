@@ -458,17 +458,17 @@ class DBController(Controller):
     async def search_queries(
         self,
         transaction: "AsyncSession",
-        corpus_name: str,
-        dataset_name: str,
         search: str,
+        corpus_name: str,
+        dataset_name: str | None = None,
         num_results: int = 5,
     ) -> list[Query]:
         """Search queries within a dataset.
 
         :param transaction: A DB transaction.
+        :param search: The search string.
         :param corpus_name: The corpus name.
         :param dataset_name: The dataset name.
-        :param search: The search string.
         :param num_results: How many queries to return.
         :return: The resulting queries.
         """
@@ -476,15 +476,18 @@ class DBController(Controller):
             select(ORMQuery)
             .join(ORMDataset)
             .join(ORMCorpus)
+            .options(joinedload(ORMQuery.dataset))
             .where(
                 and_(
                     ORMQuery.text.match(search),
-                    ORMDataset.name == dataset_name,
                     ORMCorpus.name == corpus_name,
                 )
             )
-            .limit(num_results)
         )
+
+        if dataset_name is not None:
+            sql = sql.where(ORMDataset.name == dataset_name)
+        sql = sql.limit(num_results)
 
         result = (await transaction.execute(sql)).scalars().all()
         return [
@@ -493,7 +496,7 @@ class DBController(Controller):
                 text=query.text,
                 description=query.description,
                 corpus_name=corpus_name,
-                dataset_name=dataset_name,
+                dataset_name=query.dataset.name,
             )
             for query in result
         ]
