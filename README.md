@@ -12,13 +12,17 @@
 
 ## Running with Docker
 
-The backend and database can be run easily with Docker:
+The application can easily be run with Docker:
 
 ```bash
 docker compose up --watch
 ```
 
-The backend REST API is made available on port `8000`:
+The frontend can then be accessed via port `8080`:
+
+- http://127.0.0.1:8080
+
+The backend REST API is available on port `8000`:
 
 - http://127.0.0.1:8000/schema/
 - http://127.0.0.1:8000/schema/swagger
