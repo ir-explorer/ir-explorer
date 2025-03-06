@@ -1,10 +1,11 @@
+import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ fetch, params, url }) => {
   const query_string = url.searchParams.get("q");
 
   if (query_string === null) {
-    return {};
+    redirect(307, "/search");
   }
 
   const request =
