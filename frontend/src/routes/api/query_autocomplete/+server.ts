@@ -1,3 +1,4 @@
+import { BACKEND_REST_URL } from "$lib/util.js";
 import { error } from "@sveltejs/kit";
 
 export async function GET({ url }) {
@@ -21,8 +22,6 @@ export async function GET({ url }) {
     params.append("num_results", num_results);
   }
 
-  const response = await fetch(
-    "http://127.0.0.1:8000/search_queries?" + params
-  );
+  const response = await fetch(BACKEND_REST_URL + "/search_queries?" + params);
   return response;
 }

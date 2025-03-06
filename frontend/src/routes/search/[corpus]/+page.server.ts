@@ -1,6 +1,6 @@
+import { BACKEND_REST_URL } from "$lib/util.js";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { BACKEND_REST_URL } from "$lib/util.js";
 
 export const load: PageServerLoad = async ({ fetch, params, url }) => {
   const query_string = url.searchParams.get("q");
