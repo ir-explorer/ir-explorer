@@ -1,27 +1,22 @@
-import { BACKEND_REST_URL } from "$lib/server/backend";
-import { error } from "@sveltejs/kit";
+import { autocomplete_query } from "$lib/server/backend.js";
+import { error, json } from "@sveltejs/kit";
 
 export async function GET({ url }) {
-  const corpus = url.searchParams.get("corpus");
-  const dataset = url.searchParams.get("dataset");
+  const corpus_name = url.searchParams.get("corpus");
+  const dataset_name = url.searchParams.get("datasete");
   const input = url.searchParams.get("input");
   const num_results = url.searchParams.get("num_results");
 
-  if (corpus === null || input === null) {
+  if (corpus_name === null || input === null) {
     error(400);
   }
 
-  var params = new URLSearchParams({
-    corpus_name: corpus,
-    search: input,
-  });
-  if (dataset !== null) {
-    params.append("dataset_name", dataset);
-  }
-  if (num_results !== null) {
-    params.append("num_results", num_results);
-  }
-
-  const response = await fetch(BACKEND_REST_URL + "/search_queries?" + params);
-  return response;
+  return json(
+    await autocomplete_query(
+      input,
+      corpus_name,
+      dataset_name,
+      num_results ? Number(num_results) : null
+    )
+  );
 }

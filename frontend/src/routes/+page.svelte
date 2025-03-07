@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
+  import type { Corpus } from "$lib/types";
 
   let { data }: PageProps = $props();
-  let selected_corpus: any = $state();
+  let selected_corpus: Corpus | undefined = $state();
 </script>
 
 <label for="cars">Choose a corpus:</label>

@@ -1,11 +1,6 @@
-import { BACKEND_REST_URL } from "$lib/server/backend";
+import { get_datasets } from "$lib/server/backend";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ fetch, params }) => {
-  const response = await fetch(
-    BACKEND_REST_URL +
-      "/get_datasets?" +
-      new URLSearchParams({ corpus_name: params.corpus })
-  );
-  return { datasets: await response.json() };
+export const load: PageServerLoad = async ({ params }) => {
+  return { datasets: await get_datasets(params.corpus) };
 };
