@@ -1,4 +1,4 @@
-import { BACKEND_REST_URL } from "$lib/util.js";
+import { BACKEND_REST_URL } from "$lib/server/backend";
 import { error } from "@sveltejs/kit";
 
 export async function GET({ url }) {

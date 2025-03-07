@@ -2,11 +2,15 @@
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
+  let selected_corpus: any = $state();
 </script>
 
-<p>Available corpora:</p>
-<ul>
-  {#each data["corpora"] as corpus}
-    <li>{corpus.name}</li>
+<label for="cars">Choose a corpus:</label>
+<select name="corpora" id="corpora" bind:value={selected_corpus}>
+  {#each data.corpora as corpus}
+    <option value={corpus}>{corpus.name}</option>
   {/each}
-</ul>
+</select>
+<p>
+  selected corpus: {selected_corpus ? selected_corpus.name : ""}
+</p>

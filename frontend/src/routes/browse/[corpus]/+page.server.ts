@@ -1,4 +1,4 @@
-import { BACKEND_REST_URL } from "$lib/util.js";
+import { BACKEND_REST_URL } from "$lib/server/backend";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ fetch, params }) => {
