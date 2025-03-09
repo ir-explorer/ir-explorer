@@ -10,7 +10,7 @@ services:
       timeout: 5s
       retries: 10
     ports:
-      - "8001:5432"
+      - "8102:5432"
     environment:
       - POSTGRES_USER=${POSTGRES_USER?}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
@@ -31,7 +31,7 @@ services:
         - action: rebuild
           path: backend/pyproject.toml
     ports:
-      - "8000:8000"
+      - "8103:8000"
     environment:
       - POSTGRES_USER=${POSTGRES_USER?}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
@@ -51,7 +51,7 @@ services:
         - action: rebuild
           path: frontend/package.json
     ports:
-      - "8080:5173"
+      - "8104:5173"
     environment:
       - BACKEND_HOST=backend
       - BACKEND_PORT=8000
