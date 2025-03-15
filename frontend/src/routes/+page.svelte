@@ -16,16 +16,14 @@
   );
 </script>
 
-<label for="cars">Choose a corpus:</label>
-<select name="corpora" id="corpora" bind:value={selected_corpus}>
-  {#each data.corpora as corpus}
-    <option value={corpus}>{corpus.name}</option>
-  {/each}
-</select>
-<p>
-  selected corpus: {selected_corpus ? selected_corpus.name : ""}
-</p>
-<input type="text" bind:value={search} />
-<a href={target}>
-  <button>search</button>
-</a>
+<form>
+  <select name="corpora" id="corpora" bind:value={selected_corpus}>
+    {#each data.corpora as corpus}
+      <option value={corpus}>{corpus.name}</option>
+    {/each}
+  </select>
+  <input type="text" bind:value={search} />
+  <a href={target}>
+    <button type="submit">🔍</button>
+  </a>
+</form>
