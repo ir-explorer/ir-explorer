@@ -5,9 +5,10 @@
 </script>
 
 <p>Search hits:</p>
-<ul>
-  {#each data["hits"] as hit}
-    <li>{hit.text}</li>
-    <br />
-  {/each}
-</ul>
+{#each data["hits"] as hit}
+  <div class="p-5">
+    <p>ID: {hit.id}</p>
+    <p>Score: {hit.score}</p>
+    <p>{hit.text}</p>
+  </div>
+{/each}

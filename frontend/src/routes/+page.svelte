@@ -17,13 +17,18 @@
 </script>
 
 <form>
-  <select name="corpora" id="corpora" bind:value={selected_corpus}>
+  <select
+    class="select"
+    name="corpora"
+    id="corpora"
+    bind:value={selected_corpus}
+  >
     {#each data.corpora as corpus}
       <option value={corpus}>{corpus.name}</option>
     {/each}
   </select>
-  <input type="text" bind:value={search} />
+  <input class="input" type="text" bind:value={search} />
   <a href={target}>
-    <button type="submit">🔍</button>
+    <button class="btn" type="submit">🔍</button>
   </a>
 </form>
