@@ -17,28 +17,40 @@
   let loading: boolean = $state(false);
 </script>
 
-<form>
-  <select
-    class="select"
-    name="corpora"
-    id="corpora"
-    bind:value={selectedCorpus}
-    onsubmit={() => (loading = true)}
-    disabled={loading}
-  >
-    {#each data.corpora as corpus}
-      <option value={corpus}>{corpus.name}</option>
-    {/each}
-  </select>
-  <input class="input" type="text" bind:value={search} disabled={loading} />
-  <a href={target}>
-    <button
-      class="btn"
-      type="submit"
-      disabled={search.trim().length == 0 || !selectedCorpus}
-      onclick={() => (loading = true)}
+<div class="flex flex-col w-full h-full items-center justify-center">
+  <h1 class="text-6xl m-8">IR Explorer</h1>
+  <form class="flex flex-col gap-2">
+    <div class="flex flex-row gap-2">
+      <input
+        class="input w-xl"
+        type="text"
+        bind:value={search}
+        disabled={loading}
+      />
+      <a href={target}>
+        <button
+          class="btn"
+          type="submit"
+          disabled={search.trim().length == 0 || !selectedCorpus}
+          onclick={() => (loading = true)}
+        >
+          <span class={[loading && "loading loading-infinity loading-sm"]}
+            >🔍</span
+          >
+        </button>
+      </a>
+    </div>
+    <select
+      class="select select-sm w-48"
+      name="corpora"
+      id="corpora"
+      bind:value={selectedCorpus}
+      onsubmit={() => (loading = true)}
+      disabled={loading}
     >
-      <span class={[loading && "loading loading-infinity loading-sm"]}>🔍</span>
-    </button>
-  </a>
-</form>
+      {#each data.corpora as corpus}
+        <option value={corpus}>{corpus.name}</option>
+      {/each}
+    </select>
+  </form>
+</div>
