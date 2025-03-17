@@ -24,17 +24,18 @@
     id="corpora"
     bind:value={selectedCorpus}
     onsubmit={() => (loading = true)}
+    disabled={loading}
   >
     {#each data.corpora as corpus}
       <option value={corpus}>{corpus.name}</option>
     {/each}
   </select>
-  <input class="input" type="text" bind:value={search} />
+  <input class="input" type="text" bind:value={search} disabled={loading} />
   <a href={target}>
     <button
       class="btn"
       type="submit"
-      disabled={search.trim().length == 0}
+      disabled={search.trim().length == 0 || !selectedCorpus}
       onclick={() => (loading = true)}
     >
       <span class={[loading && "loading loading-infinity loading-sm"]}>🔍</span>
