@@ -4,16 +4,17 @@
 
   let { data }: PageProps = $props();
 
-  let selected_corpus: Corpus | undefined = $state();
+  let selectedCorpus: Corpus | undefined = $state();
   let search: string = $state("");
   let target: string = $derived(
-    selected_corpus
+    selectedCorpus
       ? "/search/" +
-          selected_corpus.name +
+          selectedCorpus.name +
           "?" +
           new URLSearchParams({ q: search })
       : "/"
   );
+  let loading: boolean = $state(false);
 </script>
 
 <form>
@@ -21,7 +22,8 @@
     class="select"
     name="corpora"
     id="corpora"
-    bind:value={selected_corpus}
+    bind:value={selectedCorpus}
+    onsubmit={() => (loading = true)}
   >
     {#each data.corpora as corpus}
       <option value={corpus}>{corpus.name}</option>
@@ -29,6 +31,13 @@
   </select>
   <input class="input" type="text" bind:value={search} />
   <a href={target}>
-    <button class="btn" type="submit">🔍</button>
+    <button
+      class="btn"
+      type="submit"
+      disabled={search.trim().length == 0}
+      onclick={() => (loading = true)}
+    >
+      <span class={[loading && "loading loading-infinity loading-sm"]}>🔍</span>
+    </button>
   </a>
 </form>
