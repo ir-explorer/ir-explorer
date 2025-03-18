@@ -5,6 +5,9 @@
   let { data }: PageProps = $props();
 
   let selectedCorpus: Corpus | undefined = $state();
+  let selectedCorpusName: string = $derived(
+    selectedCorpus ? selectedCorpus.name : ""
+  );
   let search: string = $state("");
   let target: string = $derived(
     selectedCorpus
@@ -21,12 +24,15 @@
   <h1 class="text-6xl m-8">IR Explorer</h1>
   <form class="flex flex-col gap-2">
     <div class="flex flex-row gap-2">
-      <input
-        class="input w-xl"
-        type="text"
-        bind:value={search}
-        disabled={loading}
-      />
+      <label class="input w-xl">
+        <input
+          type="text"
+          placeholder="Search..."
+          bind:value={search}
+          disabled={loading}
+        />
+        <span class="label">{selectedCorpusName}</span>
+      </label>
       <a href={target}>
         <button
           class="btn w-16"
