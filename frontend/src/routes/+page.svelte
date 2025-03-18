@@ -23,23 +23,35 @@
 <div class="flex flex-col w-full h-full items-center justify-center">
   <h1 class="text-6xl m-8">IR Explorer</h1>
   <form class="flex flex-col gap-2">
-    <div class="flex flex-row gap-2">
+    <div class="flex flex-row gap-2 items-center">
       <div class="dropdown">
-        <div tabindex="0" role="button" class="btn text-lg px-4">⛭</div>
-        <div class="dropdown-content card bg-base-100 shadow-md">
+        <div
+          tabindex="0"
+          role="button"
+          class="btn text-lg/tight rounded-full w-8 h-8"
+        >
+          ⛭
+        </div>
+        <div
+          class="dropdown-content card card-border mt-2 bg-base-100 border-base-300 shadow"
+        >
           <div class="card-body">
-            <select
-              class="select select-sm w-48"
-              name="corpora"
-              id="corpora"
-              bind:value={selectedCorpus}
-              onsubmit={() => (loading = true)}
-              disabled={loading}
-            >
-              {#each data.corpora as corpus}
-                <option value={corpus}>{corpus.name}</option>
-              {/each}
-            </select>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">Settings</legend>
+              <label class="fieldset-label">Corpus</label>
+              <select
+                class="select select-sm w-48"
+                name="corpora"
+                id="corpora"
+                bind:value={selectedCorpus}
+                onsubmit={() => (loading = true)}
+                disabled={loading}
+              >
+                {#each data.corpora as corpus}
+                  <option value={corpus}>{corpus.name}</option>
+                {/each}
+              </select>
+            </fieldset>
           </div>
         </div>
       </div>
