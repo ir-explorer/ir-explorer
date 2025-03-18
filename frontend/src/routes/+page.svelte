@@ -24,6 +24,25 @@
   <h1 class="text-6xl m-8">IR Explorer</h1>
   <form class="flex flex-col gap-2">
     <div class="flex flex-row gap-2">
+      <div class="dropdown">
+        <div tabindex="0" role="button" class="btn text-lg px-4">⛭</div>
+        <div class="dropdown-content card bg-base-100 shadow-md">
+          <div class="card-body">
+            <select
+              class="select select-sm w-48"
+              name="corpora"
+              id="corpora"
+              bind:value={selectedCorpus}
+              onsubmit={() => (loading = true)}
+              disabled={loading}
+            >
+              {#each data.corpora as corpus}
+                <option value={corpus}>{corpus.name}</option>
+              {/each}
+            </select>
+          </div>
+        </div>
+      </div>
       <label class="input w-xl">
         <input
           type="text"
@@ -46,17 +65,5 @@
         </button>
       </a>
     </div>
-    <select
-      class="select select-sm w-48"
-      name="corpora"
-      id="corpora"
-      bind:value={selectedCorpus}
-      onsubmit={() => (loading = true)}
-      disabled={loading}
-    >
-      {#each data.corpora as corpus}
-        <option value={corpus}>{corpus.name}</option>
-      {/each}
-    </select>
   </form>
 </div>
