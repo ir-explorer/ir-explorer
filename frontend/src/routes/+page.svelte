@@ -29,7 +29,7 @@
       />
       <a href={target}>
         <button
-          class="btn"
+          class="btn w-16"
           type="submit"
           disabled={search.trim().length == 0 || !selectedCorpus}
           onclick={() => (loading = true)}
