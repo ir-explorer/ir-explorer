@@ -21,7 +21,7 @@
 </script>
 
 <div class="flex flex-col w-full h-full items-center justify-center">
-  <h1 class="text-6xl m-8">IR Explorer</h1>
+  <h1 class="text-6xl m-8">🔍 IR Explorer</h1>
   <form class="flex flex-col gap-2">
     <div class="flex flex-row gap-2 items-center">
       <div class="dropdown">
@@ -38,19 +38,21 @@
           <div class="card-body">
             <fieldset class="fieldset">
               <legend class="fieldset-legend">Settings</legend>
-              <label class="fieldset-label">Corpus</label>
-              <select
-                class="select select-sm w-48"
-                name="corpora"
-                id="corpora"
-                bind:value={selectedCorpus}
-                onsubmit={() => (loading = true)}
-                disabled={loading}
-              >
-                {#each data.corpora as corpus}
-                  <option value={corpus}>{corpus.name}</option>
-                {/each}
-              </select>
+              <label class="fieldset-label flex flex-col items-start"
+                >Corpus
+                <select
+                  class="select select-sm w-48"
+                  name="corpora"
+                  id="corpora"
+                  bind:value={selectedCorpus}
+                  onsubmit={() => (loading = true)}
+                  disabled={loading}
+                >
+                  {#each data.corpora as corpus}
+                    <option value={corpus}>{corpus.name}</option>
+                  {/each}
+                </select>
+              </label>
             </fieldset>
           </div>
         </div>
@@ -72,7 +74,7 @@
           onclick={() => (loading = true)}
         >
           <span class={[loading && "loading loading-infinity loading-sm"]}
-            >🔍</span
+            >Go</span
           >
         </button>
       </a>
