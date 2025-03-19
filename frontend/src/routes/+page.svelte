@@ -34,7 +34,7 @@
           ⛭
         </div>
         <div
-          class="dropdown-content card card-border mt-2 bg-base-100 border-base-300 shadow"
+          class="dropdown-content card card-border mt-2 bg-base-200 border-base-300 shadow"
         >
           <div class="card-body">
             <fieldset class="fieldset">
