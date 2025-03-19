@@ -22,7 +22,9 @@
 </script>
 
 <div class="flex flex-col w-full h-full items-center justify-center">
-  <Logo />
+  <div class="m-8">
+    <Logo textSize={"text-6xl"} />
+  </div>
   <form class="flex flex-col gap-2">
     <div class="flex flex-row gap-2 items-center">
       <div class="dropdown">
