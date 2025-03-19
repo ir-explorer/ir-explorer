@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
   import type { Corpus } from "$lib/types";
+  import Logo from "$lib/components/Logo.svelte";
 
   let { data }: PageProps = $props();
 
@@ -21,14 +22,14 @@
 </script>
 
 <div class="flex flex-col w-full h-full items-center justify-center">
-  <h1 class="text-6xl m-8">🔍 IR Explorer</h1>
+  <Logo />
   <form class="flex flex-col gap-2">
     <div class="flex flex-row gap-2 items-center">
       <div class="dropdown">
         <div
           tabindex="0"
           role="button"
-          class="btn text-lg/tight rounded-full w-8 h-8"
+          class="btn text-lg/tight rounded-full w-8 h-8 shadow"
         >
           ⛭
         </div>
@@ -57,7 +58,7 @@
           </div>
         </div>
       </div>
-      <label class="input w-xl">
+      <label class="input w-xl shadow">
         <input
           type="text"
           placeholder="Search..."
@@ -68,7 +69,7 @@
       </label>
       <a href={target}>
         <button
-          class="btn w-16"
+          class="btn w-16 shadow"
           type="submit"
           disabled={search.trim().length == 0 || !selectedCorpus}
           onclick={() => (loading = true)}
