@@ -4,7 +4,6 @@
   let { data }: PageProps = $props();
 </script>
 
-<p>Search hits:</p>
 {#each data["hits"] as hit}
   <div class="p-5">
     <p>ID: {hit.id}</p>
