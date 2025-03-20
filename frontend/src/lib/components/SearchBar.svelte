@@ -5,31 +5,20 @@
   let {
     corpora,
     searchInit = null,
-    selectedCorpusInit = null,
+    selectedCorpusNameInit = null,
   }: {
     corpora: Corpus[];
     searchInit?: string | null;
-    selectedCorpusInit?: string | null;
+    selectedCorpusNameInit?: string | null;
   } = $props();
 
-  // default to 1st corpus in the list
-  let selectedCorpus: Corpus = $state(corpora[0]);
-
-  // if there is an initial value for the corpus name, try to find the corpus
-  if (selectedCorpusInit !== null) {
-    let corpusFound = corpora.find((c) => c.name === selectedCorpusInit);
-    if (corpusFound) selectedCorpus = corpusFound;
-  }
-
-  let selectedCorpusName: string = $derived(selectedCorpus.name);
+  // if no initial corpus name is provided, default to the 1st in the list
+  let selectedCorpusName: string = $state(
+    selectedCorpusNameInit ? selectedCorpusNameInit : corpora[0].name
+  );
   let search: string = $state(searchInit ? searchInit : "");
   let target: string = $derived(
-    selectedCorpus
-      ? "/search/" +
-          selectedCorpus.name +
-          "?" +
-          new URLSearchParams({ q: search })
-      : "/"
+    "/search/" + selectedCorpusName + "?" + new URLSearchParams({ q: search })
   );
   let disabled: boolean = $derived(Boolean(navigating.to));
 </script>
@@ -54,11 +43,11 @@
                 class="select select-sm w-48"
                 name="corpora"
                 id="corpora"
-                bind:value={selectedCorpus}
+                bind:value={selectedCorpusName}
                 {disabled}
               >
                 {#each corpora as corpus}
-                  <option value={corpus}>{corpus.name}</option>
+                  <option value={corpus.name}>{corpus.name}</option>
                 {/each}
               </select>
             </label>
