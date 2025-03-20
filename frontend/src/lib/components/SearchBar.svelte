@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { Corpus } from "$lib/types";
+  import { navigating } from "$app/state";
 
-  let { corpora } = $props();
+  let { corpora }: { corpora: Corpus[] } = $props();
 
   let selectedCorpus: Corpus | undefined = $state();
   let selectedCorpusName: string = $derived(
@@ -16,7 +17,7 @@
           new URLSearchParams({ q: search })
       : "/"
   );
-  let loading: boolean = $state(false);
+  let disabled: boolean = $derived(Boolean(navigating.to));
 </script>
 
 <form class="flex flex-col gap-2">
@@ -42,8 +43,7 @@
                 name="corpora"
                 id="corpora"
                 bind:value={selectedCorpus}
-                onsubmit={() => (loading = true)}
-                disabled={loading}
+                {disabled}
               >
                 {#each corpora as corpus}
                   <option value={corpus}>{corpus.name}</option>
@@ -59,18 +59,13 @@
         type="text"
         placeholder="Search..."
         bind:value={search}
-        disabled={loading}
+        {disabled}
       />
       <span class="label">{selectedCorpusName}</span>
     </label>
     <a href={target}>
-      <button
-        class="btn w-16 shadow"
-        type="submit"
-        disabled={search.trim().length == 0 || !selectedCorpus}
-        onclick={() => (loading = true)}
-      >
-        <span class={[loading && "loading loading-infinity loading-sm"]}
+      <button class="btn w-16 shadow" type="submit" {disabled}>
+        <span class={[disabled && "loading loading-infinity loading-sm"]}
           >Go</span
         >
       </button>
