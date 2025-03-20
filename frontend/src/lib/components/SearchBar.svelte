@@ -2,13 +2,27 @@
   import type { Corpus } from "$lib/types";
   import { navigating } from "$app/state";
 
-  let { corpora }: { corpora: Corpus[] } = $props();
+  let {
+    corpora,
+    searchInit = null,
+    selectedCorpusInit = null,
+  }: {
+    corpora: Corpus[];
+    searchInit?: string | null;
+    selectedCorpusInit?: string | null;
+  } = $props();
 
-  let selectedCorpus: Corpus | undefined = $state();
-  let selectedCorpusName: string = $derived(
-    selectedCorpus ? selectedCorpus.name : ""
-  );
-  let search: string = $state("");
+  // default to 1st corpus in the list
+  let selectedCorpus: Corpus = $state(corpora[0]);
+
+  // if there is an initial value for the corpus name, try to find the corpus
+  if (selectedCorpusInit !== null) {
+    let corpusFound = corpora.find((c) => c.name === selectedCorpusInit);
+    if (corpusFound) selectedCorpus = corpusFound;
+  }
+
+  let selectedCorpusName: string = $derived(selectedCorpus.name);
+  let search: string = $state(searchInit ? searchInit : "");
   let target: string = $derived(
     selectedCorpus
       ? "/search/" +
@@ -30,7 +44,7 @@
       >
         ⛭
       </div>
-      <div class="dropdown-content card card-border mt-2 bg-base-300 shadow">
+      <div class="dropdown-content card card-border mt-2 bg-base-200 shadow">
         <div class="card-body">
           <fieldset class="fieldset">
             <legend class="fieldset-legend">Settings</legend>

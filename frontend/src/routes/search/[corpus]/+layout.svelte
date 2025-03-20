@@ -1,10 +1,11 @@
 <script lang="ts">
-  import "../../app.css";
-  import SearchBar from "$lib/components/SearchBar.svelte";
   import type { LayoutProps } from "./$types";
+  import { page } from "$app/state";
+  import SearchBar from "$lib/components/SearchBar.svelte";
   import Logo from "$lib/components/Logo.svelte";
 
   let { data, children }: LayoutProps = $props();
+  let searchInit = $derived(page.url.searchParams.get("q"));
 </script>
 
 <div
@@ -13,7 +14,11 @@
   <a class="px-4 w-fit" href="/">
     <Logo textSize="text-md" />
   </a>
-  <SearchBar corpora={data.corpora} />
+  <SearchBar
+    corpora={data.corpora}
+    {searchInit}
+    selectedCorpusInit={data.selectedCorpus}
+  />
 </div>
 
 {@render children()}
