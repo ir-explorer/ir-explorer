@@ -5,7 +5,7 @@ import type { PageServerLoad } from "./$types";
 export const load: PageServerLoad = async ({ params, url }) => {
   const q = url.searchParams.get("q");
 
-  if (q === null || q.trim() == "") {
+  if (!q || q.trim() == "") {
     redirect(307, "/search");
   }
 

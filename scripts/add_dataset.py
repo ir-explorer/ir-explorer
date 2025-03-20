@@ -5,7 +5,7 @@ import ir_datasets
 import requests
 from tqdm import tqdm
 
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "http://127.0.0.1:8103"
 
 
 def main():
