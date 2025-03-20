@@ -29,7 +29,7 @@
       <div
         tabindex="0"
         role="button"
-        class="btn btn-sm rounded-full h-8 w-8 btn-primary text-lg/tight"
+        class="btn btn-sm rounded-full h-7 w-7 btn-primary text-xl/tight"
       >
         ⛭
       </div>
