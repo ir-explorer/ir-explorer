@@ -7,7 +7,7 @@
 </script>
 
 <div class="flex flex-col w-full h-full items-center justify-center">
-  <div class="m-8">
+  <div class="mb-10">
     <Logo textSize={"text-6xl"} />
   </div>
   <div class="w-1/3 min-w-128">

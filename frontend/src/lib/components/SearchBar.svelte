@@ -29,18 +29,18 @@
       <div
         tabindex="0"
         role="button"
-        class="btn text-lg/tight shadow bg-base-300"
+        class="btn btn-sm rounded-full h-8 w-8 btn-primary text-lg/tight"
       >
         ⛭
       </div>
-      <div class="dropdown-content card card-border mt-2 bg-base-200 shadow">
+      <div class="dropdown-content card card-border mt-4 bg-base-200 shadow">
         <div class="card-body">
           <fieldset class="fieldset">
             <legend class="fieldset-legend">Settings</legend>
             <label class="fieldset-label flex flex-col items-start"
               >Corpus
               <select
-                class="select select-sm w-48"
+                class="select select-primary select-sm w-48"
                 name="corpora"
                 id="corpora"
                 bind:value={selectedCorpusName}
@@ -55,7 +55,7 @@
         </div>
       </div>
     </div>
-    <label class="input grow shadow">
+    <label class="input input-primary grow">
       <input
         type="text"
         placeholder="Type a query..."
@@ -65,7 +65,7 @@
       <span class="label">{selectedCorpusName}</span>
     </label>
     <a href={target}>
-      <button class="btn w-16 bg-base-300 shadow" type="submit" {disabled}>
+      <button class="btn btn-primary w-16" type="submit" {disabled}>
         <span class={[disabled && "loading loading-infinity loading-sm"]}
           >Go</span
         >

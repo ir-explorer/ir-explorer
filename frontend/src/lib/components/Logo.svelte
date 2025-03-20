@@ -3,5 +3,5 @@
 </script>
 
 <p class={["font-serif", textSize]}>
-  🔍 IR <sup class="font-thin">explorer</sup>
+  IR<sup>🔍</sup><sub>explorer</sub>
 </p>
