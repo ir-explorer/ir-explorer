@@ -10,5 +10,7 @@
   <div class="m-8">
     <Logo textSize={"text-6xl"} />
   </div>
-  <SearchBar corpora={data.corpora} />
+  <div class="w-1/3 min-w-128">
+    <SearchBar corpora={data.corpora} />
+  </div>
 </div>
