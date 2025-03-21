@@ -2,6 +2,7 @@
   import "../app.css";
   import { Fa } from "svelte-fa";
   import { faGithub } from "@fortawesome/free-brands-svg-icons";
+
   let { data, children } = $props();
 </script>
 
@@ -10,7 +11,7 @@
     {@render children()}
   </div>
   <div
-    class="w-full flex flex-row justify-between items-center text-sm px-8 py-2 border-t border-base-300 bg-base-200/75"
+    class="w-full flex flex-row justify-between items-center text-sm px-8 py-2 border-t border-base-300 bg-base-200/75 opacity-50"
   >
     <p>
       © {data.currentYear}

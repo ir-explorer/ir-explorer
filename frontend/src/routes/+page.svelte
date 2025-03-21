@@ -7,7 +7,7 @@
 </script>
 
 <div class="flex h-full flex-col items-center justify-center">
-  <div class="mb-12 scale-250">
+  <div class="mb-16 scale-250">
     <Logo />
   </div>
   <div class="w-1/3 min-w-128">

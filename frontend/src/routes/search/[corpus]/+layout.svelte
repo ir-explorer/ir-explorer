@@ -21,6 +21,8 @@
   />
 </div>
 
-<div class="mt-16">
-  {@render children()}
+<div class="max-w-full mt-16">
+  <div class="max-w-5xl mx-auto">
+    {@render children()}
+  </div>
 </div>

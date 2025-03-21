@@ -5,7 +5,7 @@
 </script>
 
 {#each data["hits"] as hit}
-  <div class="p-5">
+  <div class="py-5">
     <p>ID: {hit.id}</p>
     <p>Score: {hit.score}</p>
     <p>{hit.text}</p>
