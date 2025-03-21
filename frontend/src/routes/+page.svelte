@@ -6,7 +6,7 @@
   let { data }: PageProps = $props();
 </script>
 
-<div class="flex flex-col w-full h-full items-center justify-center">
+<div class="flex h-full flex-col items-center justify-center">
   <div class="mb-12 scale-250">
     <Logo />
   </div>

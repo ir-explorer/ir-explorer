@@ -9,7 +9,7 @@
 </script>
 
 <div
-  class="fixed top-0 w-screen max-w-full grid grid-cols-[1fr_1.5fr_1fr] items-center justify-center px-8 py-2 border-b border-base-300 bg-base-200/75 backdrop-blur-sm"
+  class="fixed top-0 w-full grid grid-cols-[1fr_1.5fr_1fr] items-center px-8 py-2 border-b border-base-300 bg-base-200/75 backdrop-blur-sm"
 >
   <a href="/" class="w-fit">
     <Logo />
