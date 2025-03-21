@@ -12,14 +12,17 @@
   {#each data["hits"] as hit, index}
     <li class="list-row">
       <div>
-        <div class="flex flex-row">
+        <div class="flex flex-row gap-2">
           <div class="tooltip" data-tip="Score: {hit.score}">
-            <p class="badge bade-soft badge-primary">
+            <p class="badge badge-soft badge-primary">
               <Fa icon={faHashtag} />
               {index + 1}
             </p>
           </div>
-          <p class="badge"><Fa icon={faFileLines} /> {hit.id}</p>
+          <p class="badge badge-soft badge-neutral">
+            <Fa icon={faFileLines} />
+            {hit.id}
+          </p>
         </div>
         <p class="my-2">{hit.text}</p>
       </div>
