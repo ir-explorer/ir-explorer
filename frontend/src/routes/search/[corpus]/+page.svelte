@@ -1,11 +1,7 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
   import Fa from "svelte-fa";
-  import {
-    faBook,
-    faFileLines,
-    faHashtag,
-  } from "@fortawesome/free-solid-svg-icons";
+  import { faBook, faFileLines } from "@fortawesome/free-solid-svg-icons";
 
   let { data }: PageProps = $props();
 </script>
@@ -18,19 +14,18 @@
       <div>
         <div class="join">
           <p
-            class="badge badge-primary join-item tooltip"
+            class="badge badge-soft badge-primary join-item tooltip"
             data-tip="Score: {hit.score}"
           >
-            <Fa icon={faHashtag} size={"sm"} />
-            <span class="-ml-1.5">{index + 1}</span>
+            #<span class="-ml-1 font-bold">{index + 1}</span>
           </p>
-          <p class="badge join-item">
-            <Fa icon={faFileLines} />
-            {hit.id}
-          </p>
-          <p class="badge join-item">
+          <p class="badge badge-soft join-item">
             <Fa icon={faBook} />
             {hit.corpus_name}
+          </p>
+          <p class="badge badge-soft join-item">
+            <Fa icon={faFileLines} />
+            {hit.id}
           </p>
         </div>
         <p class="my-2">{hit.text}</p>
