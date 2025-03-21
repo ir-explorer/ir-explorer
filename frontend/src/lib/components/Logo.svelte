@@ -1,7 +1,10 @@
 <script lang="ts">
-  let { textSize = "text-xl" } = $props();
+  import { Fa } from "svelte-fa";
+  import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 </script>
 
-<p class={["font-serif", textSize]}>
-  IR<sup>🔍</sup><sub>explorer</sub>
-</p>
+<div class="flex font-serif text-2xl">
+  <span class="mr-1">IR</span>expl<span class="mt-2 -mr-1 text-primary">
+    <Fa icon={faMagnifyingGlass} />
+  </span>rer
+</div>

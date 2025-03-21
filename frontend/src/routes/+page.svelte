@@ -7,8 +7,8 @@
 </script>
 
 <div class="flex flex-col w-full h-full items-center justify-center">
-  <div class="mb-10">
-    <Logo textSize={"text-6xl"} />
+  <div class="mb-12 scale-250">
+    <Logo />
   </div>
   <div class="w-1/3 min-w-128">
     <SearchBar corpora={data.corpora} />

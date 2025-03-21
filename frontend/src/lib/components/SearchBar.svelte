@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Corpus } from "$lib/types";
   import { navigating } from "$app/state";
+  import { Fa } from "svelte-fa";
+  import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
   let {
     corpora,
@@ -67,7 +69,7 @@
     <a href={target}>
       <button class="btn btn-primary w-16" type="submit" {disabled}>
         <span class={[disabled && "loading loading-infinity loading-sm"]}
-          >Go</span
+          ><Fa icon={faMagnifyingGlass} /></span
         >
       </button>
     </a>
