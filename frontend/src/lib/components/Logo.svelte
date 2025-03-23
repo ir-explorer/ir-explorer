@@ -3,9 +3,12 @@
   import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 </script>
 
-<p class="flex font-serif text-2xl/tight select-none">
-  <span class="mr-1 text-base-100 border bg-primary px-1 rounded">IR</span
-  >expl<span class="mt-2 -mr-1 text-primary">
+<div class="flex font-serif text-2xl select-none">
+  <div class="grid items-center justify-items-center mr-1">
+    <span class="row-[1] col-[1] bg-primary rounded-xs h-7 w-9"></span>
+    <span class="row-[1] col-[1] text-base-100">IR</span>
+  </div>
+  expl<span class="mt-2 -mr-1 text-primary">
     <Fa icon={faMagnifyingGlass} />
   </span>rer
-</p>
+</div>
