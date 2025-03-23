@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
   import Fa from "svelte-fa";
-  import { faBook, faFileLines } from "@fortawesome/free-solid-svg-icons";
+  import { corpusIcon, documentIcon } from "$lib/icons";
 
   let { data }: PageProps = $props();
 </script>
@@ -20,11 +20,11 @@
             #<span class="-ml-1 font-bold">{index + 1}</span>
           </p>
           <p class="badge badge-soft join-item">
-            <Fa icon={faBook} />
+            <Fa icon={corpusIcon} />
             {hit.corpus_name}
           </p>
           <p class="badge badge-soft join-item">
-            <Fa icon={faFileLines} />
+            <Fa icon={documentIcon} />
             {hit.id}
           </p>
         </div>

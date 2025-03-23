@@ -2,10 +2,7 @@
   import type { Corpus } from "$lib/types";
   import { navigating } from "$app/state";
   import { Fa } from "svelte-fa";
-  import {
-    faMagnifyingGlass,
-    faSliders,
-  } from "@fortawesome/free-solid-svg-icons";
+  import { corpusIcon, settingsIcon, searchIcon } from "$lib/icons";
 
   let {
     corpora,
@@ -32,7 +29,7 @@
   <div class="flex flex-row gap-2 items-center">
     <div class="dropdown">
       <div tabindex="0" role="button" class="btn h-8 w-8 btn-circle">
-        <Fa icon={faSliders} />
+        <Fa icon={settingsIcon} />
       </div>
       <div class="dropdown-content card card-border mt-4 bg-base-200 shadow">
         <div class="card-body">
@@ -63,12 +60,12 @@
         bind:value={search}
         {disabled}
       />
-      <span class="label">{selectedCorpusName}</span>
+      <span class="label"><Fa icon={corpusIcon} />{selectedCorpusName}</span>
     </label>
     <a href={target}>
       <button class="btn btn-primary w-12" type="submit" {disabled}>
         <span class={[disabled && "loading loading-infinity loading-sm"]}
-          ><Fa icon={faMagnifyingGlass} /></span
+          ><Fa icon={searchIcon} /></span
         >
       </button>
     </a>
