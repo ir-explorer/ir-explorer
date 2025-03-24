@@ -10,7 +10,7 @@
   <div>
     {@render children()}
   </div>
-  <div
+  <footer
     class="w-full flex flex-row justify-between items-center text-sm px-8 py-2 border-t border-base-300 bg-base-200/75 opacity-50"
   >
     <p>
@@ -19,5 +19,5 @@
     <a href="https://github.com/mrjleo/ir-explorer" class="hover:scale-125">
       <Fa icon={faGithub} />
     </a>
-  </div>
+  </footer>
 </div>
