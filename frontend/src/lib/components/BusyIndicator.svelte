@@ -4,4 +4,4 @@
   let busy: boolean = $derived(Boolean(navigating.to));
 </script>
 
-<div class={[busy && "loading loading-ring loading-xl"]}></div>
+<div class={[busy && "loading", "loading-ring loading-xl text-primary"]}></div>
