@@ -28,7 +28,7 @@
     <div tabindex="0" role="button" class="btn h-8 w-8 btn-circle">
       <Fa icon={settingsIcon} />
     </div>
-    <div class="dropdown-content card card-border mt-4 bg-base-200 shadow">
+    <div class="dropdown-content card card-border mt-2 bg-base-200 shadow">
       <div class="card-body">
         <fieldset class="fieldset">
           <legend class="fieldset-legend">Settings</legend>

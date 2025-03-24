@@ -3,12 +3,13 @@
   import Logo from "$lib/components/Logo.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import BusyIndicator from "$lib/components/BusyIndicator.svelte";
+  import Menu from "$lib/components/Menu.svelte";
 
   let { data }: PageProps = $props();
 </script>
 
 <div class="navbar fixed z-1 top-0 px-8">
-  <div class="navbar-start"></div>
+  <div class="navbar-start"><Menu /></div>
   <div class="navbar-end">
     <BusyIndicator />
   </div>

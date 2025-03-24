@@ -4,6 +4,7 @@
   import SearchBar from "$lib/components/SearchBar.svelte";
   import Logo from "$lib/components/Logo.svelte";
   import BusyIndicator from "$lib/components/BusyIndicator.svelte";
+  import Menu from "$lib/components/Menu.svelte";
 
   let { data, children }: LayoutProps = $props();
   let searchInit = $derived(page.url.searchParams.get("q"));
@@ -12,7 +13,8 @@
 <div
   class="navbar fixed z-1 top-0 px-8 border-b border-base-300 bg-base-200/75 backdrop-blur-sm"
 >
-  <div class="navbar-start">
+  <div class="navbar-start gap-4">
+    <Menu />
     <a href="/">
       <Logo />
     </a>
