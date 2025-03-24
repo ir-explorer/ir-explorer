@@ -10,17 +10,21 @@
 </script>
 
 <div
-  class="fixed z-1 top-0 w-full grid grid-cols-[1fr_1.5fr_1fr] items-center px-8 py-2 border-b border-base-300 bg-base-200/75 backdrop-blur-sm"
+  class="navbar fixed z-1 top-0 px-8 border-b border-base-300 bg-base-200/75 backdrop-blur-sm"
 >
-  <a href="/" class="w-fit">
-    <Logo />
-  </a>
-  <SearchBar
-    corpora={data.corpora}
-    {searchInit}
-    selectedCorpusNameInit={data.selectedCorpus}
-  />
-  <div class="ml-auto scale-150">
+  <div class="navbar-start">
+    <a href="/">
+      <Logo />
+    </a>
+  </div>
+  <div class="navbar-center w-2xl">
+    <SearchBar
+      corpora={data.corpora}
+      {searchInit}
+      selectedCorpusNameInit={data.selectedCorpus}
+    />
+  </div>
+  <div class="navbar-end">
     <BusyIndicator />
   </div>
 </div>

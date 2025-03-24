@@ -23,41 +23,39 @@
   );
 </script>
 
-<form class="flex flex-col gap-2">
-  <div class="flex flex-row gap-2 items-center">
-    <div class="dropdown">
-      <div tabindex="0" role="button" class="btn h-8 w-8 btn-circle">
-        <Fa icon={settingsIcon} />
-      </div>
-      <div class="dropdown-content card card-border mt-4 bg-base-200 shadow">
-        <div class="card-body">
-          <fieldset class="fieldset">
-            <legend class="fieldset-legend">Settings</legend>
-            <label class="fieldset-label flex flex-col items-start"
-              >Corpus
-              <select
-                class="select select-primary select-sm w-48"
-                name="corpora"
-                id="corpora"
-                bind:value={selectedCorpusName}
-              >
-                {#each corpora as corpus}
-                  <option value={corpus.name}>{corpus.name}</option>
-                {/each}
-              </select>
-            </label>
-          </fieldset>
-        </div>
+<form class="flex flex-row gap-2 items-center w-full">
+  <div class="dropdown">
+    <div tabindex="0" role="button" class="btn h-8 w-8 btn-circle">
+      <Fa icon={settingsIcon} />
+    </div>
+    <div class="dropdown-content card card-border mt-4 bg-base-200 shadow">
+      <div class="card-body">
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">Settings</legend>
+          <label class="fieldset-label flex flex-col items-start"
+            >Corpus
+            <select
+              class="select select-primary select-sm w-48"
+              name="corpora"
+              id="corpora"
+              bind:value={selectedCorpusName}
+            >
+              {#each corpora as corpus}
+                <option value={corpus.name}>{corpus.name}</option>
+              {/each}
+            </select>
+          </label>
+        </fieldset>
       </div>
     </div>
-    <label class="input input-primary grow">
-      <input type="text" placeholder="Type a query..." bind:value={search} />
-      <span class="label"><Fa icon={corpusIcon} />{selectedCorpusName}</span>
-    </label>
-    <a href={target}>
-      <button class="btn btn-primary w-12" type="submit">
-        <Fa icon={searchIcon} />
-      </button>
-    </a>
   </div>
+  <label class="input input-primary grow">
+    <input type="text" placeholder="Type a query..." bind:value={search} />
+    <span class="label"><Fa icon={corpusIcon} />{selectedCorpusName}</span>
+  </label>
+  <a href={target}>
+    <button class="btn btn-primary w-12" type="submit">
+      <Fa icon={searchIcon} />
+    </button>
+  </a>
 </form>
