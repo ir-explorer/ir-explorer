@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { Corpus } from "$lib/types";
-  import { navigating } from "$app/state";
   import { Fa } from "svelte-fa";
   import { corpusIcon, settingsIcon, searchIcon } from "$lib/icons";
 
@@ -22,7 +21,6 @@
   let target: string = $derived(
     "/search/" + selectedCorpusName + "?" + new URLSearchParams({ q: search })
   );
-  let disabled: boolean = $derived(Boolean(navigating.to));
 </script>
 
 <form class="flex flex-col gap-2">
@@ -42,7 +40,6 @@
                 name="corpora"
                 id="corpora"
                 bind:value={selectedCorpusName}
-                {disabled}
               >
                 {#each corpora as corpus}
                   <option value={corpus.name}>{corpus.name}</option>
@@ -54,19 +51,12 @@
       </div>
     </div>
     <label class="input input-primary grow">
-      <input
-        type="text"
-        placeholder="Type a query..."
-        bind:value={search}
-        {disabled}
-      />
+      <input type="text" placeholder="Type a query..." bind:value={search} />
       <span class="label"><Fa icon={corpusIcon} />{selectedCorpusName}</span>
     </label>
     <a href={target}>
-      <button class="btn btn-primary w-12" type="submit" {disabled}>
-        <span class={[disabled && "loading loading-infinity loading-sm"]}
-          ><Fa icon={searchIcon} /></span
-        >
+      <button class="btn btn-primary w-12" type="submit">
+        <Fa icon={searchIcon} />
       </button>
     </a>
   </div>

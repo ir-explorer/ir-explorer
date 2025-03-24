@@ -3,6 +3,7 @@
   import { page } from "$app/state";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import Logo from "$lib/components/Logo.svelte";
+  import BusyIndicator from "$lib/components/BusyIndicator.svelte";
 
   let { data, children }: LayoutProps = $props();
   let searchInit = $derived(page.url.searchParams.get("q"));
@@ -19,6 +20,9 @@
     {searchInit}
     selectedCorpusNameInit={data.selectedCorpus}
   />
+  <div class="ml-auto scale-150">
+    <BusyIndicator />
+  </div>
 </div>
 
 <div class="max-w-full mt-16 mb-4">
