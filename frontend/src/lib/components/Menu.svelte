@@ -17,20 +17,22 @@
   >
     <Fa icon={menuIcon} />
   </div>
-  <ul class="dropdown-content menu w-40 bg-base-200 mt-2 rounded-box shadow">
-    <li>
-      <a href="/" class={[atSearch && "menu-active"]}
-        ><span class="w-4 mr-4 flex justify-center"
-          ><Fa icon={searchIcon} /></span
-        >Search</a
-      >
-    </li>
-    <li>
-      <a href="/browse" class={[atBrowse && "menu-active"]}
-        ><span class="w-4 mr-4 flex justify-center"
-          ><Fa icon={browseIcon} /></span
-        >Browse</a
-      >
-    </li>
-  </ul>
+  <div class="dropdown-content w-40 bg-base-200 mt-2 rounded-box shadow">
+    <ul class="menu w-full">
+      <li>
+        <a href="/" class={[atSearch && "menu-active"]}
+          ><span class="w-4 mr-4 flex justify-center"
+            ><Fa icon={searchIcon} /></span
+          >Search</a
+        >
+      </li>
+      <li>
+        <a href="/browse" class={[atBrowse && "menu-active"]}
+          ><span class="w-4 mr-4 flex justify-center"
+            ><Fa icon={browseIcon} /></span
+          >Browse</a
+        >
+      </li>
+    </ul>
+  </div>
 </div>

@@ -14,6 +14,7 @@
   <div>
     {@render children()}
   </div>
+
   <footer
     class="w-full flex flex-row justify-between items-center text-sm px-8 py-2 border-t border-base-300 bg-base-200/75 opacity-50"
   >
