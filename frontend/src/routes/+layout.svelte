@@ -6,6 +6,10 @@
   let { data, children } = $props();
 </script>
 
+<svelte:head>
+  <title>IR explorer</title>
+</svelte:head>
+
 <div class="w-screen h-screen max-w-full max-h-full grid grid-rows-[1fr_auto]">
   <div>
     {@render children()}
