@@ -3,7 +3,7 @@
   import Logo from "./Logo.svelte";
   import BusyIndicator from "./BusyIndicator.svelte";
 
-  let { itemCenter } = $props();
+  let { children } = $props();
 </script>
 
 <div
@@ -16,7 +16,7 @@
     </a>
   </div>
   <div class="navbar-center">
-    {@render itemCenter()}
+    {@render children()}
   </div>
   <div class="navbar-end">
     <BusyIndicator />
