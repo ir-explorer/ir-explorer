@@ -23,19 +23,19 @@
   );
 </script>
 
-<form class="flex flex-row gap-2 items-center w-full">
+<form class="flex flex-row items-center w-full gap-2">
   <div class="dropdown">
-    <div tabindex="0" role="button" class="btn h-8 w-8 btn-circle">
+    <div tabindex="0" role="button" class="w-8 h-8 btn btn-circle">
       <Fa icon={settingsIcon} />
     </div>
-    <div class="dropdown-content card card-border mt-2 bg-base-200 shadow">
+    <div class="mt-2 shadow dropdown-content card card-border bg-base-200">
       <div class="card-body">
         <fieldset class="fieldset">
           <legend class="fieldset-legend">Settings</legend>
-          <label class="fieldset-label flex flex-col items-start"
+          <label class="flex flex-col items-start fieldset-label"
             >Corpus
             <select
-              class="select select-primary select-sm w-48"
+              class="w-48 select select-primary select-sm"
               name="corpora"
               id="corpora"
               bind:value={selectedCorpusName}
@@ -54,7 +54,7 @@
     <span class="label"><Fa icon={corpusIcon} />{selectedCorpusName}</span>
   </label>
   <a href={target}>
-    <button class="btn btn-primary w-12" type="submit">
+    <button class="w-12 btn btn-primary" type="submit">
       <Fa icon={searchIcon} />
     </button>
   </a>

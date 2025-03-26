@@ -4,7 +4,7 @@
 </script>
 
 <div class="flex font-serif text-2xl select-none">
-  <div class="grid items-center justify-items-center mr-1">
+  <div class="items-center mr-1 grid justify-items-center">
     <span class="row-[1] col-[1] bg-primary rounded-xs h-7 w-9"></span>
     <span class="row-[1] col-[1] text-base-100">IR</span>
   </div>

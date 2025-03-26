@@ -7,9 +7,9 @@
 </script>
 
 <div
-  class="navbar fixed z-1 top-0 px-8 border-b border-base-300 bg-base-200/75 backdrop-blur-sm"
+  class="fixed top-0 px-8 border-b navbar z-1 border-base-300 bg-base-200/75 backdrop-blur-sm"
 >
-  <div class="navbar-start gap-4">
+  <div class="gap-4 navbar-start">
     <Menu />
     <a href="/">
       <Logo />

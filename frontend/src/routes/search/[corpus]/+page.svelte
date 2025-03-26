@@ -6,7 +6,7 @@
   let { data }: PageProps = $props();
 </script>
 
-<ul class="list bg-base-100 rounded-box shadow-md">
+<ul class="shadow-md list bg-base-100 rounded-box">
   <li class="p-4 text-xs">Search results</li>
 
   {#each data["hits"] as hit, index}

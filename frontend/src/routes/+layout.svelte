@@ -16,7 +16,7 @@
   </div>
 
   <footer
-    class="w-full flex flex-row justify-between items-center text-sm px-8 py-2 border-t border-base-300 bg-base-200/75 opacity-50"
+    class="flex flex-row items-center justify-between w-full px-8 py-2 text-sm border-t opacity-50 border-base-300 bg-base-200/75"
   >
     <p>
       © {data.currentYear}

@@ -13,22 +13,22 @@
   <div
     tabindex="0"
     role="button"
-    class="btn border-none bg-transparent h-8 w-8"
+    class="w-8 h-8 bg-transparent border-none btn"
   >
     <Fa icon={menuIcon} />
   </div>
-  <div class="dropdown-content w-40 bg-base-200 mt-2 rounded-box shadow">
-    <ul class="menu w-full">
+  <div class="w-40 mt-2 shadow dropdown-content bg-base-200 rounded-box">
+    <ul class="w-full menu">
       <li>
         <a href="/" class={[atSearch && "menu-active"]}
-          ><span class="w-4 mr-4 flex justify-center"
+          ><span class="flex justify-center w-4 mr-4"
             ><Fa icon={searchIcon} /></span
           >Search</a
         >
       </li>
       <li>
         <a href="/browse" class={[atBrowse && "menu-active"]}
-          ><span class="w-4 mr-4 flex justify-center"
+          ><span class="flex justify-center w-4 mr-4"
             ><Fa icon={browseIcon} /></span
           >Browse</a
         >

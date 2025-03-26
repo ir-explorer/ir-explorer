@@ -15,8 +15,8 @@
       {searchInit}
       selectedCorpusNameInit={data.selectedCorpus}
     />
-  </div></Header
->
+  </div>
+</Header>
 
 <div class="max-w-full mt-20 mb-4">
   <div class="max-w-5xl mx-auto">
