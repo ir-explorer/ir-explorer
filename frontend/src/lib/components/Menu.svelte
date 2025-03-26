@@ -3,9 +3,7 @@
   import { menuIcon, searchIcon, browseIcon } from "$lib/icons";
   import Fa from "svelte-fa";
 
-  let atSearch: boolean = $derived(
-    page.url.pathname === "/" || page.url.pathname.startsWith("/search")
-  );
+  let atSearch: boolean = $derived(page.url.pathname.startsWith("/search"));
   let atBrowse: boolean = $derived(page.url.pathname.startsWith("/browse"));
 </script>
 

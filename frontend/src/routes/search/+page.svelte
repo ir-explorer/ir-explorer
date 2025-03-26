@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PageProps } from "./$types";
+  import type { PageProps } from "../$types";
   import Logo from "$lib/components/Logo.svelte";
   import SearchBar from "$lib/components/SearchBar.svelte";
   import BusyIndicator from "$lib/components/BusyIndicator.svelte";
