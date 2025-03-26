@@ -23,24 +23,24 @@
           </a>
         </li>
       {/if}
-      {#if data.doc_id}
-        <li>
-          <a href="/browse/{data.corpus}?doc={data.doc_id}"
-            ><Fa icon={documentIcon} />{data.doc_id}</a
-          >
-        </li>
-      {/if}
+
       {#if data.dataset}
         <li>
           <a href="/browse/{data.corpus}/{data.dataset}"
             ><Fa icon={datasetIcon} />{data.dataset}
           </a>
         </li>
-      {/if}
-      {#if data.q_id}
+        {#if data.q_id}
+          <li>
+            <a href="/browse/{data.corpus}/{data.dataset}?query={data.q_id}"
+              ><Fa icon={queryIcon} />{data.q_id}</a
+            >
+          </li>
+        {/if}
+      {:else if data.doc_id}
         <li>
-          <a href="/browse/{data.corpus}/{data.dataset}?query={data.q_id}"
-            ><Fa icon={queryIcon} />{data.q_id}</a
+          <a href="/browse/{data.corpus}?doc={data.doc_id}"
+            ><Fa icon={documentIcon} />{data.doc_id}</a
           >
         </li>
       {/if}
