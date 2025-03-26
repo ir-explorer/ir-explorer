@@ -12,7 +12,7 @@ export async function get_datasets(corpus: string): Promise<Dataset[]> {
   const res = await fetch(
     BACKEND_REST_URL +
       "/get_datasets?" +
-      new URLSearchParams({ corpus_name: corpus })
+      new URLSearchParams({ corpus_name: corpus }),
   );
   return (await res.json()) as Dataset[];
 }
@@ -21,7 +21,7 @@ export async function autocomplete_query(
   input: string,
   corpus_name: string,
   dataset_name: string | null,
-  num_results: number | null
+  num_results: number | null,
 ): Promise<Query[]> {
   var params = new URLSearchParams({
     corpus_name: corpus_name,
@@ -40,7 +40,7 @@ export async function autocomplete_query(
 
 export async function search_documents(
   corpus_name: string,
-  search: string
+  search: string,
 ): Promise<DocumentSearchHit[]> {
   const res = await fetch(
     BACKEND_REST_URL +
@@ -48,7 +48,7 @@ export async function search_documents(
       new URLSearchParams({
         corpus_name: corpus_name,
         search: search,
-      })
+      }),
   );
   return (await res.json()) as DocumentSearchHit[];
 }

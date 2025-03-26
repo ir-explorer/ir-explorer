@@ -13,7 +13,7 @@
 </script>
 
 <Header>
-  <div class="text-sm breadcrumbs">
+  <div class="breadcrumbs text-sm">
     <ul>
       <li><a href="/browse"><Fa icon={browseIcon} />Browse</a></li>
       {#if data.corpus}
@@ -33,22 +33,20 @@
         {#if data.q_id}
           <li>
             <a href="/browse/{data.corpus}/{data.dataset}?query={data.q_id}"
-              ><Fa icon={queryIcon} />{data.q_id}</a
-            >
+              ><Fa icon={queryIcon} />{data.q_id}</a>
           </li>
         {/if}
       {:else if data.doc_id}
         <li>
           <a href="/browse/{data.corpus}?doc={data.doc_id}"
-            ><Fa icon={documentIcon} />{data.doc_id}</a
-          >
+            ><Fa icon={documentIcon} />{data.doc_id}</a>
         </li>
       {/if}
     </ul>
   </div>
 </Header>
-<div class="max-w-full mt-20 mb-4">
-  <div class="max-w-5xl mx-auto">
+<div class="mt-20 mb-4 max-w-full">
+  <div class="mx-auto max-w-5xl">
     {@render children()}
   </div>
 </div>

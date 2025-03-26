@@ -8,13 +8,13 @@
   let { data }: PageProps = $props();
 </script>
 
-<div class="fixed top-0 px-8 navbar z-1">
+<div class="fixed top-0 z-1 navbar px-8">
   <div class="navbar-start"><Menu /></div>
   <div class="navbar-end">
     <BusyIndicator />
   </div>
 </div>
-<div class="flex flex-col items-center justify-center h-full">
+<div class="flex h-full flex-col items-center justify-center">
   <div class="mb-16 scale-250">
     <Logo />
   </div>

@@ -8,24 +8,22 @@
 </script>
 
 <div class="dropdown">
-  <div tabindex="0" role="button" class="w-8 h-8 btn btn-ghost">
+  <div tabindex="0" role="button" class="btn h-8 w-8 btn-ghost">
     <Fa icon={menuIcon} />
   </div>
-  <div class="w-40 mt-2 shadow dropdown-content bg-base-200 rounded-box">
-    <ul class="w-full menu">
+  <div class="dropdown-content mt-2 w-40 rounded-box bg-base-200 shadow">
+    <ul class="menu w-full">
       <li>
         <a href="/" class={[atSearch && "menu-active"]}
-          ><span class="flex justify-center w-4 mr-4"
+          ><span class="mr-4 flex w-4 justify-center"
             ><Fa icon={searchIcon} /></span
-          >Search</a
-        >
+          >Search</a>
       </li>
       <li>
         <a href="/browse" class={[atBrowse && "menu-active"]}
-          ><span class="flex justify-center w-4 mr-4"
+          ><span class="mr-4 flex w-4 justify-center"
             ><Fa icon={browseIcon} /></span
-          >Browse</a
-        >
+          >Browse</a>
       </li>
     </ul>
   </div>

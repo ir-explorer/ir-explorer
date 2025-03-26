@@ -13,13 +13,12 @@
     <SearchBar
       corpora={data.corpora}
       {searchInit}
-      selectedCorpusNameInit={data.selectedCorpus}
-    />
+      selectedCorpusNameInit={data.selectedCorpus} />
   </div>
 </Header>
 
-<div class="max-w-full mt-20 mb-4">
-  <div class="max-w-5xl mx-auto">
+<div class="mt-20 mb-4 max-w-full">
+  <div class="mx-auto max-w-5xl">
     {@render children()}
   </div>
 </div>

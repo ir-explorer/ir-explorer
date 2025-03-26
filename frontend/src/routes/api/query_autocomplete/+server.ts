@@ -16,7 +16,7 @@ export async function GET({ url }) {
       input,
       corpus_name,
       dataset_name,
-      num_results ? Number(num_results) : null
-    )
+      num_results ? Number(num_results) : null,
+    ),
   );
 }

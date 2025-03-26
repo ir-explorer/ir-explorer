@@ -4,9 +4,9 @@
 </script>
 
 <div class="flex font-serif text-2xl select-none">
-  <div class="items-center mr-1 grid justify-items-center">
-    <span class="row-[1] col-[1] bg-primary rounded-xs h-7 w-9"></span>
-    <span class="row-[1] col-[1] text-base-100">IR</span>
+  <div class="mr-1 grid items-center justify-items-center">
+    <span class="col-[1] row-[1] h-7 w-9 rounded-xs bg-primary"></span>
+    <span class="col-[1] row-[1] text-base-100">IR</span>
   </div>
   expl<span class="mt-2 -mr-1 text-primary">
     <Fa icon={faMagnifyingGlass} />

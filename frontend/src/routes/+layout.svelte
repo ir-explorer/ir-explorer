@@ -10,14 +10,13 @@
   <title>IR explorer</title>
 </svelte:head>
 
-<div class="w-screen h-screen max-w-full max-h-full grid grid-rows-[1fr_auto]">
+<div class="grid h-screen max-h-full w-screen max-w-full grid-rows-[1fr_auto]">
   <div>
     {@render children()}
   </div>
 
   <footer
-    class="flex flex-row items-center justify-between w-full px-8 py-2 text-sm border-t opacity-50 border-base-300 bg-base-200/75"
-  >
+    class="flex w-full flex-row items-center justify-between border-t border-base-300 bg-base-200/75 px-8 py-2 text-sm opacity-50">
     <p>
       © {data.currentYear}
     </p>
