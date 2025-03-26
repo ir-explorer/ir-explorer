@@ -8,11 +8,7 @@
 </script>
 
 <div class="dropdown">
-  <div
-    tabindex="0"
-    role="button"
-    class="w-8 h-8 bg-transparent border-none btn"
-  >
+  <div tabindex="0" role="button" class="w-8 h-8 btn btn-ghost">
     <Fa icon={menuIcon} />
   </div>
   <div class="w-40 mt-2 shadow dropdown-content bg-base-200 rounded-box">

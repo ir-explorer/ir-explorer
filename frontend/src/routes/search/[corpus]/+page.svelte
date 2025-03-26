@@ -13,20 +13,26 @@
     <li class="list-row">
       <div>
         <div class="join">
-          <p
+          <span
             class="badge badge-soft badge-primary join-item tooltip"
             data-tip="Score: {hit.score}"
           >
             #<span class="-ml-1 font-bold">{index + 1}</span>
-          </p>
-          <p class="badge badge-soft join-item">
+          </span>
+          <a
+            class="badge badge-soft badge-neutral hover:text-primary join-item"
+            href="/browse/{hit.corpus_name}"
+          >
             <Fa icon={corpusIcon} />
             {hit.corpus_name}
-          </p>
-          <p class="badge badge-soft join-item">
+          </a>
+          <a
+            class="badge badge-soft badge-neutral hover:text-primary join-item"
+            href="/browse/{hit.corpus_name}?doc={hit.id}"
+          >
             <Fa icon={documentIcon} />
             {hit.id}
-          </p>
+          </a>
         </div>
         <p class="my-2">{hit.text}</p>
       </div>
