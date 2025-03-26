@@ -45,7 +45,7 @@
     </ul>
   </div>
 </Header>
-<div class="mt-20 mb-4 max-w-full">
+<div class="mx-4 mt-20 mb-4 max-w-full">
   <div class="mx-auto max-w-5xl">
     {@render children()}
   </div>
