@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageProps } from "../$types";
   import Logo from "$lib/components/Logo.svelte";
-  import SearchBar from "$lib/components/SearchBar.svelte";
+  import SearchBar from "$lib/components/search/SearchBar.svelte";
   import BusyIndicator from "$lib/components/BusyIndicator.svelte";
   import Menu from "$lib/components/Menu.svelte";
 
