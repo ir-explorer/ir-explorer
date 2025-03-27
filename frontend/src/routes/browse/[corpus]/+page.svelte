@@ -1,12 +1,16 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
+  import List from "$lib/components/browse/List.svelte";
+  import type { Dataset } from "$lib/types";
 
   let { data }: PageProps = $props();
 </script>
 
-<p>Available datasets:</p>
-<ul>
-  {#each data["datasets"] as dataset}
-    <li>{dataset.name}</li>
-  {/each}
-</ul>
+<List listItems={data.datasetList}>
+  {#snippet head()}
+    Available datasets
+  {/snippet}
+  {#snippet item(d: Dataset)}
+    {d.name}
+  {/snippet}
+</List>

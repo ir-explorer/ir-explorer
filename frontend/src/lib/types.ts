@@ -23,3 +23,8 @@ export interface Document {
 export interface DocumentSearchHit extends Document {
   score: number;
 }
+
+export interface ListItem<T> {
+  target: string;
+  item: T;
+}
