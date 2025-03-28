@@ -19,13 +19,13 @@
             #<span class="-ml-1 font-bold">{index + 1}</span>
           </span>
           <a
-            class="badge-soft join-item badge badge-neutral hover:text-primary"
+            class="badge-soft join-item badge hover:text-primary"
             href="/browse/{hit.corpus_name}">
             <Fa icon={corpusIcon} />
             {hit.corpus_name}
           </a>
           <a
-            class="badge-soft join-item badge badge-neutral hover:text-primary"
+            class="badge-soft join-item badge hover:text-primary"
             href="/browse/{hit.corpus_name}?doc={hit.id}">
             <Fa icon={documentIcon} />
             {hit.id}
