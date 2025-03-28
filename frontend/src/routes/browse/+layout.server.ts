@@ -2,9 +2,9 @@ import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ params, url }) => {
   return {
-    corpus: params.corpus ?? null,
-    dataset: params.dataset ?? null,
-    doc_id: url.searchParams.get("doc"),
-    q_id: url.searchParams.get("query"),
+    corpus_name: params.corpus_name ?? null,
+    dataset_name: params.dataset_name ?? null,
+    document_id: url.searchParams.get("document_id"),
+    query_id: url.searchParams.get("query_id"),
   };
 };

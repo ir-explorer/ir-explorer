@@ -8,20 +8,20 @@ export async function get_corpora(): Promise<Corpus[]> {
   return (await res.json()) as Corpus[];
 }
 
-export async function get_datasets(corpus: string): Promise<Dataset[]> {
-  const params = new URLSearchParams({ corpus_name: corpus });
+export async function get_datasets(corpus_name: string): Promise<Dataset[]> {
+  const params = new URLSearchParams({ corpus_name: corpus_name });
   const res = await fetch(`${BACKEND_REST_URL}/get_datasets?${params}`);
   return (await res.json()) as Dataset[];
 }
 
 export async function get_query(
-  corpus: string,
-  dataset: string,
+  corpus_name: string,
+  dataset_name: string,
   query_id: string,
 ): Promise<Query> {
   const searchParams = new URLSearchParams({
-    corpus_name: corpus,
-    dataset_name: dataset,
+    corpus_name: corpus_name,
+    dataset_name: dataset_name,
     query_id: query_id,
   });
   const res = await fetch(`${BACKEND_REST_URL}/get_query?${searchParams}`);
@@ -29,11 +29,11 @@ export async function get_query(
 }
 
 export async function get_document(
-  corpus: string,
+  corpus_name: string,
   document_id: string,
 ): Promise<Document> {
   const searchParams = new URLSearchParams({
-    corpus_name: corpus,
+    corpus_name: corpus_name,
     document_id: document_id,
   });
   const res = await fetch(
@@ -43,12 +43,12 @@ export async function get_document(
 }
 
 export async function get_queries(
-  corpus: string,
-  dataset: string,
+  corpus_name: string,
+  dataset_name: string,
 ): Promise<Query[]> {
   const searchParams = new URLSearchParams({
-    corpus_name: corpus,
-    dataset_name: dataset,
+    corpus_name: corpus_name,
+    dataset_name: dataset_name,
   });
   const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
   return (await res.json()) as Query[];

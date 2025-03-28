@@ -8,7 +8,7 @@
 
 <List listItems={data.corpusList}>
   {#snippet head()}
-    Available corpora
+    Corpora
   {/snippet}
   {#snippet item(c: Corpus)}
     {c.name}
