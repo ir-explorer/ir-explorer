@@ -16,8 +16,8 @@ export interface Query {
 }
 export interface Document {
   id: string;
-  text: string;
   title: string | null;
+  text: string;
   corpus_name: string;
 }
 export interface DocumentSearchHit extends Document {

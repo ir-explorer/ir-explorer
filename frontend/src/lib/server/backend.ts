@@ -1,5 +1,11 @@
 import { BACKEND_HOST, BACKEND_PORT } from "$env/static/private";
-import type { Corpus, Dataset, DocumentSearchHit, Query } from "$lib/types";
+import type {
+  Corpus,
+  Dataset,
+  Document,
+  DocumentSearchHit,
+  Query,
+} from "$lib/types";
 
 const BACKEND_REST_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}`;
 
@@ -36,9 +42,7 @@ export async function get_document(
     corpus_name: corpus_name,
     document_id: document_id,
   });
-  const res = await fetch(
-    `${BACKEND_REST_URL}/get_document_id?${searchParams}`,
-  );
+  const res = await fetch(`${BACKEND_REST_URL}/get_document?${searchParams}`);
   return (await res.json()) as Document;
 }
 

@@ -6,6 +6,10 @@
   let { data }: PageProps = $props();
 </script>
 
+{#if data.document !== null}
+  <p>{data.document.text}</p>
+{/if}
+
 <List listItems={data.datasetList}>
   {#snippet head()}
     Datasets
