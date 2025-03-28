@@ -26,7 +26,7 @@
           </a>
           <a
             class="badge-soft join-item badge hover:text-primary"
-            href="/browse/{hit.corpus_name}?doc={hit.id}">
+            href="/browse/{hit.corpus_name}?document_id={hit.id}">
             <Fa icon={documentIcon} />
             {hit.id}
           </a>

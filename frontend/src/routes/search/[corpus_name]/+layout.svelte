@@ -13,7 +13,7 @@
     <SearchBar
       corpora={data.corpora}
       {searchInit}
-      selectedCorpusNameInit={data.selectedCorpus} />
+      selectedCorpusNameInit={data.selectedCorpusName} />
   </div>
 </Header>
 

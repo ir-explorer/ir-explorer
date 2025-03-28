@@ -9,5 +9,5 @@ export const load: PageServerLoad = async ({ params, url }) => {
     redirect(307, "/search");
   }
 
-  return { hits: await search_documents(params.corpus, q) };
+  return { hits: await search_documents(params.corpus_name, q) };
 };
