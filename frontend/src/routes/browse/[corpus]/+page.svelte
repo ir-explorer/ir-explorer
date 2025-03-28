@@ -8,7 +8,7 @@
 
 <List listItems={data.datasetList}>
   {#snippet head()}
-    Available datasets
+    Datasets
   {/snippet}
   {#snippet item(d: Dataset)}
     {d.name}
