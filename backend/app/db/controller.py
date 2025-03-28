@@ -452,7 +452,7 @@ class DBController(Controller):
                     "error_code": e.code,
                 },
             )
-        return Document(result.id, corpus_name, result.title, result.text)
+        return Document(result.id, result.title, result.text, corpus_name)
 
     @get(path="/search_queries")
     async def search_queries(
