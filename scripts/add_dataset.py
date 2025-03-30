@@ -1,11 +1,15 @@
+# !/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["ir_datasets", "requests", "tqdm"]
+# ///
+
 from argparse import ArgumentParser
 from itertools import batched
 
 import ir_datasets
 import requests
 from tqdm import tqdm
-
-BASE_URL = "http://127.0.0.1:8103"
 
 
 def main():
@@ -17,13 +21,14 @@ def main():
     ap.add_argument("--language", default="english")
     ap.add_argument("--min_relevance", type=int, default=1)
     ap.add_argument("--add_corpus", action="store_true")
+    ap.add_argument("--base_url", default="http://127.0.0.1:8103")
     args = ap.parse_args()
 
     ds = ir_datasets.load(args.DATASET_ID)
 
     if args.add_corpus:
         requests.post(
-            BASE_URL + "/create_corpus",
+            args.BASE_URL + "/create_corpus",
             json={"name": args.CORPUS_NAME, "language": args.language},
         )
         for batch in tqdm(
@@ -32,7 +37,7 @@ def main():
             desc="Adding documents",
         ):
             requests.post(
-                BASE_URL + "/add_documents",
+                args.BASE_URL + "/add_documents",
                 json=[
                     {
                         "id": doc.doc_id,
@@ -45,7 +50,7 @@ def main():
             )
 
     requests.post(
-        BASE_URL + "/create_dataset",
+        args.BASE_URL + "/create_dataset",
         json={
             "name": args.DATASET_NAME,
             "corpus_name": args.CORPUS_NAME,
@@ -59,7 +64,7 @@ def main():
         desc="Adding queries",
     ):
         requests.post(
-            BASE_URL + "/add_queries",
+            args.BASE_URL + "/add_queries",
             json=[
                 {
                     "id": query.query_id,
@@ -77,7 +82,7 @@ def main():
         desc="Adding QRels",
     ):
         requests.post(
-            BASE_URL + "/add_qrels",
+            args.BASE_URL + "/add_qrels",
             json=[
                 {
                     "query_id": qrel.query_id,
