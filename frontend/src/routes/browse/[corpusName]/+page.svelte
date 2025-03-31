@@ -21,13 +21,15 @@
   </div>
 {/if}
 
-<List listItems={data.datasetList}>
-  {#snippet head()}
-    <p class="flex flex-row items-center gap-2">
-      <Fa icon={datasetIcon} /> Datasets
-    </p>
-  {/snippet}
-  {#snippet item(d: Dataset)}
-    {d.name}
-  {/snippet}
-</List>
+{#if data.datasetList.length > 0}
+  <List listItems={data.datasetList}>
+    {#snippet head()}
+      <p class="flex flex-row items-center gap-2">
+        <Fa icon={datasetIcon} /> Datasets
+      </p>
+    {/snippet}
+    {#snippet item(d: Dataset)}
+      {d.name}
+    {/snippet}
+  </List>
+{/if}

@@ -21,13 +21,15 @@
   </div>
 {/if}
 
-<List listItems={data.queryList}>
-  {#snippet head()}
-    <p class="flex flex-row items-center gap-2">
-      <Fa icon={queryIcon} /> Queries
-    </p>
-  {/snippet}
-  {#snippet item(q: Query)}
-    {q.id}
-  {/snippet}
-</List>
+{#if data.queryList.length > 0}
+  <List listItems={data.queryList}>
+    {#snippet head()}
+      <p class="flex flex-row items-center gap-2">
+        <Fa icon={queryIcon} /> Queries
+      </p>
+    {/snippet}
+    {#snippet item(q: Query)}
+      {q.id}
+    {/snippet}
+  </List>
+{/if}
