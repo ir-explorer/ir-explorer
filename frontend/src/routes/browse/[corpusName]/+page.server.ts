@@ -1,12 +1,12 @@
-import { get_datasets, get_document } from "$lib/server/backend";
+import { getDatasets, getDocument } from "$lib/server/backend";
 import type { Dataset, Document, ListItem } from "$lib/types";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params, url }) => {
   let listItems: ListItem<Dataset>[] = [];
-  for (const dataset of await get_datasets(params.corpus_name)) {
+  for (const dataset of await getDatasets(params.corpusName)) {
     listItems.push({
-      target: "/browse/" + params.corpus_name + "/" + dataset.name,
+      target: "/browse/" + params.corpusName + "/" + dataset.name,
       item: dataset,
     });
   }
@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
   let document: Document | null = null;
   const documentID = url.searchParams.get("document_id");
   if (documentID !== null) {
-    document = await get_document(params.corpus_name, documentID);
+    document = await getDocument(params.corpusName, documentID);
   }
 
   return { datasetList: listItems, document: document };

@@ -9,82 +9,82 @@ import type {
 
 const BACKEND_REST_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}`;
 
-export async function get_corpora(): Promise<Corpus[]> {
+export async function getCorpora(): Promise<Corpus[]> {
   const res = await fetch(`${BACKEND_REST_URL}/get_corpora`);
   return (await res.json()) as Corpus[];
 }
 
-export async function get_datasets(corpus_name: string): Promise<Dataset[]> {
-  const params = new URLSearchParams({ corpus_name: corpus_name });
+export async function getDatasets(corpusName: string): Promise<Dataset[]> {
+  const params = new URLSearchParams({ corpus_name: corpusName });
   const res = await fetch(`${BACKEND_REST_URL}/get_datasets?${params}`);
   return (await res.json()) as Dataset[];
 }
 
-export async function get_query(
-  corpus_name: string,
-  dataset_name: string,
-  query_id: string,
+export async function getQuery(
+  corpusName: string,
+  datasetName: string,
+  queryID: string,
 ): Promise<Query> {
   const searchParams = new URLSearchParams({
-    corpus_name: corpus_name,
-    dataset_name: dataset_name,
-    query_id: query_id,
+    corpus_name: corpusName,
+    dataset_name: datasetName,
+    query_id: queryID,
   });
   const res = await fetch(`${BACKEND_REST_URL}/get_query?${searchParams}`);
   return (await res.json()) as Query;
 }
 
-export async function get_document(
-  corpus_name: string,
-  document_id: string,
+export async function getDocument(
+  corpusName: string,
+  documentID: string,
 ): Promise<Document> {
   const searchParams = new URLSearchParams({
-    corpus_name: corpus_name,
-    document_id: document_id,
+    corpus_name: corpusName,
+    document_id: documentID,
   });
   const res = await fetch(`${BACKEND_REST_URL}/get_document?${searchParams}`);
   return (await res.json()) as Document;
 }
 
-export async function get_queries(
-  corpus_name: string,
-  dataset_name: string,
+export async function getQueries(
+  corpusName: string,
+  datasetName: string,
 ): Promise<Query[]> {
   const searchParams = new URLSearchParams({
-    corpus_name: corpus_name,
-    dataset_name: dataset_name,
+    corpus_name: corpusName,
+    dataset_name: datasetName,
   });
   const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
   return (await res.json()) as Query[];
 }
 
-export async function autocomplete_query(
+export async function autocompleteQuery(
   input: string,
-  corpus_name: string,
-  dataset_name: string | null,
-  num_results: number | null,
+  corpusName: string,
+  datasetName: string | null,
+  numResults: number | null,
 ): Promise<Query[]> {
   let searchParams = new URLSearchParams({
-    corpus_name: corpus_name,
+    corpus_name: corpusName,
     search: input,
   });
-  if (dataset_name !== null) {
-    searchParams.append("dataset_name", dataset_name);
+  if (datasetName !== null) {
+    searchParams.append("dataset_name", datasetName);
   }
-  if (num_results !== null) {
-    searchParams.append("num_results", num_results.toString());
+  if (numResults !== null) {
+    searchParams.append("num_results", numResults.toString());
   }
 
   const res = await fetch(`${BACKEND_REST_URL}/search_queries?${searchParams}`);
   return (await res.json()) as Query[];
 }
 
-export async function search_documents(
-  corpus_name: string,
+export async function searchDocuments(
+  corpusName: string,
   search: string,
 ): Promise<DocumentSearchHit[]> {
   const searchParams = new URLSearchParams({
-    corpus_name: corpus_name,
+    corpus_name: corpusName,
     search: search,
   });
   const res = await fetch(

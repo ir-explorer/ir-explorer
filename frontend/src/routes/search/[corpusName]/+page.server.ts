@@ -1,4 +1,4 @@
-import { search_documents } from "$lib/server/backend";
+import { searchDocuments } from "$lib/server/backend";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
@@ -9,5 +9,5 @@ export const load: PageServerLoad = async ({ params, url }) => {
     redirect(307, "/search");
   }
 
-  return { hits: await search_documents(params.corpus_name, q) };
+  return { hits: await searchDocuments(params.corpusName, q) };
 };

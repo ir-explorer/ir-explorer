@@ -16,30 +16,30 @@
   <div class="breadcrumbs text-sm">
     <ul>
       <li><a href="/browse"><Fa icon={browseIcon} />Browse</a></li>
-      {#if data.corpus_name}
+      {#if data.corpusName}
         <li>
-          <a href="/browse/{data.corpus_name}"
-            ><Fa icon={corpusIcon} />{data.corpus_name}
+          <a href="/browse/{data.corpusName}"
+            ><Fa icon={corpusIcon} />{data.corpusName}
           </a>
         </li>
       {/if}
 
-      {#if data.dataset_name}
+      {#if data.datasetName}
         <li>
-          <a href="/browse/{data.corpus_name}/{data.dataset_name}"
-            ><Fa icon={datasetIcon} />{data.dataset_name}
+          <a href="/browse/{data.corpusName}/{data.datasetName}"
+            ><Fa icon={datasetIcon} />{data.datasetName}
           </a>
         </li>
         {#if data.query_id}
           <li>
             <a
-              href="/browse/{data.corpus_name}/{data.dataset_name}?query_id={data.query_id}"
+              href="/browse/{data.corpusName}/{data.datasetName}?query_id={data.query_id}"
               ><Fa icon={queryIcon} />{data.query_id}</a>
           </li>
         {/if}
       {:else if data.document_id}
         <li>
-          <a href="/browse/{data.corpus_name}?document_id={data.document_id}"
+          <a href="/browse/{data.corpusName}?document_id={data.document_id}"
             ><Fa icon={documentIcon} />{data.document_id}</a>
         </li>
       {/if}
