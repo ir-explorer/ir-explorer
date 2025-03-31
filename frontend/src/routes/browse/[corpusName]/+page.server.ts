@@ -17,5 +17,5 @@ export const load: PageServerLoad = async ({ params, url }) => {
     document = await getDocument(params.corpusName, documentID);
   }
 
-  return { datasetList: listItems, document: document };
+  return { datasetList: listItems, document: document, documentID: documentID };
 };

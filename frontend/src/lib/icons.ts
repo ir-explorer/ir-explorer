@@ -4,8 +4,8 @@ import {
   faEye,
   faFileLines,
   faFolderClosed,
+  faLightbulb,
   faMagnifyingGlass,
-  faQuestion,
   faSliders,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -16,4 +16,4 @@ export const browseIcon = faEye;
 export const corpusIcon = faFolderClosed;
 export const documentIcon = faFileLines;
 export const datasetIcon = faDatabase;
-export const queryIcon = faQuestion;
+export const queryIcon = faLightbulb;

@@ -30,17 +30,17 @@
             ><Fa icon={datasetIcon} />{data.datasetName}
           </a>
         </li>
-        {#if data.query_id}
+        {#if data.queryID}
           <li>
             <a
-              href="/browse/{data.corpusName}/{data.datasetName}?query_id={data.query_id}"
-              ><Fa icon={queryIcon} />{data.query_id}</a>
+              href="/browse/{data.corpusName}/{data.datasetName}?query_id={data.queryID}"
+              ><Fa icon={queryIcon} />{data.queryID}</a>
           </li>
         {/if}
-      {:else if data.document_id}
+      {:else if data.documentID}
         <li>
-          <a href="/browse/{data.corpusName}?document_id={data.document_id}"
-            ><Fa icon={documentIcon} />{data.document_id}</a>
+          <a href="/browse/{data.corpusName}?document_id={data.documentID}"
+            ><Fa icon={documentIcon} />{data.documentID}</a>
         </li>
       {/if}
     </ul>
