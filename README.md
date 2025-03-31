@@ -12,15 +12,19 @@
 
 ## Running with Docker
 
-The backend and database can be run easily with Docker:
+The application can easily be run with Docker:
 
 ```bash
 docker compose up --watch
 ```
 
-The backend REST API is made available on port `8000`:
+The frontend can then be accessed via port `8104`:
 
-- http://127.0.0.1:8000/schema/
-- http://127.0.0.1:8000/schema/swagger
+- http://127.0.0.1:8104
+
+The backend REST API is available on port `8103`:
+
+- http://127.0.0.1:8103/schema/
+- http://127.0.0.1:8103/schema/swagger
 
 The example script under `scripts/add_dataset.py` may be used to index datasets directly from [ir-datasets](https://ir-datasets.com/).
