@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
   }
 
   let pageNum = Number(url.searchParams.get("p"));
-  if (isNaN(pageNum) || pageNum < 1) {
+  if (!Number.isInteger(pageNum) || pageNum < 1) {
     pageNum = 1;
   }
 
