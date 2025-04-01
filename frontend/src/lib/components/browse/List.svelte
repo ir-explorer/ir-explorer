@@ -1,6 +1,6 @@
 <script lang="ts" generics="T">
   import Fa from "svelte-fa";
-  import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
+  import { listArrowIcon } from "$lib/icons";
   import type { ListItem } from "$lib/types";
   import type { Snippet } from "svelte";
 
@@ -21,7 +21,7 @@
           {@render item(listItem.item)}
         </div>
         <div class="my-auto">
-          <Fa icon={faChevronRight} />
+          <Fa icon={listArrowIcon} />
         </div>
       </li>
     </a>

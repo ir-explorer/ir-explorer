@@ -24,6 +24,12 @@ export interface DocumentSearchHit extends Document {
   score: number;
 }
 
+export interface Paginated<T> {
+  total_num_items: number;
+  offset: number;
+  items: T[];
+}
+
 export interface ListItem<T> {
   target: string;
   item: T;
