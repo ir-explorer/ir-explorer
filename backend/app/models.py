@@ -88,3 +88,12 @@ class DocumentSearchHit(Document):
     """A document retrieved by a search engine."""
 
     score: float
+
+
+@dataclass
+class DocumentSearchResult:
+    """An incomplete list of retrieved documents."""
+
+    total_num_items: int
+    offset: int
+    items: list[DocumentSearchHit]

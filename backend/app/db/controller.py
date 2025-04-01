@@ -12,6 +12,7 @@ from models import (
     Dataset,
     Document,
     DocumentSearchHit,
+    DocumentSearchResult,
     DocumentWithRelevance,
     Query,
     QueryWithRelevanceInfo,
@@ -508,22 +509,39 @@ class DBController(Controller):
         corpus_name: str,
         search: str,
         num_results: int = 10,
-    ) -> list[DocumentSearchHit]:
+        offset: int = 0,
+    ) -> DocumentSearchResult:
         """Search documents within a corpus (using full-text search).
 
         :param transaction: A DB transaction.
         :param corpus_name: The corpus name.
         :param search: The search string.
         :param num_results: How many documents to return.
-        :return: The resulting documents (ordered by score).
+        :param offset: Offset (number of documents) for pagination.
+        :return:
+            The total number of results and a list of documents ordered by score,
+            respecting `num_results` and `offset`.
         """
         ts_query = func.websearch_to_tsquery(
             select(ORMCorpus.language).filter_by(name=corpus_name).scalar_subquery(),
             search,
         )
-        ts_rank = func.ts_rank_cd(ORMDocument.text_tsv, ts_query)
 
-        sql = (
+        # count the total number of hits
+        sql_count = (
+            select(func.count(ORMDocument.id))
+            .join(ORMCorpus)
+            .where(
+                and_(
+                    ORMCorpus.name == corpus_name,
+                    ORMDocument.text_tsv.bool_op("@@")(ts_query),
+                ),
+            )
+        )
+
+        # score and rank documents, select a subset to return
+        ts_rank = func.ts_rank_cd(ORMDocument.text_tsv, ts_query)
+        sql_results = (
             select(ORMDocument, ts_rank.label("score"))
             .join(ORMCorpus)
             .where(
@@ -533,20 +551,27 @@ class DBController(Controller):
                 ),
             )
             .order_by(desc("score"))
+            .order_by(ORMDocument.id)
             .limit(num_results)
+            .offset(offset)
         )
 
-        result = (await transaction.execute(sql)).all()
-        return [
-            DocumentSearchHit(
-                id=doc.id,
-                corpus_name=corpus_name,
-                title=doc.title,
-                text=doc.text,
-                score=score,
-            )
-            for doc, score in result
-        ]
+        total_num_results = (await transaction.execute(sql_count)).scalar_one()
+        results = (await transaction.execute(sql_results)).all()
+        return DocumentSearchResult(
+            total_num_results,
+            offset,
+            [
+                DocumentSearchHit(
+                    id=doc.id,
+                    corpus_name=corpus_name,
+                    title=doc.title,
+                    text=doc.text,
+                    score=score,
+                )
+                for doc, score in results
+            ],
+        )
 
     @delete(path="/remove_dataset")
     async def remove_dataset(

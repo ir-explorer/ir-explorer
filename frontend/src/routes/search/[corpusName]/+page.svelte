@@ -7,16 +7,19 @@
 </script>
 
 <ul class="list rounded-box bg-base-100 shadow-md">
-  <li class="p-4 text-xs">Search results</li>
+  <li class="p-4 text-xs">
+    Displaying {data.result.total_num_items} search results
+  </li>
 
-  {#each data["hits"] as hit, index}
+  {#each data.result.items as hit, index}
     <li class="list-row">
       <div>
         <div class="join">
           <span
             class="badge-soft tooltip join-item badge badge-primary"
             data-tip="Score: {hit.score}">
-            #<span class="-ml-1 font-bold">{index + 1}</span>
+            #<span class="-ml-1 font-bold"
+              >{data.result.offset + index + 1}</span>
           </span>
           <a
             class="badge-soft join-item badge hover:text-primary"

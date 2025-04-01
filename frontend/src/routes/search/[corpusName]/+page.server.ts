@@ -4,10 +4,17 @@ import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params, url }) => {
   const q = url.searchParams.get("q");
-
-  if (!q || q.trim() == "") {
+  if (!q || q.trim().length == 0) {
     redirect(307, "/search");
   }
 
-  return { hits: await searchDocuments(params.corpusName, q) };
+  let page = Number(url.searchParams.get("p"));
+  if (isNaN(page) || page < 1) {
+    page = 1;
+  }
+
+  return {
+    result: await searchDocuments(params.corpusName, q, 10, page),
+    page: page,
+  };
 };

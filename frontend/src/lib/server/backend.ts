@@ -4,6 +4,7 @@ import type {
   Dataset,
   Document,
   DocumentSearchHit,
+  Paginated,
   Query,
 } from "$lib/types";
 
@@ -82,13 +83,18 @@ export async function autocompleteQuery(
 export async function searchDocuments(
   corpusName: string,
   search: string,
-): Promise<DocumentSearchHit[]> {
+  numResults: number,
+  page: number,
+): Promise<Paginated<DocumentSearchHit>> {
+  const offset = (page - 1) * numResults;
   const searchParams = new URLSearchParams({
     corpus_name: corpusName,
     search: search,
+    num_results: numResults.toString(),
+    offset: offset.toString(),
   });
   const res = await fetch(
     `${BACKEND_REST_URL}/search_documents?${searchParams}`,
   );
-  return (await res.json()) as DocumentSearchHit[];
+  return (await res.json()) as Paginated<DocumentSearchHit>;
 }
