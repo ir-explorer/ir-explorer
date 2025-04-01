@@ -58,7 +58,9 @@
   {#if data.totalPages > 1}
     <div class="mt-4 join flex w-full items-stretch justify-center">
       {#if data.prevPageLink != null}
-        <a href={data.prevPageLink} class="btn join-item btn-soft btn-primary"
+        <a
+          href={data.prevPageLink}
+          class="btn join-item btn-soft btn-sm btn-primary"
           ><Fa icon={prevPageIcon} /></a>
       {/if}
       <div
@@ -68,7 +70,9 @@
         </p>
       </div>
       {#if data.nextPageLink != null}
-        <a href={data.nextPageLink} class="btn join-item btn-soft btn-primary"
+        <a
+          href={data.nextPageLink}
+          class="btn join-item btn-soft btn-sm btn-primary"
           ><Fa icon={nextPageIcon} /></a>
       {/if}
     </div>
