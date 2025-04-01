@@ -46,19 +46,21 @@
   {/each}
 </ul>
 
-<div class="mt-4 join flex w-full items-stretch justify-center">
-  {#if data.prevPageLink != null}
-    <a href={data.prevPageLink} class="btn join-item"
-      ><Fa icon={prevPageIcon} /></a>
-  {/if}
-  <div
-    class="join-item flex items-center border border-base-300 bg-base-200 px-4">
-    <p class="text-sm">
-      Page {data.pageNum} of {data.totalPages}
-    </p>
+{#if data.totalPages > 1}
+  <div class="mt-4 join flex w-full items-stretch justify-center">
+    {#if data.prevPageLink != null}
+      <a href={data.prevPageLink} class="btn join-item btn-soft btn-primary"
+        ><Fa icon={prevPageIcon} /></a>
+    {/if}
+    <div
+      class="join-item flex items-center border border-base-300 bg-base-200 px-4">
+      <p class="text-sm">
+        Page {data.pageNum} of {data.totalPages}
+      </p>
+    </div>
+    {#if data.nextPageLink != null}
+      <a href={data.nextPageLink} class="btn join-item btn-soft btn-primary"
+        ><Fa icon={nextPageIcon} /></a>
+    {/if}
   </div>
-  {#if data.nextPageLink != null}
-    <a href={data.nextPageLink} class="btn join-item"
-      ><Fa icon={nextPageIcon} /></a>
-  {/if}
-</div>
+{/if}
