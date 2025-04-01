@@ -22,6 +22,16 @@ export const load: PageServerLoad = async ({ params, url }) => {
   );
   const totalPages = Math.ceil(result.total_num_items / resultsPerPage);
 
+  if (totalPages == 0) {
+    return {
+      result: result,
+      pageNum: pageNum,
+      totalPages: totalPages,
+      prevPageLink: null,
+      nextPageLink: null,
+    };
+  }
+
   if (pageNum > totalPages) {
     redirect(307, "/search");
   }

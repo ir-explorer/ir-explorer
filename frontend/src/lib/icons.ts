@@ -6,6 +6,7 @@ import {
   faEye,
   faFileLines,
   faFolderClosed,
+  faInfo,
   faLightbulb,
   faMagnifyingGlass,
   faSliders,
@@ -13,6 +14,7 @@ import {
 
 export const menuIcon = faBars;
 export const settingsIcon = faSliders;
+export const infoIcon = faInfo;
 
 export const searchIcon = faMagnifyingGlass;
 export const browseIcon = faEye;
