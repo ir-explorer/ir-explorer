@@ -1,14 +1,20 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
   import Fa from "svelte-fa";
-  import { corpusIcon, documentIcon } from "$lib/icons";
+  import {
+    corpusIcon,
+    documentIcon,
+    nextPageIcon,
+    prevPageIcon,
+  } from "$lib/icons";
 
   let { data }: PageProps = $props();
 </script>
 
 <ul class="list rounded-box bg-base-100 shadow-md">
   <li class="p-4 text-xs">
-    Displaying {data.result.total_num_items} search results
+    Displaying results {data.result.offset + 1} to {data.result.offset +
+      data.result.items.length} (total: {data.result.total_num_items})
   </li>
 
   {#each data.result.items as hit, index}
@@ -39,3 +45,20 @@
     </li>
   {/each}
 </ul>
+
+<div class="mt-4 join flex w-full items-stretch justify-center">
+  {#if data.prevPageLink != null}
+    <a href={data.prevPageLink} class="btn join-item"
+      ><Fa icon={prevPageIcon} /></a>
+  {/if}
+  <div
+    class="join-item flex items-center border border-base-300 bg-base-200 px-4">
+    <p class="text-sm">
+      Page {data.pageNum} of {data.totalPages}
+    </p>
+  </div>
+  {#if data.nextPageLink != null}
+    <a href={data.nextPageLink} class="btn join-item"
+      ><Fa icon={nextPageIcon} /></a>
+  {/if}
+</div>
