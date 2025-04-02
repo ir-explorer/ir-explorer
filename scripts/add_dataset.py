@@ -22,13 +22,14 @@ def main():
     ap.add_argument("--min_relevance", type=int, default=1)
     ap.add_argument("--add_corpus", action="store_true")
     ap.add_argument("--base_url", default="http://127.0.0.1:8103")
+    ap.add_argument("--text_attr", default="text")
     args = ap.parse_args()
 
     ds = ir_datasets.load(args.DATASET_ID)
 
     if args.add_corpus:
         requests.post(
-            args.BASE_URL + "/create_corpus",
+            args.base_url + "/create_corpus",
             json={"name": args.CORPUS_NAME, "language": args.language},
         )
         for batch in tqdm(
@@ -37,12 +38,12 @@ def main():
             desc="Adding documents",
         ):
             requests.post(
-                args.BASE_URL + "/add_documents",
+                args.base_url + "/add_documents",
                 json=[
                     {
                         "id": doc.doc_id,
                         "title": getattr(doc, "title", None),
-                        "text": doc.text,
+                        "text": getattr(doc, args.text_attr),
                     }
                     for doc in batch
                 ],
@@ -50,7 +51,7 @@ def main():
             )
 
     requests.post(
-        args.BASE_URL + "/create_dataset",
+        args.base_url + "/create_dataset",
         json={
             "name": args.DATASET_NAME,
             "corpus_name": args.CORPUS_NAME,
@@ -64,7 +65,7 @@ def main():
         desc="Adding queries",
     ):
         requests.post(
-            args.BASE_URL + "/add_queries",
+            args.base_url + "/add_queries",
             json=[
                 {
                     "id": query.query_id,
@@ -82,7 +83,7 @@ def main():
         desc="Adding QRels",
     ):
         requests.post(
-            args.BASE_URL + "/add_qrels",
+            args.base_url + "/add_qrels",
             json=[
                 {
                     "query_id": qrel.query_id,
