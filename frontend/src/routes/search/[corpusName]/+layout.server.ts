@@ -4,6 +4,6 @@ import type { LayoutServerLoad } from "./$types";
 export const load: LayoutServerLoad = async ({ params }) => {
   return {
     corpora: await getCorpora(),
-    selectedCorpusName: params.corpus_name,
+    selectedCorpusName: params.corpusName,
   };
 };
