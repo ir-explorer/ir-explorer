@@ -516,10 +516,10 @@ class DBController(Controller):
         :param transaction: A DB transaction.
         :param corpus_name: The corpus name.
         :param search: The search string.
-        :param num_results: How many documents to return.
-        :param offset: Offset (number of documents) for pagination.
+        :param num_results: How many hits to return.
+        :param offset: Offset for pagination.
         :return:
-            The total number of results and a list of documents ordered by score,
+            The total number of results and a list of hits ordered by score,
             respecting `num_results` and `offset`.
         """
         ts_query = func.websearch_to_tsquery(
@@ -542,7 +542,7 @@ class DBController(Controller):
         # score and rank documents, select a subset to return
         ts_rank = func.ts_rank_cd(ORMDocument.text_tsv, ts_query)
 
-        # subquery for the results of the current page only
+        # results for the current page only
         sql_results_page = (
             select(
                 ORMDocument.id.label("id"),
@@ -559,8 +559,8 @@ class DBController(Controller):
             )
             .order_by(desc("score"))
             .order_by(ORMDocument.id)
-            .limit(num_results)
             .offset(offset)
+            .limit(num_results)
         )
 
         # compute snippets for the current page
