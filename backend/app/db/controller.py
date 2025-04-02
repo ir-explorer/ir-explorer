@@ -568,7 +568,11 @@ class DBController(Controller):
             text("id"),
             text("title"),
             text("score"),
-            func.ts_headline(text("text"), ts_query).label("snippet"),
+            func.ts_headline(
+                text("text"),
+                ts_query,
+                "MaxFragments=5, FragmentDelimiter=' [...] '",
+            ).label("snippet"),
         ).select_from(sql_results_page.subquery())
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
