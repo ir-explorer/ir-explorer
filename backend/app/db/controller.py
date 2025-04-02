@@ -541,8 +541,15 @@ class DBController(Controller):
 
         # score and rank documents, select a subset to return
         ts_rank = func.ts_rank_cd(ORMDocument.text_tsv, ts_query)
-        sql_results = (
-            select(ORMDocument, ts_rank.label("score"))
+
+        # subquery for the results of the current page only
+        sql_results_page = (
+            select(
+                ORMDocument.id.label("id"),
+                ORMDocument.title.label("title"),
+                ORMDocument.text.label("text"),
+                ts_rank.label("score"),
+            )
             .join(ORMCorpus)
             .where(
                 and_(
@@ -556,6 +563,14 @@ class DBController(Controller):
             .offset(offset)
         )
 
+        # compute snippets for the current page
+        sql_results = select(
+            text("id"),
+            text("title"),
+            text("score"),
+            func.ts_headline(text("text"), ts_query).label("snippet"),
+        ).select_from(sql_results_page.subquery())
+
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         results = (await transaction.execute(sql_results)).all()
         return DocumentSearchResult(
@@ -563,13 +578,13 @@ class DBController(Controller):
             offset,
             [
                 DocumentSearchHit(
-                    id=doc.id,
+                    id=id,
                     corpus_name=corpus_name,
-                    title=doc.title,
-                    text=doc.text,
+                    title=title,
+                    snippet=snippet,
                     score=score,
                 )
-                for doc, score in results
+                for id, title, score, snippet in results
             ],
         )
 
