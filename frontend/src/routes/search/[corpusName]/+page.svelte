@@ -49,7 +49,7 @@
               {hit.id}
             </a>
           </div>
-          <p class="my-2">{hit.text}</p>
+          <p class="my-2">{@html hit.snippet}</p>
         </div>
       </li>
     {/each}

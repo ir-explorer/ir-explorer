@@ -84,10 +84,14 @@ class DocumentWithRelevance(Document):
 
 
 @dataclass
-class DocumentSearchHit(Document):
+class DocumentSearchHit:
     """A document retrieved by a search engine."""
 
+    id: str
+    title: str | None
+    snippet: str
     score: float
+    corpus_name: str
 
 
 @dataclass

@@ -516,10 +516,10 @@ class DBController(Controller):
         :param transaction: A DB transaction.
         :param corpus_name: The corpus name.
         :param search: The search string.
-        :param num_results: How many documents to return.
-        :param offset: Offset (number of documents) for pagination.
+        :param num_results: How many hits to return.
+        :param offset: Offset for pagination.
         :return:
-            The total number of results and a list of documents ordered by score,
+            The total number of results and a list of hits ordered by score,
             respecting `num_results` and `offset`.
         """
         ts_query = func.websearch_to_tsquery(
@@ -541,8 +541,15 @@ class DBController(Controller):
 
         # score and rank documents, select a subset to return
         ts_rank = func.ts_rank_cd(ORMDocument.text_tsv, ts_query)
-        sql_results = (
-            select(ORMDocument, ts_rank.label("score"))
+
+        # results for the current page only
+        sql_results_page = (
+            select(
+                ORMDocument.id.label("id"),
+                ORMDocument.title.label("title"),
+                ORMDocument.text.label("text"),
+                ts_rank.label("score"),
+            )
             .join(ORMCorpus)
             .where(
                 and_(
@@ -552,9 +559,21 @@ class DBController(Controller):
             )
             .order_by(desc("score"))
             .order_by(ORMDocument.id)
-            .limit(num_results)
             .offset(offset)
+            .limit(num_results)
         )
+
+        # compute snippets for the current page
+        sql_results = select(
+            text("id"),
+            text("title"),
+            text("score"),
+            func.ts_headline(
+                text("text"),
+                ts_query,
+                "MaxFragments=5, FragmentDelimiter=' [...] '",
+            ).label("snippet"),
+        ).select_from(sql_results_page.subquery())
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         results = (await transaction.execute(sql_results)).all()
@@ -563,13 +582,13 @@ class DBController(Controller):
             offset,
             [
                 DocumentSearchHit(
-                    id=doc.id,
+                    id=id,
                     corpus_name=corpus_name,
-                    title=doc.title,
-                    text=doc.text,
+                    title=title,
+                    snippet=snippet,
                     score=score,
                 )
-                for doc, score in results
+                for id, title, score, snippet in results
             ],
         )
 

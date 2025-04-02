@@ -20,8 +20,12 @@ export interface Document {
   text: string;
   corpus_name: string;
 }
-export interface DocumentSearchHit extends Document {
+export interface DocumentSearchHit {
   score: number;
+  id: string;
+  title: string | null;
+  snippet: string;
+  corpus_name: string;
 }
 
 export interface Paginated<T> {
