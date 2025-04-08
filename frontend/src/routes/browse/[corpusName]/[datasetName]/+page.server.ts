@@ -6,7 +6,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
   let listItems: ListItem<Query>[] = [];
   let query: Query | null = null;
 
-  // if a query ID is specified, we only return that query. otherwise, return all queries
+  // if a query ID is specified, only return that query. otherwise, return all queries
   const queryID = url.searchParams.get("query_id");
   if (queryID !== null) {
     query = await getQuery(params.corpusName, params.datasetName, queryID);
