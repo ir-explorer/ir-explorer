@@ -15,31 +15,27 @@
 
   // if no initial corpus name is provided, default to the 1st in the list
   let selectedCorpusName: string = $state(
-    selectedCorpusNameInit ? selectedCorpusNameInit : corpora[0].name
+    selectedCorpusNameInit ? selectedCorpusNameInit : corpora[0].name,
   );
-  let search: string = $state(searchInit ? searchInit : "");
-  let target: string = $derived(
-    "/search/" + selectedCorpusName + "?" + new URLSearchParams({ q: search })
-  );
+  let action: string = $derived("/search/" + selectedCorpusName);
 </script>
 
-<form class="flex flex-row items-center w-full gap-2">
+<form class="flex w-full flex-row items-center gap-2" {action} method="get">
   <div class="dropdown">
-    <div tabindex="0" role="button" class="w-8 h-8 btn btn-circle">
+    <div tabindex="0" role="button" class="btn btn-circle h-8 w-8">
       <Fa icon={settingsIcon} />
     </div>
-    <div class="mt-2 shadow dropdown-content card card-border bg-base-200">
+    <div class="dropdown-content card-border card mt-2 bg-base-200 shadow">
       <div class="card-body">
         <fieldset class="fieldset">
           <legend class="fieldset-legend">Settings</legend>
-          <label class="flex flex-col items-start fieldset-label"
+          <label class="fieldset-label flex flex-col items-start"
             >Corpus
             <select
-              class="w-48 select select-primary select-sm"
+              class="select w-48 select-sm select-primary"
               name="corpora"
               id="corpora"
-              bind:value={selectedCorpusName}
-            >
+              bind:value={selectedCorpusName}>
               {#each corpora as corpus}
                 <option value={corpus.name}>{corpus.name}</option>
               {/each}
@@ -49,13 +45,15 @@
       </div>
     </div>
   </div>
-  <label class="input input-primary grow">
-    <input type="text" placeholder="Type a query..." bind:value={search} />
+  <label class="input grow input-primary">
+    <input
+      type="text"
+      placeholder="Type a query..."
+      value={searchInit ? searchInit : ""}
+      name="q" />
     <span class="label"><Fa icon={corpusIcon} />{selectedCorpusName}</span>
   </label>
-  <a href={target}>
-    <button class="w-12 btn btn-primary" type="submit">
-      <Fa icon={searchIcon} />
-    </button>
-  </a>
+  <button class="btn w-12 btn-primary" type="submit">
+    <Fa icon={searchIcon} />
+  </button>
 </form>

@@ -6,7 +6,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
   let listItems: ListItem<Dataset>[] = [];
   let document: Document | null = null;
 
-  // if a document ID is specified, we only return that query. otherwise, return all documents
+  // if a document ID is specified, we return that document. otherwise, return a list of datasets
   const documentID = url.searchParams.get("document_id");
   if (documentID !== null) {
     document = await getDocument(params.corpusName, documentID);
