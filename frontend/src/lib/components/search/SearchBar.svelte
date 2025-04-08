@@ -33,8 +33,6 @@
             >Corpus
             <select
               class="select w-48 select-sm select-primary"
-              name="corpora"
-              id="corpora"
               bind:value={selectedCorpusName}>
               {#each corpora as corpus}
                 <option value={corpus.name}>{corpus.name}</option>
