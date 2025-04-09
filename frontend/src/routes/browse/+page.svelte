@@ -11,6 +11,6 @@
     Corpora
   {/snippet}
   {#snippet item(c: Corpus)}
-    {c.name}
+    {c.name} ({c.num_datasets} datasets, {c.num_documents_estimate} documents)
   {/snippet}
 </List>
