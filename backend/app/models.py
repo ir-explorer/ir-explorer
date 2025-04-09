@@ -10,6 +10,14 @@ class Corpus:
 
 
 @dataclass
+class CorpusWithStats(Corpus):
+    """A corpus with statistics."""
+
+    num_datasets: int
+    num_documents_estimate: int
+
+
+@dataclass
 class Dataset:
     """A dataset."""
 

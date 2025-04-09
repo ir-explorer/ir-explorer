@@ -9,6 +9,7 @@ from models import (
     BulkQRel,
     BulkQuery,
     Corpus,
+    CorpusWithStats,
     Dataset,
     Document,
     DocumentSearchHit,
@@ -228,21 +229,32 @@ class DBController(Controller):
             )
 
     @get(path="/get_corpora")
-    async def get_corpora(self, transaction: "AsyncSession") -> list[Corpus]:
-        """List all corpora.
+    async def get_corpora(self, transaction: "AsyncSession") -> list[CorpusWithStats]:
+        """List all corpora including statistics about datasets and documents.
 
         :param transaction: A DB transaction.
-        :return: All corpora.
+        :return: All indexed corpora.
         """
-        sql = select(ORMCorpus)
+        sql = (
+            select(
+                ORMCorpus,
+                func.count(ORMDataset.id),
+                func.estimate_num_docs(ORMCorpus.id),
+            )
+            .join(ORMDataset)
+            .group_by(ORMCorpus.id)
+        )
 
-        result = (await transaction.execute(sql)).scalars().all()
+        result = (await transaction.execute(sql)).all()
+        print(result)
         return [
-            Corpus(
+            CorpusWithStats(
                 name=corpus.name,
                 language=corpus.language,
+                num_datasets=num_datasets,
+                num_documents_estimate=num_docs,
             )
-            for corpus in result
+            for corpus, num_datasets, num_docs in result
         ]
 
     @get(path="/get_datasets")
