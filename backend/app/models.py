@@ -27,6 +27,16 @@ class Dataset:
 
 
 @dataclass
+class DatasetWithStats:
+    """A dataset with statistics."""
+
+    name: str
+    corpus_name: str
+    min_relevance: int
+    num_queries: int
+
+
+@dataclass
 class BulkQRel:
     """A single query-document relevance score for bulk insertion."""
 

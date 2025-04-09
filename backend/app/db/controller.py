@@ -11,6 +11,7 @@ from models import (
     Corpus,
     CorpusWithStats,
     Dataset,
+    DatasetWithStats,
     Document,
     DocumentSearchHit,
     DocumentSearchResult,
@@ -260,7 +261,7 @@ class DBController(Controller):
     @get(path="/get_datasets")
     async def get_datasets(
         self, transaction: "AsyncSession", corpus_name: str
-    ) -> list[Dataset]:
+    ) -> list[DatasetWithStats]:
         """List all datasets for a corpus.
 
         :param transaction: A DB transaction.
@@ -268,19 +269,22 @@ class DBController(Controller):
         :return: All datasets.
         """
         sql = (
-            select(ORMCorpus)
-            .filter_by(name=corpus_name)
-            .options(joinedload(ORMCorpus.datasets))
+            select(ORMDataset, func.count(ORMQuery.id))
+            .join(ORMCorpus)
+            .where(ORMCorpus.name == corpus_name)
+            .join(ORMQuery, ORMDataset.id == ORMQuery.dataset_id)
+            .group_by(ORMDataset.id)
         )
 
-        result = (await transaction.execute(sql)).unique().scalar_one()
+        result = (await transaction.execute(sql)).all()
         return [
-            Dataset(
+            DatasetWithStats(
                 name=dataset.name,
                 corpus_name=corpus_name,
                 min_relevance=dataset.min_relevance,
+                num_queries=num_queries,
             )
-            for dataset in result.datasets
+            for dataset, num_queries in result
         ]
 
     @get(path="/get_queries")
