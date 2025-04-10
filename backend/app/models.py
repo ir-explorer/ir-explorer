@@ -1,17 +1,28 @@
 from dataclasses import dataclass
+from typing import Generic, TypeVar
+
+T = TypeVar("T")
 
 
 @dataclass
-class Corpus:
-    """A corpus."""
+class CorpusInfo:
+    """A corpus for insertion."""
 
     name: str
     language: str
 
 
 @dataclass
-class Dataset:
-    """A dataset."""
+class Corpus(CorpusInfo):
+    """A corpus with statistics."""
+
+    num_datasets: int
+    num_documents_estimate: int
+
+
+@dataclass
+class DatasetInfo:
+    """A dataset for insertion."""
 
     name: str
     corpus_name: str
@@ -19,7 +30,17 @@ class Dataset:
 
 
 @dataclass
-class BulkQRel:
+class Dataset:
+    """A dataset with statistics."""
+
+    name: str
+    corpus_name: str
+    min_relevance: int
+    num_queries_estimate: int
+
+
+@dataclass
+class QRelInfo:
     """A single query-document relevance score for bulk insertion."""
 
     query_id: str
@@ -28,7 +49,7 @@ class BulkQRel:
 
 
 @dataclass
-class QRel(BulkQRel):
+class QRel(QRelInfo):
     """A single query-document relevance score."""
 
     corpus_name: str
@@ -36,7 +57,7 @@ class QRel(BulkQRel):
 
 
 @dataclass
-class BulkQuery:
+class QueryInfo:
     """A single query for bulk insertion."""
 
     id: str
@@ -45,22 +66,16 @@ class BulkQuery:
 
 
 @dataclass
-class Query(BulkQuery):
-    """A single query."""
+class Query(QueryInfo):
+    """A single query with statistics."""
 
     corpus_name: str
     dataset_name: str
-
-
-@dataclass
-class QueryWithRelevanceInfo(Query):
-    """A single query with relevance information attached."""
-
     num_relevant_documents: int
 
 
 @dataclass
-class BulkDocument:
+class DocumentInfo:
     """A single document for bulk insertion."""
 
     id: str
@@ -69,7 +84,7 @@ class BulkDocument:
 
 
 @dataclass
-class Document(BulkDocument):
+class Document(DocumentInfo):
     """A single document."""
 
     corpus_name: str
@@ -95,9 +110,9 @@ class DocumentSearchHit:
 
 
 @dataclass
-class DocumentSearchResult:
-    """An incomplete list of retrieved documents."""
+class Paginated(Generic[T]):
+    """An incomplete list of items."""
 
     total_num_items: int
     offset: int
-    items: list[DocumentSearchHit]
+    items: list[T]

@@ -2,8 +2,8 @@ import { autocompleteQuery } from "$lib/server/backend";
 import { error, json } from "@sveltejs/kit";
 
 export async function GET({ url }) {
-  const corpusName = url.searchParams.get("corpus");
-  const datasetName = url.searchParams.get("dataset");
+  const corpusName = url.searchParams.get("corpus_name");
+  const datasetName = url.searchParams.get("dataset_name");
   const input = url.searchParams.get("input");
   const numResults = url.searchParams.get("num_results");
 

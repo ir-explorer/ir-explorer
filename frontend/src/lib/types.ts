@@ -1,11 +1,14 @@
 export interface Corpus {
   name: string;
   language: string;
+  num_datasets: number;
+  num_documents_estimate: number;
 }
 export interface Dataset {
   name: string;
   corpus_name: string;
   min_relevance: number;
+  num_queries_estimate: number;
 }
 export interface Query {
   id: string;

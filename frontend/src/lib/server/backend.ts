@@ -67,7 +67,7 @@ export async function autocompleteQuery(
 ): Promise<Query[]> {
   let searchParams = new URLSearchParams({
     corpus_name: corpusName,
-    search: input,
+    natch: input,
   });
   if (datasetName !== null) {
     searchParams.append("dataset_name", datasetName);
@@ -76,7 +76,7 @@ export async function autocompleteQuery(
     searchParams.append("num_results", numResults.toString());
   }
 
-  const res = await fetch(`${BACKEND_REST_URL}/search_queries?${searchParams}`);
+  const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
   return (await res.json()) as Query[];
 }
 

@@ -5,17 +5,18 @@ from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 from models import (
-    BulkDocument,
-    BulkQRel,
-    BulkQuery,
     Corpus,
+    CorpusInfo,
     Dataset,
+    DatasetInfo,
     Document,
+    DocumentInfo,
     DocumentSearchHit,
-    DocumentSearchResult,
     DocumentWithRelevance,
+    Paginated,
+    QRelInfo,
     Query,
-    QueryWithRelevanceInfo,
+    QueryInfo,
 )
 from sqlalchemy import and_, desc, func, insert, select, text
 from sqlalchemy import delete as delete_
@@ -48,7 +49,9 @@ class DBController(Controller):
         return list(result)
 
     @post(path="/create_corpus")
-    async def create_corpus(self, transaction: "AsyncSession", data: Corpus) -> None:
+    async def create_corpus(
+        self, transaction: "AsyncSession", data: CorpusInfo
+    ) -> None:
         """Create a new corpus in the database.
 
         :param transaction: A DB transaction.
@@ -67,7 +70,9 @@ class DBController(Controller):
             )
 
     @post(path="/create_dataset")
-    async def create_dataset(self, transaction: "AsyncSession", data: Dataset) -> None:
+    async def create_dataset(
+        self, transaction: "AsyncSession", data: DatasetInfo
+    ) -> None:
         """Create a new dataset in the database.
 
         :param transaction: A DB transaction.
@@ -101,7 +106,7 @@ class DBController(Controller):
         transaction: "AsyncSession",
         dataset_name: str,
         corpus_name: str,
-        data: "Sequence[BulkQuery]",
+        data: "Sequence[QueryInfo]",
     ) -> None:
         """Insert new queries into the database.
 
@@ -147,7 +152,7 @@ class DBController(Controller):
         self,
         transaction: "AsyncSession",
         corpus_name: str,
-        data: "Sequence[BulkDocument]",
+        data: "Sequence[DocumentInfo]",
     ) -> None:
         """Insert new documents into the database.
 
@@ -185,7 +190,7 @@ class DBController(Controller):
         transaction: "AsyncSession",
         dataset_name: str,
         corpus_name: str,
-        data: "Sequence[BulkQRel]",
+        data: "Sequence[QRelInfo]",
     ) -> None:
         """Insert QRels into the database.
 
@@ -229,61 +234,86 @@ class DBController(Controller):
 
     @get(path="/get_corpora")
     async def get_corpora(self, transaction: "AsyncSession") -> list[Corpus]:
-        """List all corpora.
+        """List all corpora including statistics about datasets and documents.
 
         :param transaction: A DB transaction.
-        :return: All corpora.
+        :return: All indexed corpora.
         """
-        sql = select(ORMCorpus)
+        sql = (
+            select(
+                ORMCorpus,
+                func.count(ORMDataset.id),
+                func.estimate_num_docs(ORMCorpus.id),
+            )
+            .join(ORMDataset)
+            .group_by(ORMCorpus.id)
+        )
 
-        result = (await transaction.execute(sql)).scalars().all()
+        result = (await transaction.execute(sql)).all()
+        print(result)
         return [
             Corpus(
                 name=corpus.name,
                 language=corpus.language,
+                num_datasets=num_datasets,
+                num_documents_estimate=num_docs,
             )
-            for corpus in result
+            for corpus, num_datasets, num_docs in result
         ]
 
     @get(path="/get_datasets")
     async def get_datasets(
         self, transaction: "AsyncSession", corpus_name: str
     ) -> list[Dataset]:
-        """List all datasets for a corpus.
+        """List all datasets for a corpus, including statistics.
 
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :return: All datasets.
         """
         sql = (
-            select(ORMCorpus)
-            .filter_by(name=corpus_name)
-            .options(joinedload(ORMCorpus.datasets))
+            select(ORMDataset, func.estimate_num_queries(ORMDataset.id))
+            .join(ORMCorpus)
+            .where(ORMCorpus.name == corpus_name)
         )
 
-        result = (await transaction.execute(sql)).unique().scalar_one()
+        result = (await transaction.execute(sql)).all()
         return [
             Dataset(
                 name=dataset.name,
                 corpus_name=corpus_name,
                 min_relevance=dataset.min_relevance,
+                num_queries_estimate=num_queries,
             )
-            for dataset in result.datasets
+            for dataset, num_queries in result
         ]
 
     @get(path="/get_queries")
     async def get_queries(
-        self, transaction: "AsyncSession", corpus_name: str, dataset_name: str
-    ) -> list[QueryWithRelevanceInfo]:
-        """List all queries in a dataset.
+        self,
+        transaction: "AsyncSession",
+        corpus_name: str,
+        dataset_name: str | None = None,
+        match: str | None = None,
+        num_results: int | None = None,
+    ) -> list[Query]:
+        """List queries.
 
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: The dataset name.
-        :return: All dataset queries.
+        :param match: Return only queries that match this string.
+        :param num_results: How many queries to return.
+        :return: All list of queries.
         """
+        where_clauses = [ORMCorpus.name == corpus_name]
+        if dataset_name is not None:
+            where_clauses.append(ORMDataset.name == dataset_name)
+        if match is not None:
+            where_clauses.append(ORMQuery.text.match(match))
+
         sql = (
-            select(ORMQuery, func.count(ORMQRel.document_id))
+            select(ORMQuery, func.count(ORMQRel.document_id), ORMDataset.name)
             .join(ORMDataset)
             .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
             .outerjoin(
@@ -293,18 +323,15 @@ class DBController(Controller):
                     ORMQRel.relevance >= ORMDataset.min_relevance,
                 ),
             )
-            .where(
-                and_(
-                    ORMCorpus.name == corpus_name,
-                    ORMDataset.name == dataset_name,
-                )
-            )
-            .group_by(ORMQuery.id, ORMQuery.dataset_id)
+            .where(*where_clauses)
+            .group_by(ORMQuery.id, ORMQuery.dataset_id, ORMDataset.name)
         )
+        if num_results is not None:
+            sql = sql.limit(num_results)
 
         result = (await transaction.execute(sql)).all()
         return [
-            QueryWithRelevanceInfo(
+            Query(
                 id=db_query.id,
                 corpus_name=corpus_name,
                 dataset_name=dataset_name,
@@ -312,7 +339,7 @@ class DBController(Controller):
                 description=db_query.description,
                 num_relevant_documents=num_rel_docs,
             )
-            for db_query, num_rel_docs in result
+            for db_query, num_rel_docs, dataset_name in result
         ]
 
     @get(path="/get_query")
@@ -322,7 +349,7 @@ class DBController(Controller):
         corpus_name: str,
         dataset_name: str,
         query_id: str,
-    ) -> QueryWithRelevanceInfo:
+    ) -> Query:
         """Return a single specific query.
 
         :param transaction: A DB transaction.
@@ -365,7 +392,7 @@ class DBController(Controller):
                     "corpus_name": corpus_name,
                 },
             )
-        return QueryWithRelevanceInfo(
+        return Query(
             id=db_query.id,
             corpus_name=corpus_name,
             dataset_name=dataset_name,
@@ -455,53 +482,6 @@ class DBController(Controller):
             )
         return Document(result.id, result.title, result.text, corpus_name)
 
-    @get(path="/search_queries")
-    async def search_queries(
-        self,
-        transaction: "AsyncSession",
-        search: str,
-        corpus_name: str,
-        dataset_name: str | None = None,
-        num_results: int = 5,
-    ) -> list[Query]:
-        """Search queries within a dataset.
-
-        :param transaction: A DB transaction.
-        :param search: The search string.
-        :param corpus_name: The corpus name.
-        :param dataset_name: The dataset name.
-        :param num_results: How many queries to return.
-        :return: The resulting queries.
-        """
-        sql = (
-            select(ORMQuery)
-            .join(ORMDataset)
-            .join(ORMCorpus)
-            .options(joinedload(ORMQuery.dataset))
-            .where(
-                and_(
-                    ORMQuery.text.match(search),
-                    ORMCorpus.name == corpus_name,
-                )
-            )
-        )
-
-        if dataset_name is not None:
-            sql = sql.where(ORMDataset.name == dataset_name)
-        sql = sql.limit(num_results)
-
-        result = (await transaction.execute(sql)).scalars().all()
-        return [
-            Query(
-                id=query.id,
-                text=query.text,
-                description=query.description,
-                corpus_name=corpus_name,
-                dataset_name=query.dataset.name,
-            )
-            for query in result
-        ]
-
     @get(path="/search_documents")
     async def search_documents(
         self,
@@ -510,7 +490,7 @@ class DBController(Controller):
         search: str,
         num_results: int = 10,
         offset: int = 0,
-    ) -> DocumentSearchResult:
+    ) -> Paginated[DocumentSearchHit]:
         """Search documents within a corpus (using full-text search).
 
         :param transaction: A DB transaction.
@@ -577,7 +557,7 @@ class DBController(Controller):
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         results = (await transaction.execute(sql_results)).all()
-        return DocumentSearchResult(
+        return Paginated[DocumentSearchHit](
             total_num_results,
             offset,
             [
