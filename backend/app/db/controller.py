@@ -250,7 +250,6 @@ class DBController(Controller):
         )
 
         result = (await transaction.execute(sql)).all()
-        print(result)
         return [
             Corpus(
                 name=corpus.name,
