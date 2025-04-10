@@ -2,15 +2,15 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Corpus:
-    """A corpus."""
+class CorpusInfo:
+    """A corpus for insertion."""
 
     name: str
     language: str
 
 
 @dataclass
-class CorpusWithStats(Corpus):
+class Corpus(CorpusInfo):
     """A corpus with statistics."""
 
     num_datasets: int
@@ -18,8 +18,8 @@ class CorpusWithStats(Corpus):
 
 
 @dataclass
-class Dataset:
-    """A dataset."""
+class DatasetInfo:
+    """A dataset for insertion."""
 
     name: str
     corpus_name: str
@@ -27,7 +27,7 @@ class Dataset:
 
 
 @dataclass
-class DatasetWithStats:
+class Dataset:
     """A dataset with statistics."""
 
     name: str
@@ -37,7 +37,7 @@ class DatasetWithStats:
 
 
 @dataclass
-class BulkQRel:
+class QRelInfo:
     """A single query-document relevance score for bulk insertion."""
 
     query_id: str
@@ -46,7 +46,7 @@ class BulkQRel:
 
 
 @dataclass
-class QRel(BulkQRel):
+class QRel(QRelInfo):
     """A single query-document relevance score."""
 
     corpus_name: str
@@ -54,7 +54,7 @@ class QRel(BulkQRel):
 
 
 @dataclass
-class BulkQuery:
+class QueryInfo:
     """A single query for bulk insertion."""
 
     id: str
@@ -63,7 +63,7 @@ class BulkQuery:
 
 
 @dataclass
-class Query(BulkQuery):
+class Query(QueryInfo):
     """A single query."""
 
     corpus_name: str

@@ -6,17 +6,17 @@ from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 from models import (
     BulkDocument,
-    BulkQRel,
-    BulkQuery,
     Corpus,
-    CorpusWithStats,
+    CorpusInfo,
     Dataset,
-    DatasetWithStats,
+    DatasetInfo,
     Document,
     DocumentSearchHit,
     DocumentSearchResult,
     DocumentWithRelevance,
+    QRelInfo,
     Query,
+    QueryInfo,
     QueryWithRelevanceInfo,
 )
 from sqlalchemy import and_, desc, func, insert, select, text
@@ -50,7 +50,9 @@ class DBController(Controller):
         return list(result)
 
     @post(path="/create_corpus")
-    async def create_corpus(self, transaction: "AsyncSession", data: Corpus) -> None:
+    async def create_corpus(
+        self, transaction: "AsyncSession", data: CorpusInfo
+    ) -> None:
         """Create a new corpus in the database.
 
         :param transaction: A DB transaction.
@@ -69,7 +71,9 @@ class DBController(Controller):
             )
 
     @post(path="/create_dataset")
-    async def create_dataset(self, transaction: "AsyncSession", data: Dataset) -> None:
+    async def create_dataset(
+        self, transaction: "AsyncSession", data: DatasetInfo
+    ) -> None:
         """Create a new dataset in the database.
 
         :param transaction: A DB transaction.
@@ -103,7 +107,7 @@ class DBController(Controller):
         transaction: "AsyncSession",
         dataset_name: str,
         corpus_name: str,
-        data: "Sequence[BulkQuery]",
+        data: "Sequence[QueryInfo]",
     ) -> None:
         """Insert new queries into the database.
 
@@ -187,7 +191,7 @@ class DBController(Controller):
         transaction: "AsyncSession",
         dataset_name: str,
         corpus_name: str,
-        data: "Sequence[BulkQRel]",
+        data: "Sequence[QRelInfo]",
     ) -> None:
         """Insert QRels into the database.
 
@@ -230,7 +234,7 @@ class DBController(Controller):
             )
 
     @get(path="/get_corpora")
-    async def get_corpora(self, transaction: "AsyncSession") -> list[CorpusWithStats]:
+    async def get_corpora(self, transaction: "AsyncSession") -> list[Corpus]:
         """List all corpora including statistics about datasets and documents.
 
         :param transaction: A DB transaction.
@@ -249,7 +253,7 @@ class DBController(Controller):
         result = (await transaction.execute(sql)).all()
         print(result)
         return [
-            CorpusWithStats(
+            Corpus(
                 name=corpus.name,
                 language=corpus.language,
                 num_datasets=num_datasets,
@@ -261,8 +265,8 @@ class DBController(Controller):
     @get(path="/get_datasets")
     async def get_datasets(
         self, transaction: "AsyncSession", corpus_name: str
-    ) -> list[DatasetWithStats]:
-        """List all datasets for a corpus.
+    ) -> list[Dataset]:
+        """List all datasets for a corpus, including statistics.
 
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
@@ -276,7 +280,7 @@ class DBController(Controller):
 
         result = (await transaction.execute(sql)).all()
         return [
-            DatasetWithStats(
+            Dataset(
                 name=dataset.name,
                 corpus_name=corpus_name,
                 min_relevance=dataset.min_relevance,
