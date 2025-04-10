@@ -17,7 +17,6 @@ from models import (
     QRelInfo,
     Query,
     QueryInfo,
-    QueryWithRelevanceInfo,
 )
 from sqlalchemy import and_, desc, func, insert, select, text
 from sqlalchemy import delete as delete_
@@ -291,17 +290,30 @@ class DBController(Controller):
 
     @get(path="/get_queries")
     async def get_queries(
-        self, transaction: "AsyncSession", corpus_name: str, dataset_name: str
-    ) -> list[QueryWithRelevanceInfo]:
-        """List all queries in a dataset.
+        self,
+        transaction: "AsyncSession",
+        corpus_name: str,
+        dataset_name: str | None = None,
+        match: str | None = None,
+        num_results: int | None = None,
+    ) -> list[Query]:
+        """List queries.
 
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: The dataset name.
-        :return: All dataset queries.
+        :param match: Return only queries that match this string.
+        :param num_results: How many queries to return.
+        :return: All list of queries.
         """
+        where_clauses = [ORMCorpus.name == corpus_name]
+        if dataset_name is not None:
+            where_clauses.append(ORMDataset.name == dataset_name)
+        if match is not None:
+            where_clauses.append(ORMQuery.text.match(match))
+
         sql = (
-            select(ORMQuery, func.count(ORMQRel.document_id))
+            select(ORMQuery, func.count(ORMQRel.document_id), ORMDataset.name)
             .join(ORMDataset)
             .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
             .outerjoin(
@@ -311,18 +323,15 @@ class DBController(Controller):
                     ORMQRel.relevance >= ORMDataset.min_relevance,
                 ),
             )
-            .where(
-                and_(
-                    ORMCorpus.name == corpus_name,
-                    ORMDataset.name == dataset_name,
-                )
-            )
-            .group_by(ORMQuery.id, ORMQuery.dataset_id)
+            .where(*where_clauses)
+            .group_by(ORMQuery.id, ORMQuery.dataset_id, ORMDataset.name)
         )
+        if num_results is not None:
+            sql = sql.limit(num_results)
 
         result = (await transaction.execute(sql)).all()
         return [
-            QueryWithRelevanceInfo(
+            Query(
                 id=db_query.id,
                 corpus_name=corpus_name,
                 dataset_name=dataset_name,
@@ -330,7 +339,7 @@ class DBController(Controller):
                 description=db_query.description,
                 num_relevant_documents=num_rel_docs,
             )
-            for db_query, num_rel_docs in result
+            for db_query, num_rel_docs, dataset_name in result
         ]
 
     @get(path="/get_query")
@@ -340,7 +349,7 @@ class DBController(Controller):
         corpus_name: str,
         dataset_name: str,
         query_id: str,
-    ) -> QueryWithRelevanceInfo:
+    ) -> Query:
         """Return a single specific query.
 
         :param transaction: A DB transaction.
@@ -383,7 +392,7 @@ class DBController(Controller):
                     "corpus_name": corpus_name,
                 },
             )
-        return QueryWithRelevanceInfo(
+        return Query(
             id=db_query.id,
             corpus_name=corpus_name,
             dataset_name=dataset_name,
@@ -472,53 +481,6 @@ class DBController(Controller):
                 },
             )
         return Document(result.id, result.title, result.text, corpus_name)
-
-    @get(path="/search_queries")
-    async def search_queries(
-        self,
-        transaction: "AsyncSession",
-        search: str,
-        corpus_name: str,
-        dataset_name: str | None = None,
-        num_results: int = 5,
-    ) -> list[Query]:
-        """Search queries within a dataset.
-
-        :param transaction: A DB transaction.
-        :param search: The search string.
-        :param corpus_name: The corpus name.
-        :param dataset_name: The dataset name.
-        :param num_results: How many queries to return.
-        :return: The resulting queries.
-        """
-        sql = (
-            select(ORMQuery)
-            .join(ORMDataset)
-            .join(ORMCorpus)
-            .options(joinedload(ORMQuery.dataset))
-            .where(
-                and_(
-                    ORMQuery.text.match(search),
-                    ORMCorpus.name == corpus_name,
-                )
-            )
-        )
-
-        if dataset_name is not None:
-            sql = sql.where(ORMDataset.name == dataset_name)
-        sql = sql.limit(num_results)
-
-        result = (await transaction.execute(sql)).scalars().all()
-        return [
-            Query(
-                id=query.id,
-                text=query.text,
-                description=query.description,
-                corpus_name=corpus_name,
-                dataset_name=query.dataset.name,
-            )
-            for query in result
-        ]
 
     @get(path="/search_documents")
     async def search_documents(

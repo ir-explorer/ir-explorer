@@ -64,16 +64,10 @@ class QueryInfo:
 
 @dataclass
 class Query(QueryInfo):
-    """A single query."""
+    """A single query with statistics."""
 
     corpus_name: str
     dataset_name: str
-
-
-@dataclass
-class QueryWithRelevanceInfo(Query):
-    """A single query with relevance information attached."""
-
     num_relevant_documents: int
 
 
