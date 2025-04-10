@@ -5,12 +5,12 @@ from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 from models import (
-    BulkDocument,
     Corpus,
     CorpusInfo,
     Dataset,
     DatasetInfo,
     Document,
+    DocumentInfo,
     DocumentSearchHit,
     DocumentSearchResult,
     DocumentWithRelevance,
@@ -152,7 +152,7 @@ class DBController(Controller):
         self,
         transaction: "AsyncSession",
         corpus_name: str,
-        data: "Sequence[BulkDocument]",
+        data: "Sequence[DocumentInfo]",
     ) -> None:
         """Insert new documents into the database.
 

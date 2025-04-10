@@ -72,7 +72,7 @@ class Query(QueryInfo):
 
 
 @dataclass
-class BulkDocument:
+class DocumentInfo:
     """A single document for bulk insertion."""
 
     id: str
@@ -81,7 +81,7 @@ class BulkDocument:
 
 
 @dataclass
-class Document(BulkDocument):
+class Document(DocumentInfo):
     """A single document."""
 
     corpus_name: str
