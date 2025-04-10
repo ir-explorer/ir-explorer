@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+from typing import Generic, TypeVar
+
+T = TypeVar("T")
 
 
 @dataclass
@@ -107,9 +110,9 @@ class DocumentSearchHit:
 
 
 @dataclass
-class DocumentSearchResult:
-    """An incomplete list of retrieved documents."""
+class Paginated(Generic[T]):
+    """An incomplete list of items."""
 
     total_num_items: int
     offset: int
-    items: list[DocumentSearchHit]
+    items: list[T]

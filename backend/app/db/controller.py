@@ -12,8 +12,8 @@ from models import (
     Document,
     DocumentInfo,
     DocumentSearchHit,
-    DocumentSearchResult,
     DocumentWithRelevance,
+    Paginated,
     QRelInfo,
     Query,
     QueryInfo,
@@ -490,7 +490,7 @@ class DBController(Controller):
         search: str,
         num_results: int = 10,
         offset: int = 0,
-    ) -> DocumentSearchResult:
+    ) -> Paginated[DocumentSearchHit]:
         """Search documents within a corpus (using full-text search).
 
         :param transaction: A DB transaction.
@@ -557,7 +557,7 @@ class DBController(Controller):
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         results = (await transaction.execute(sql_results)).all()
-        return DocumentSearchResult(
+        return Paginated[DocumentSearchHit](
             total_num_results,
             offset,
             [
