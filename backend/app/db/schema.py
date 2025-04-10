@@ -117,8 +117,9 @@ class ORMQRel(ORMBase):
     document: Mapped["ORMDocument"] = relationship(back_populates="qrels")
 
 
-# a function to estimate the number of documents in a corpus
+# functions to estimate the number of documents and queries
 # https://wiki.postgresql.org/wiki/Count_estimate
+
 event.listen(
     ORMBase.metadata,
     "after_create",
@@ -136,6 +137,31 @@ event.listen(
             EXECUTE FORMAT(
                 'EXPLAIN (FORMAT JSON) SELECT * FROM documents WHERE corpus_id = %%s',
                 corpus_id
+            ) INTO plan;
+            RETURN plan->0->'Plan'->'Plan Rows';
+        END;
+        $function$;
+        """
+    ),
+)
+
+event.listen(
+    ORMBase.metadata,
+    "after_create",
+    DDL(
+        """
+        CREATE OR REPLACE
+        FUNCTION estimate_num_queries(dataset_id int)
+        RETURNS int
+        LANGUAGE plpgsql
+        AS
+        $function$
+        DECLARE
+            plan jsonb;
+        BEGIN
+            EXECUTE FORMAT(
+                'EXPLAIN (FORMAT JSON) SELECT * FROM queries WHERE dataset_id = %%s',
+                dataset_id
             ) INTO plan;
             RETURN plan->0->'Plan'->'Plan Rows';
         END;

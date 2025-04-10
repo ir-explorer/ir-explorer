@@ -29,7 +29,7 @@
       </p>
     {/snippet}
     {#snippet item(d: Dataset)}
-      {d.name} ({d.num_queries} queries)
+      {d.name} ({d.num_queries_estimate} queries)
     {/snippet}
   </List>
 {/if}

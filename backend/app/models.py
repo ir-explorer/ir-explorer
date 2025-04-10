@@ -33,7 +33,7 @@ class DatasetWithStats:
     name: str
     corpus_name: str
     min_relevance: int
-    num_queries: int
+    num_queries_estimate: int
 
 
 @dataclass

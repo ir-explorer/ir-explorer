@@ -8,7 +8,7 @@ export interface Dataset {
   name: string;
   corpus_name: string;
   min_relevance: number;
-  num_queries: number;
+  num_queries_estimate: number;
 }
 export interface Query {
   id: string;

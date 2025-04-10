@@ -269,11 +269,9 @@ class DBController(Controller):
         :return: All datasets.
         """
         sql = (
-            select(ORMDataset, func.count(ORMQuery.id))
+            select(ORMDataset, func.estimate_num_queries(ORMDataset.id))
             .join(ORMCorpus)
             .where(ORMCorpus.name == corpus_name)
-            .join(ORMQuery, ORMDataset.id == ORMQuery.dataset_id)
-            .group_by(ORMDataset.id)
         )
 
         result = (await transaction.execute(sql)).all()
@@ -282,7 +280,7 @@ class DBController(Controller):
                 name=dataset.name,
                 corpus_name=corpus_name,
                 min_relevance=dataset.min_relevance,
-                num_queries=num_queries,
+                num_queries_estimate=num_queries,
             )
             for dataset, num_queries in result
         ]
