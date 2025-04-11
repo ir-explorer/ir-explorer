@@ -10,6 +10,11 @@ import type {
 
 const BACKEND_REST_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}`;
 
+export async function getAvailableLanguages(): Promise<string[]> {
+  const res = await fetch(`${BACKEND_REST_URL}/get_available_languages`);
+  return (await res.json()) as string[];
+}
+
 export async function getCorpora(): Promise<Corpus[]> {
   const res = await fetch(`${BACKEND_REST_URL}/get_corpora`);
   return (await res.json()) as Corpus[];
@@ -81,18 +86,27 @@ export async function autocompleteQuery(
 }
 
 export async function searchDocuments(
-  corpusName: string,
-  search: string,
+  q: string,
+  language: string | null,
   numResults: number,
   page: number,
+  corpusNames: string[] | null,
 ): Promise<Paginated<DocumentSearchHit>> {
   const offset = (page - 1) * numResults;
   const searchParams = new URLSearchParams({
-    corpus_name: corpusName,
-    search: search,
+    q: q,
     num_results: numResults.toString(),
     offset: offset.toString(),
   });
+  if (language != null) {
+    searchParams.append("language", language);
+  }
+  if (corpusNames !== null) {
+    for (const corpusName of corpusNames) {
+      searchParams.append("corpus_name", corpusName);
+    }
+  }
+
   const res = await fetch(
     `${BACKEND_REST_URL}/search_documents?${searchParams}`,
   );
