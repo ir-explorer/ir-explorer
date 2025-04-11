@@ -16,6 +16,7 @@ export interface Query {
   description: string | null;
   corpus_name: string;
   dataset_name: string;
+  num_relevant_documents: number;
 }
 export interface Document {
   id: string;
@@ -35,9 +36,4 @@ export interface Paginated<T> {
   total_num_items: number;
   offset: number;
   items: T[];
-}
-
-export interface ListItem<T> {
-  target: string;
-  item: T;
 }

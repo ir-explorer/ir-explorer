@@ -6,9 +6,11 @@
   import { corpusIcon } from "$lib/icons";
 
   let { data }: PageProps = $props();
+
+  const getTargetLink = (c: Corpus) => `/browse/${c.name}`;
 </script>
 
-<List listItems={data.corpusList}>
+<List listItems={data.corpusList} {getTargetLink}>
   {#snippet head()}
     <div class="flex flex-row items-center gap-2">
       <Fa icon={corpusIcon} />

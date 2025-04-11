@@ -55,13 +55,13 @@ export async function getDocument(
 export async function getQueries(
   corpusName: string,
   datasetName: string,
-): Promise<Query[]> {
+): Promise<Paginated<Query>> {
   const searchParams = new URLSearchParams({
     corpus_name: corpusName,
     dataset_name: datasetName,
   });
   const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
-  return (await res.json()) as Query[];
+  return (await res.json()) as Paginated<Query>;
 }
 
 export async function autocompleteQuery(

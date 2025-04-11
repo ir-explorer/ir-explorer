@@ -4,8 +4,12 @@
   import Fa from "svelte-fa";
   import { datasetIcon, documentIcon } from "$lib/icons";
   import type { Dataset } from "$lib/types";
+  import { page } from "$app/state";
 
   let { data }: PageProps = $props();
+
+  const getTargetLink = (d: Dataset) =>
+    `/browse/${page.params.corpusName}/${d.name}`;
 </script>
 
 {#if data.document !== null}
@@ -21,8 +25,8 @@
   </div>
 {/if}
 
-{#if data.datasetList.length > 0}
-  <List listItems={data.datasetList}>
+{#if data.datasetList !== null}
+  <List listItems={data.datasetList} {getTargetLink}>
     {#snippet head()}
       <p class="flex flex-row items-center gap-2">
         <Fa icon={datasetIcon} /> Datasets
