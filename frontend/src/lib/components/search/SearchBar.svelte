@@ -17,10 +17,12 @@
   let selectedCorpusName: string = $state(
     selectedCorpusNameInit ? selectedCorpusNameInit : corpora[0].name,
   );
-  let action: string = $derived("/search/" + selectedCorpusName);
 </script>
 
-<form class="flex w-full flex-row items-center gap-2" {action} method="get">
+<form
+  class="flex w-full flex-row items-center gap-2"
+  action="/search"
+  method="get">
   <div class="dropdown">
     <div tabindex="0" role="button" class="btn btn-circle h-8 w-8">
       <Fa icon={settingsIcon} />
@@ -33,6 +35,7 @@
             >Corpus
             <select
               class="select w-48 select-sm select-primary"
+              name="corpus"
               bind:value={selectedCorpusName}>
               {#each corpora as corpus}
                 <option value={corpus.name}>{corpus.name}</option>

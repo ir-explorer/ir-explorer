@@ -1,5 +1,6 @@
-import { redirect } from "@sveltejs/kit";
+import { getCorpora } from "$lib/server/backend";
+import type { PageServerLoad } from "./$types";
 
-export function load() {
-  redirect(308, "/search");
-}
+export const load: PageServerLoad = async () => {
+  return { corpora: await getCorpora() };
+};

@@ -6,14 +6,12 @@
 
   let { data, children }: LayoutProps = $props();
   let searchInit = $derived(page.url.searchParams.get("q"));
+  let selectedCorpusNameInit = $derived(page.url.searchParams.get("corpus"));
 </script>
 
 <Header>
   <div class="w-2xl">
-    <SearchBar
-      corpora={data.corpora}
-      {searchInit}
-      selectedCorpusNameInit={data.selectedCorpusName} />
+    <SearchBar corpora={data.corpora} {searchInit} {selectedCorpusNameInit} />
   </div>
 </Header>
 
