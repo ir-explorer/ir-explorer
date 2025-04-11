@@ -115,4 +115,4 @@ class Paginated(Generic[T]):
 
     items: list[T]
     offset: int
-    total_num_items: int | None = None
+    total_num_items: int
