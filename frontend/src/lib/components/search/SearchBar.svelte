@@ -6,11 +6,13 @@
   let {
     corpora,
     searchInit = null,
-    selectedCorpusNameInit = null,
+    languageInit = null,
+    selectedCorporaInit = [],
   }: {
     corpora: Corpus[];
     searchInit?: string | null;
-    selectedCorpusNameInit?: string | null;
+    languageInit?: string | null;
+    selectedCorporaInit?: string[];
   } = $props();
 
   let languages = new Set();
@@ -18,57 +20,84 @@
     languages.add(corpus.language);
   }
 
-  // if no initial corpus name is provided, default to the 1st in the list
-  let selectedCorpusName: string = $state(
-    selectedCorpusNameInit ? selectedCorpusNameInit : corpora[0].name,
-  );
+  let selectedCorpora = $state(selectedCorporaInit);
+
+  // if no language is specified, select english if it exists, otherwise fall back to a random one
+  if (languageInit == null) {
+    if (languages.has("english")) {
+      languageInit = "english";
+    } else {
+      languageInit = corpora[0].language;
+    }
+  }
 </script>
 
 <form
   class="flex w-full flex-row items-center gap-2"
   action="/search"
   method="get">
-  <div class="dropdown">
-    <div tabindex="0" role="button" class="btn btn-circle h-8 w-8">
+  <details class="dropdown">
+    <summary class="btn btn-circle h-8 w-8">
       <Fa icon={settingsIcon} />
-    </div>
-    <div class="dropdown-content card-border card mt-2 bg-base-200 shadow">
-      <div class="card-body">
-        <fieldset class="fieldset">
+    </summary>
+    <div
+      class="dropdown-content card-border card mt-4 border-base-300 bg-base-200 shadow">
+      <div class="card-body min-w-64">
+        <fieldset class="fieldset gap-2">
           <legend class="fieldset-legend">Settings</legend>
+
           <label class="fieldset-label flex flex-col items-start"
             >Query language
             <select
-              class="select w-48 select-sm select-primary"
-              name="language">
+              class="select w-full select-sm select-primary"
+              name="language"
+              value={languageInit}>
               {#each languages as language}
                 <option value={language}>{language}</option>
               {/each}
             </select>
           </label>
+
           <label class="fieldset-label flex flex-col items-start"
-            >Corpus
-            <select
-              class="select w-48 select-sm select-primary"
-              name="corpus"
-              bind:value={selectedCorpusName}>
+            >Search only in
+            <div
+              class="menu w-full gap-2 rounded border border-primary bg-base-100 text-sm">
               {#each corpora as corpus}
-                <option value={corpus.name}>{corpus.name}</option>
+                <label>
+                  <input
+                    type="checkbox"
+                    class="checkbox mr-2 checkbox-sm"
+                    value={corpus.name}
+                    bind:group={selectedCorpora}
+                    name="corpus" />
+                  {corpus.name}
+                </label>
               {/each}
-            </select>
+            </div>
           </label>
         </fieldset>
       </div>
     </div>
-  </div>
+  </details>
+
   <label class="input grow input-primary">
     <input
       type="text"
       placeholder="Type a query..."
       value={searchInit ? searchInit : ""}
       name="q" />
-    <span class="label"><Fa icon={corpusIcon} />{selectedCorpusName}</span>
+    <span class="label"
+      ><Fa icon={corpusIcon} />
+      {#if selectedCorpora.length == 0}
+        all corpora
+      {:else if selectedCorpora.length == 1}
+        {selectedCorpora[0]}
+      {:else}
+        {selectedCorpora.length} corpora
+      {/if}
+    </span>
   </label>
+
   <button class="btn w-12 btn-primary" type="submit">
     <Fa icon={searchIcon} />
   </button>

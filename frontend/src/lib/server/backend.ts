@@ -85,7 +85,7 @@ export async function searchDocuments(
   language: string,
   numResults: number,
   page: number,
-  corpusName: string | null,
+  corpusNames: string[] | null,
 ): Promise<Paginated<DocumentSearchHit>> {
   const offset = (page - 1) * numResults;
   const searchParams = new URLSearchParams({
@@ -94,8 +94,10 @@ export async function searchDocuments(
     num_results: numResults.toString(),
     offset: offset.toString(),
   });
-  if (corpusName !== null) {
-    searchParams.append("corpus_name", corpusName);
+  if (corpusNames !== null) {
+    for (const corpusName of corpusNames) {
+      searchParams.append("corpus_name", corpusName);
+    }
   }
 
   const res = await fetch(
