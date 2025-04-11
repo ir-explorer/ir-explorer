@@ -312,7 +312,11 @@ class DBController(Controller):
             where_clauses.append(ORMQuery.text.match(match))
 
         sql = (
-            select(ORMQuery, func.count(ORMQRel.document_id), ORMDataset.name)
+            select(
+                ORMQuery,
+                func.count(ORMQRel.document_id).label("num_rel_docs"),
+                ORMDataset.name,
+            )
             .join(ORMDataset)
             .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
             .outerjoin(
@@ -324,6 +328,7 @@ class DBController(Controller):
             )
             .where(*where_clauses)
             .group_by(ORMQuery.id, ORMQuery.dataset_id, ORMDataset.name)
+            .order_by(desc(text("num_rel_docs")))
         )
         if num_results is not None:
             sql = sql.limit(num_results)
