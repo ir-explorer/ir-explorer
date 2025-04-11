@@ -3,9 +3,9 @@ import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ url }) => {
-  const searchQuery = url.searchParams.get("q");
+  const q = url.searchParams.get("q");
   const corpusName = url.searchParams.get("corpus");
-  if (!searchQuery || searchQuery.trim().length == 0 || !corpusName) {
+  if (!q || q.trim().length == 0) {
     redirect(307, "/");
   }
 
@@ -16,10 +16,11 @@ export const load: PageServerLoad = async ({ url }) => {
 
   const resultsPerPage = 10;
   const result = await searchDocuments(
-    corpusName,
-    searchQuery,
+    q,
+    "english",
     resultsPerPage,
     pageNum,
+    corpusName,
   );
   const totalPages = Math.ceil(result.total_num_items / resultsPerPage);
 

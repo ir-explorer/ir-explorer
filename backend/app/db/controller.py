@@ -18,7 +18,7 @@ from models import (
     Query,
     QueryInfo,
 )
-from sqlalchemy import and_, desc, func, insert, select, text
+from sqlalchemy import SQLColumnExpression, and_, desc, func, insert, select, text
 from sqlalchemy import delete as delete_
 from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
 from sqlalchemy.orm import joinedload
@@ -485,36 +485,38 @@ class DBController(Controller):
     async def search_documents(
         self,
         transaction: "AsyncSession",
-        corpus_name: str,
-        search: str,
+        q: str,
+        language: str = "english",
+        corpus_name: str | None = None,
         num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[DocumentSearchHit]:
-        """Search documents within a corpus (using full-text search).
+        """Search documents (using full-text search).
 
         :param transaction: A DB transaction.
+        :param q: The search query.
+        :param language: The query language.
         :param corpus_name: The corpus name.
-        :param search: The search string.
         :param num_results: How many hits to return.
         :param offset: Offset for pagination.
         :return:
             The total number of results and a list of hits ordered by score,
             respecting `num_results` and `offset`.
         """
-        ts_query = func.websearch_to_tsquery(
-            select(ORMCorpus.language).filter_by(name=corpus_name).scalar_subquery(),
-            search,
-        )
+        ts_query = func.websearch_to_tsquery(language, q)
+
+        where_clauses: list[SQLColumnExpression] = [
+            ORMDocument.text_tsv.bool_op("@@")(ts_query)
+        ]
+        if corpus_name is not None:
+            where_clauses.append(ORMCorpus.name == corpus_name)
 
         # count the total number of hits
         sql_count = (
             select(func.count(ORMDocument.id))
             .join(ORMCorpus)
             .where(
-                and_(
-                    ORMCorpus.name == corpus_name,
-                    ORMDocument.text_tsv.bool_op("@@")(ts_query),
-                ),
+                and_(*where_clauses),
             )
         )
 
@@ -527,14 +529,12 @@ class DBController(Controller):
                 ORMDocument.id.label("id"),
                 ORMDocument.title.label("title"),
                 ORMDocument.text.label("text"),
+                ORMCorpus.name.label("corpus_name"),
                 ts_rank.label("score"),
             )
             .join(ORMCorpus)
             .where(
-                and_(
-                    ORMCorpus.name == corpus_name,
-                    ORMDocument.text_tsv.bool_op("@@")(ts_query),
-                ),
+                and_(*where_clauses),
             )
             .order_by(desc("score"))
             .order_by(ORMDocument.id)
@@ -546,6 +546,7 @@ class DBController(Controller):
         sql_results = select(
             text("id"),
             text("title"),
+            text("corpus_name"),
             text("score"),
             func.ts_headline(
                 text("text"),
@@ -567,7 +568,7 @@ class DBController(Controller):
                     snippet=snippet,
                     score=score,
                 )
-                for id, title, score, snippet in results
+                for id, title, corpus_name, score, snippet in results
             ],
         )
 

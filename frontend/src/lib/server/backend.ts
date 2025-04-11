@@ -81,18 +81,23 @@ export async function autocompleteQuery(
 }
 
 export async function searchDocuments(
-  corpusName: string,
-  search: string,
+  q: string,
+  language: string,
   numResults: number,
   page: number,
+  corpusName: string | null,
 ): Promise<Paginated<DocumentSearchHit>> {
   const offset = (page - 1) * numResults;
   const searchParams = new URLSearchParams({
-    corpus_name: corpusName,
-    search: search,
+    q: q,
+    language: language,
     num_results: numResults.toString(),
     offset: offset.toString(),
   });
+  if (corpusName !== null) {
+    searchParams.set("corpus_name", corpusName);
+  }
+
   const res = await fetch(
     `${BACKEND_REST_URL}/search_documents?${searchParams}`,
   );
