@@ -13,6 +13,11 @@
     selectedCorpusNameInit?: string | null;
   } = $props();
 
+  let languages = new Set();
+  for (const corpus of corpora) {
+    languages.add(corpus.language);
+  }
+
   // if no initial corpus name is provided, default to the 1st in the list
   let selectedCorpusName: string = $state(
     selectedCorpusNameInit ? selectedCorpusNameInit : corpora[0].name,
@@ -31,6 +36,16 @@
       <div class="card-body">
         <fieldset class="fieldset">
           <legend class="fieldset-legend">Settings</legend>
+          <label class="fieldset-label flex flex-col items-start"
+            >Query language
+            <select
+              class="select w-48 select-sm select-primary"
+              name="language">
+              {#each languages as language}
+                <option value={language}>{language}</option>
+              {/each}
+            </select>
+          </label>
           <label class="fieldset-label flex flex-col items-start"
             >Corpus
             <select

@@ -95,7 +95,7 @@ export async function searchDocuments(
     offset: offset.toString(),
   });
   if (corpusName !== null) {
-    searchParams.set("corpus_name", corpusName);
+    searchParams.append("corpus_name", corpusName);
   }
 
   const res = await fetch(

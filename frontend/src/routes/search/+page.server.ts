@@ -5,6 +5,7 @@ import type { PageServerLoad } from "./$types";
 export const load: PageServerLoad = async ({ url }) => {
   const q = url.searchParams.get("q");
   const corpusName = url.searchParams.get("corpus");
+  const language = url.searchParams.get("language");
   if (!q || q.trim().length == 0) {
     redirect(307, "/");
   }
@@ -17,7 +18,7 @@ export const load: PageServerLoad = async ({ url }) => {
   const resultsPerPage = 10;
   const result = await searchDocuments(
     q,
-    "english",
+    language ?? "english",
     resultsPerPage,
     pageNum,
     corpusName,
