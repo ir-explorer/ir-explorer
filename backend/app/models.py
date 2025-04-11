@@ -113,6 +113,6 @@ class DocumentSearchHit:
 class Paginated(Generic[T]):
     """An incomplete list of items."""
 
-    total_num_items: int
-    offset: int
     items: list[T]
+    offset: int
+    total_num_items: int | None = None

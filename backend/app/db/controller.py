@@ -233,59 +233,89 @@ class DBController(Controller):
             )
 
     @get(path="/get_corpora")
-    async def get_corpora(self, transaction: "AsyncSession") -> list[Corpus]:
+    async def get_corpora(
+        self,
+        transaction: "AsyncSession",
+        num_results: int | None = 10,
+        offset: int = 0,
+    ) -> Paginated[Corpus]:
         """List all corpora including statistics about datasets and documents.
 
         :param transaction: A DB transaction.
-        :return: All indexed corpora.
+        :param num_results: How many corpora to return.
+        :param offset: Offset for pagination.
+        :return: Paginated list of corpora, ordered by (estimated) number of documents.
         """
         sql = (
             select(
                 ORMCorpus,
                 func.count(ORMDataset.id),
-                func.estimate_num_docs(ORMCorpus.id),
+                func.estimate_num_docs(ORMCorpus.id).label("num_documents_estimate"),
             )
             .join(ORMDataset)
             .group_by(ORMCorpus.id)
+            .order_by(desc(text("num_documents_estimate")))
+            .offset(offset)
         )
+        if num_results is not None:
+            sql = sql.limit(num_results)
 
         result = (await transaction.execute(sql)).all()
-        return [
-            Corpus(
-                name=corpus.name,
-                language=corpus.language,
-                num_datasets=num_datasets,
-                num_documents_estimate=num_docs,
-            )
-            for corpus, num_datasets, num_docs in result
-        ]
+        return Paginated[Corpus](
+            items=[
+                Corpus(
+                    name=corpus.name,
+                    language=corpus.language,
+                    num_datasets=num_datasets,
+                    num_documents_estimate=num_docs,
+                )
+                for corpus, num_datasets, num_docs in result
+            ],
+            offset=offset,
+        )
 
     @get(path="/get_datasets")
     async def get_datasets(
-        self, transaction: "AsyncSession", corpus_name: str
-    ) -> list[Dataset]:
+        self,
+        transaction: "AsyncSession",
+        corpus_name: str,
+        num_results: int | None = 10,
+        offset: int = 0,
+    ) -> Paginated[Dataset]:
         """List all datasets for a corpus, including statistics.
 
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
-        :return: All datasets.
+        :param num_results: How many datasets to return.
+        :param offset: Offset for pagination.
+        :return: Paginated list of datasets, ordered by (estimated) number of queries.
         """
         sql = (
-            select(ORMDataset, func.estimate_num_queries(ORMDataset.id))
+            select(
+                ORMDataset,
+                func.estimate_num_queries(ORMDataset.id).label("num_queries_estimate"),
+            )
             .join(ORMCorpus)
             .where(ORMCorpus.name == corpus_name)
+            .order_by(desc(text("num_queries_estimate")))
+            .offset(offset)
         )
+        if num_results is not None:
+            sql = sql.limit(num_results)
 
         result = (await transaction.execute(sql)).all()
-        return [
-            Dataset(
-                name=dataset.name,
-                corpus_name=corpus_name,
-                min_relevance=dataset.min_relevance,
-                num_queries_estimate=num_queries,
-            )
-            for dataset, num_queries in result
-        ]
+        return Paginated[Dataset](
+            offset=offset,
+            items=[
+                Dataset(
+                    name=dataset.name,
+                    corpus_name=corpus_name,
+                    min_relevance=dataset.min_relevance,
+                    num_queries_estimate=num_queries_estimate,
+                )
+                for dataset, num_queries_estimate in result
+            ],
+        )
 
     @get(path="/get_queries")
     async def get_queries(
@@ -294,8 +324,9 @@ class DBController(Controller):
         corpus_name: str,
         dataset_name: str | None = None,
         match: str | None = None,
-        num_results: int | None = None,
-    ) -> list[Query]:
+        num_results: int | None = 10,
+        offset: int = 0,
+    ) -> Paginated[Query]:
         """List queries.
 
         :param transaction: A DB transaction.
@@ -303,7 +334,8 @@ class DBController(Controller):
         :param dataset_name: The dataset name.
         :param match: Return only queries that match this string.
         :param num_results: How many queries to return.
-        :return: All list of queries.
+        :param offset: Offset for pagination.
+        :return: Paginated list of queries, ordered by number of relevant documents.
         """
         where_clauses = [ORMCorpus.name == corpus_name]
         if dataset_name is not None:
@@ -329,22 +361,26 @@ class DBController(Controller):
             .where(*where_clauses)
             .group_by(ORMQuery.id, ORMQuery.dataset_id, ORMDataset.name)
             .order_by(desc(text("num_rel_docs")))
+            .offset(offset)
         )
         if num_results is not None:
             sql = sql.limit(num_results)
 
         result = (await transaction.execute(sql)).all()
-        return [
-            Query(
-                id=db_query.id,
-                corpus_name=corpus_name,
-                dataset_name=dataset_name,
-                text=db_query.text,
-                description=db_query.description,
-                num_relevant_documents=num_rel_docs,
-            )
-            for db_query, num_rel_docs, dataset_name in result
-        ]
+        return Paginated[Query](
+            offset=offset,
+            items=[
+                Query(
+                    id=db_query.id,
+                    corpus_name=corpus_name,
+                    dataset_name=dataset_name,
+                    text=db_query.text,
+                    description=db_query.description,
+                    num_relevant_documents=num_rel_docs,
+                )
+                for db_query, num_rel_docs, dataset_name in result
+            ],
+        )
 
     @get(path="/get_query")
     async def get_query(
@@ -412,14 +448,18 @@ class DBController(Controller):
         corpus_name: str,
         dataset_name: str,
         query_id: str,
-    ) -> list[DocumentWithRelevance]:
+        num_results: int | None = 10,
+        offset: int = 0,
+    ) -> Paginated[DocumentWithRelevance]:
         """Return all documents that are relevant w.r.t. a specific query.
 
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: The name of the dataset the query is in.
         :param query_id: The query ID.
-        :return: All documents relevant w.r.t. the query.
+        :param num_results: How many queries to return.
+        :param offset: Offset for pagination.
+        :return: Paginated list of documents, ordered by relevance.
         """
         sql = (
             select(ORMQRel)
@@ -434,20 +474,27 @@ class DBController(Controller):
                     ORMQRel.relevance >= ORMDataset.min_relevance,
                 )
             )
+            .order_by(ORMQRel.relevance.desc())
+            .offset(offset)
         )
+        if num_results is not None:
+            sql = sql.limit(num_results)
 
         result = (await transaction.execute(sql)).scalars()
-        return [
-            DocumentWithRelevance(
-                id=qrel.document.id,
-                corpus_name=corpus_name,
-                title=qrel.document.title,
-                text=qrel.document.text,
-                query_id=query_id,
-                relevance=qrel.relevance,
-            )
-            for qrel in result
-        ]
+        return Paginated[DocumentWithRelevance](
+            items=[
+                DocumentWithRelevance(
+                    id=qrel.document.id,
+                    corpus_name=corpus_name,
+                    title=qrel.document.title,
+                    text=qrel.document.text,
+                    query_id=query_id,
+                    relevance=qrel.relevance,
+                )
+                for qrel in result
+            ],
+            offset=offset,
+        )
 
     @get(path="/get_document")
     async def get_document(
@@ -493,7 +540,7 @@ class DBController(Controller):
         q: str,
         language: str = "english",
         corpus_name: list[str] | None = None,
-        num_results: int = 10,
+        num_results: int | None = 10,
         offset: int = 0,
     ) -> Paginated[DocumentSearchHit]:
         """Search documents (using full-text search).
@@ -504,9 +551,7 @@ class DBController(Controller):
         :param corpus_name: Search only within these corpora.
         :param num_results: How many hits to return.
         :param offset: Offset for pagination.
-        :return:
-            The total number of results and a list of hits ordered by score,
-            respecting `num_results` and `offset`.
+        :return: Paginated list of results, ordered by score.
         """
         ts_query = func.websearch_to_tsquery(language, q)
 
@@ -544,8 +589,9 @@ class DBController(Controller):
             .order_by(desc("score"))
             .order_by(ORMDocument.id)
             .offset(offset)
-            .limit(num_results)
         )
+        if num_results is not None:
+            sql_results_page = sql_results_page.limit(num_results)
 
         # compute snippets for the current page
         sql_results = select(
@@ -563,9 +609,7 @@ class DBController(Controller):
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         results = (await transaction.execute(sql_results)).all()
         return Paginated[DocumentSearchHit](
-            total_num_results,
-            offset,
-            [
+            items=[
                 DocumentSearchHit(
                     id=id,
                     corpus_name=corpus_name,
@@ -575,6 +619,8 @@ class DBController(Controller):
                 )
                 for id, title, corpus_name, score, snippet in results
             ],
+            offset=offset,
+            total_num_items=total_num_results,
         )
 
     @delete(path="/remove_dataset")
