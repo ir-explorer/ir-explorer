@@ -487,7 +487,7 @@ class DBController(Controller):
         transaction: "AsyncSession",
         q: str,
         language: str = "english",
-        corpus_name: str | None = None,
+        corpus_name: list[str] | None = None,
         num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[DocumentSearchHit]:
@@ -496,7 +496,7 @@ class DBController(Controller):
         :param transaction: A DB transaction.
         :param q: The search query.
         :param language: The query language.
-        :param corpus_name: The corpus name.
+        :param corpus_name: Search only within these corpora.
         :param num_results: How many hits to return.
         :param offset: Offset for pagination.
         :return:
@@ -509,7 +509,7 @@ class DBController(Controller):
             ORMDocument.text_tsv.bool_op("@@")(ts_query)
         ]
         if corpus_name is not None:
-            where_clauses.append(ORMCorpus.name == corpus_name)
+            where_clauses.append(ORMCorpus.name.in_(corpus_name))
 
         # count the total number of hits
         sql_count = (
