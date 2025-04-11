@@ -1,13 +1,20 @@
-import { searchDocuments } from "$lib/server/backend";
+import { getAvailableLanguages, searchDocuments } from "$lib/server/backend";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ url }) => {
   const q = url.searchParams.get("q");
   const corpusNames = url.searchParams.getAll("corpus");
-  const language = url.searchParams.get("language");
   if (!q || q.trim().length == 0) {
     redirect(307, "/");
+  }
+
+  let language = url.searchParams.get("language");
+  const availableLanguages = await getAvailableLanguages();
+
+  // ignore unsupported languages
+  if (language != null && !availableLanguages.includes(language)) {
+    language = null;
   }
 
   let pageNum = Number(url.searchParams.get("p"));
@@ -18,7 +25,7 @@ export const load: PageServerLoad = async ({ url }) => {
   const resultsPerPage = 10;
   const result = await searchDocuments(
     q,
-    language ?? "english",
+    language,
     resultsPerPage,
     pageNum,
     corpusNames,

@@ -22,8 +22,9 @@
 
   let selectedCorpora = $state(selectedCorporaInit);
 
-  // if no language is specified, select english if it exists, otherwise fall back to a random one
-  if (languageInit == null) {
+  // if no valid language is specified, select english if it exists.
+  // otherwise, fall back to a random one
+  if (languageInit == null || !languages.has(languageInit)) {
     if (languages.has("english")) {
       languageInit = "english";
     } else {
