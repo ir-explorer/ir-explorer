@@ -40,6 +40,31 @@ export async function getQuery(
   return (await res.json()) as Query;
 }
 
+export async function getQueries(
+  corpusName: string,
+  datasetName: string | null = null,
+  match: string | null = null,
+  numResults: number | null = 10,
+  offset: number = 0,
+): Promise<Paginated<Query>> {
+  let searchParams = new URLSearchParams({
+    corpus_name: corpusName,
+    offset: offset.toString(),
+  });
+  if (datasetName !== null) {
+    searchParams.append("dataset_name", datasetName);
+  }
+  if (match !== null) {
+    searchParams.append("match", match);
+  }
+  if (numResults !== null) {
+    searchParams.append("num_results", numResults.toString());
+  }
+
+  const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
+  return (await res.json()) as Paginated<Query>;
+}
+
 export async function getDocument(
   corpusName: string,
   documentID: string,
@@ -50,39 +75,6 @@ export async function getDocument(
   });
   const res = await fetch(`${BACKEND_REST_URL}/get_document?${searchParams}`);
   return (await res.json()) as Document;
-}
-
-export async function getQueries(
-  corpusName: string,
-  datasetName: string,
-): Promise<Paginated<Query>> {
-  const searchParams = new URLSearchParams({
-    corpus_name: corpusName,
-    dataset_name: datasetName,
-  });
-  const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
-  return (await res.json()) as Paginated<Query>;
-}
-
-export async function autocompleteQuery(
-  input: string,
-  corpusName: string,
-  datasetName: string | null,
-  numResults: number | null,
-): Promise<Query[]> {
-  let searchParams = new URLSearchParams({
-    corpus_name: corpusName,
-    natch: input,
-  });
-  if (datasetName !== null) {
-    searchParams.append("dataset_name", datasetName);
-  }
-  if (numResults !== null) {
-    searchParams.append("num_results", numResults.toString());
-  }
-
-  const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
-  return (await res.json()) as Query[];
 }
 
 export async function searchDocuments(

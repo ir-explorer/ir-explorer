@@ -13,8 +13,7 @@
 <List listItems={data.corpusList} {getTargetLink}>
   {#snippet head()}
     <div class="flex flex-row items-center gap-2">
-      <Fa icon={corpusIcon} />
-      Corpora
+      <Fa icon={corpusIcon} />Corpora
     </div>
   {/snippet}
   {#snippet item(c: Corpus)}

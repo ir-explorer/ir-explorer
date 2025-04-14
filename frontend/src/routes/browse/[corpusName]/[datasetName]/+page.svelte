@@ -29,7 +29,7 @@
   <List listItems={data.queryList} {getTargetLink}>
     {#snippet head()}
       <p class="flex flex-row items-center gap-2">
-        <Fa icon={queryIcon} /> Queries
+        <Fa icon={queryIcon} />Queries
       </p>
     {/snippet}
     {#snippet item(q: Query)}

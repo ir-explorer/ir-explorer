@@ -1,4 +1,4 @@
-import { autocompleteQuery } from "$lib/server/backend";
+import { getQueries } from "$lib/server/backend";
 import { error, json } from "@sveltejs/kit";
 
 export async function GET({ url }) {
@@ -7,15 +7,15 @@ export async function GET({ url }) {
   const input = url.searchParams.get("input");
   const numResults = url.searchParams.get("num_results");
 
-  if (corpusName === null || input === null) {
+  if (corpusName === null) {
     error(400);
   }
 
   return json(
-    await autocompleteQuery(
-      input,
+    await getQueries(
       corpusName,
       datasetName,
+      input,
       numResults ? Number(numResults) : null,
     ),
   );

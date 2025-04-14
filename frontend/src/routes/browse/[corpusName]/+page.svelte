@@ -29,7 +29,7 @@
   <List listItems={data.datasetList} {getTargetLink}>
     {#snippet head()}
       <p class="flex flex-row items-center gap-2">
-        <Fa icon={datasetIcon} /> Datasets
+        <Fa icon={datasetIcon} />Datasets
       </p>
     {/snippet}
     {#snippet item(d: Dataset)}
