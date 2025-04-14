@@ -45,12 +45,9 @@ export async function getQueries(
   datasetName: string | null = null,
   match: string | null = null,
   numResults: number | null = 10,
-  offset: number = 0,
+  offset: number | null = 0,
 ): Promise<Paginated<Query>> {
-  let searchParams = new URLSearchParams({
-    corpus_name: corpusName,
-    offset: offset.toString(),
-  });
+  let searchParams = new URLSearchParams({ corpus_name: corpusName });
   if (datasetName !== null) {
     searchParams.append("dataset_name", datasetName);
   }
@@ -59,6 +56,9 @@ export async function getQueries(
   }
   if (numResults !== null) {
     searchParams.append("num_results", numResults.toString());
+  }
+  if (offset !== null) {
+    searchParams.append("offset", offset.toString());
   }
 
   const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
