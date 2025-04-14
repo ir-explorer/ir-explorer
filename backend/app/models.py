@@ -88,14 +88,7 @@ class Document(DocumentInfo):
     """A single document."""
 
     corpus_name: str
-
-
-@dataclass
-class DocumentWithRelevance(Document):
-    """A single document with a relevance (w.r.t. a specific query)."""
-
-    query_id: str
-    relevance: int
+    num_relevant_queries: int
 
 
 @dataclass

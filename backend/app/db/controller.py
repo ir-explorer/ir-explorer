@@ -12,7 +12,6 @@ from models import (
     Document,
     DocumentInfo,
     DocumentSearchHit,
-    DocumentWithRelevance,
     Paginated,
     QRelInfo,
     Query,
@@ -306,11 +305,11 @@ class DBController(Controller):
 
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
-        :param dataset_name: The dataset name.
+        :param dataset_name: Return only queries in this dataset.
         :param match: Return only queries that match this string.
         :param num_results: How many queries to return.
         :param offset: Offset for pagination.
-        :return: Paginated list of queries, ordered by number of relevant documents.
+        :return: Paginated list of queries.
         """
         where_clauses = [ORMCorpus.name == corpus_name]
         if dataset_name is not None:
@@ -328,7 +327,7 @@ class DBController(Controller):
         sql = (
             select(
                 ORMQuery,
-                func.count(ORMQRel.document_id).label("num_rel_docs"),
+                func.count(ORMQRel.document_id),
                 ORMDataset.name,
             )
             .join(ORMDataset)
@@ -342,7 +341,6 @@ class DBController(Controller):
             )
             .where(*where_clauses)
             .group_by(ORMQuery.id, ORMQuery.dataset_id, ORMDataset.name)
-            .order_by(desc(text("num_rel_docs")))
             .offset(offset)
         )
         if num_results is not None:
@@ -425,70 +423,6 @@ class DBController(Controller):
             num_relevant_documents=num_rel_docs,
         )
 
-    @get(path="/get_relevant_documents")
-    async def get_relevant_documents(
-        self,
-        transaction: "AsyncSession",
-        corpus_name: str,
-        dataset_name: str,
-        query_id: str,
-        num_results: int | None = 10,
-        offset: int = 0,
-    ) -> Paginated[DocumentWithRelevance]:
-        """Return all documents that are relevant w.r.t. a specific query.
-
-        :param transaction: A DB transaction.
-        :param corpus_name: The name of the corpus.
-        :param dataset_name: The name of the dataset the query is in.
-        :param query_id: The query ID.
-        :param num_results: How many queries to return.
-        :param offset: Offset for pagination.
-        :return: Paginated list of documents, ordered by relevance.
-        """
-        where_clauses = [
-            ORMQRel.query_id == query_id,
-            ORMDataset.name == dataset_name,
-            ORMCorpus.name == corpus_name,
-            ORMQRel.relevance >= ORMDataset.min_relevance,
-        ]
-
-        sql_count = (
-            select(func.count(ORMQRel.document_id))
-            .join(ORMDataset, ORMQRel.dataset_id == ORMDataset.id)
-            .join(ORMCorpus)
-            .where(and_(*where_clauses))
-        )
-
-        sql = (
-            select(ORMQRel)
-            .join(ORMDataset, ORMQRel.dataset_id == ORMDataset.id)
-            .join(ORMCorpus)
-            .options(joinedload(ORMQRel.document))
-            .where(and_(*where_clauses))
-            .order_by(ORMQRel.relevance.desc())
-            .offset(offset)
-        )
-        if num_results is not None:
-            sql = sql.limit(num_results)
-
-        total_num_results = (await transaction.execute(sql_count)).scalar_one()
-        result = (await transaction.execute(sql)).scalars()
-        return Paginated[DocumentWithRelevance](
-            items=[
-                DocumentWithRelevance(
-                    id=qrel.document.id,
-                    corpus_name=corpus_name,
-                    title=qrel.document.title,
-                    text=qrel.document.text,
-                    query_id=query_id,
-                    relevance=qrel.relevance,
-                )
-                for qrel in result
-            ],
-            offset=offset,
-            total_num_items=total_num_results,
-        )
-
     @get(path="/get_document")
     async def get_document(
         self, transaction: "AsyncSession", corpus_name: str, document_id: str
@@ -502,18 +436,21 @@ class DBController(Controller):
         :return: The document object.
         """
         sql = (
-            select(ORMDocument)
-            .join(ORMCorpus)
-            .where(
+            select(ORMDocument, func.count(ORMQRel.query_id))
+            .join(ORMCorpus, ORMDocument.corpus_id == ORMCorpus.id)
+            .join(ORMDataset)
+            .outerjoin(
+                ORMQRel,
                 and_(
-                    ORMDocument.id == document_id,
-                    ORMCorpus.name == corpus_name,
-                )
+                    ORMQRel.document_id == ORMDocument.id,
+                    ORMQRel.relevance >= ORMDataset.min_relevance,
+                ),
             )
-        )
+            .where(ORMCorpus.name == corpus_name, ORMDocument.id == document_id)
+        ).group_by(ORMDocument.id, ORMDocument.corpus_id)
 
         try:
-            result = (await transaction.execute(sql)).scalar_one()
+            db_document, num_rel_queries = (await transaction.execute(sql)).one()
         except NoResultFound as e:
             raise HTTPException(
                 "Could not find the requested document.",
@@ -524,7 +461,70 @@ class DBController(Controller):
                     "error_code": e.code,
                 },
             )
-        return Document(result.id, result.title, result.text, corpus_name)
+        return Document(
+            id=db_document.id,
+            title=db_document.title,
+            text=db_document.text,
+            corpus_name=corpus_name,
+            num_relevant_queries=num_rel_queries,
+        )
+
+    @get(path="/get_documents")
+    async def get_documents(
+        self,
+        transaction: "AsyncSession",
+        corpus_name: str,
+        num_results: int | None = 10,
+        offset: int = 0,
+    ) -> Paginated[Document]:
+        """Return all documents in a corpus.
+
+        :param transaction: A DB transaction.
+        :param corpus_name: The name of the corpus.
+        :param num_results: How many documents to return.
+        :param offset: Offset for pagination.
+        :return: Paginated list of documents.
+        """
+        sql_count = (
+            select(func.count(ORMDocument.id))
+            .join(ORMCorpus)
+            .where(ORMCorpus.name == corpus_name)
+        )
+
+        sql = (
+            select(ORMDocument, func.count(ORMQRel.query_id))
+            .join(ORMCorpus, ORMDocument.corpus_id == ORMCorpus.id)
+            .join(ORMDataset)
+            .outerjoin(
+                ORMQRel,
+                and_(
+                    ORMQRel.document_id == ORMDocument.id,
+                    ORMQRel.relevance >= ORMDataset.min_relevance,
+                ),
+            )
+            .where(ORMCorpus.name == corpus_name)
+            .group_by(ORMDocument.id, ORMDocument.corpus_id)
+            .offset(offset)
+        )
+        if num_results is not None:
+            sql = sql.limit(num_results)
+
+        total_num_results = (await transaction.execute(sql_count)).scalar_one()
+        result = (await transaction.execute(sql)).all()
+        return Paginated[Document](
+            items=[
+                Document(
+                    id=db_document.id,
+                    corpus_name=corpus_name,
+                    title=db_document.title,
+                    text=db_document.text,
+                    num_relevant_queries=num_rel_queries,
+                )
+                for db_document, num_rel_queries in result
+            ],
+            offset=offset,
+            total_num_items=total_num_results,
+        )
 
     @get(path="/search_documents")
     async def search_documents(

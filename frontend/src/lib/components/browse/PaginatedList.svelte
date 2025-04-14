@@ -56,7 +56,7 @@
     {:else}
       <button
         class="btn join-item h-8 w-24 btn-sm"
-        disabled={working || numItemsDisplayed == totalNumItems}
+        disabled={numItemsDisplayed >= totalNumItems}
         onclick={async () => {
           await showNextPage();
         }}
