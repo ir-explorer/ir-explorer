@@ -88,14 +88,7 @@ class Document(DocumentInfo):
     """A single document."""
 
     corpus_name: str
-
-
-@dataclass
-class DocumentWithRelevance(Document):
-    """A single document with a relevance (w.r.t. a specific query)."""
-
-    query_id: str
-    relevance: int
+    num_relevant_queries: int
 
 
 @dataclass
@@ -113,6 +106,6 @@ class DocumentSearchHit:
 class Paginated(Generic[T]):
     """An incomplete list of items."""
 
-    total_num_items: int
-    offset: int
     items: list[T]
+    offset: int
+    total_num_items: int

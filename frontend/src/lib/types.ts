@@ -16,12 +16,14 @@ export interface Query {
   description: string | null;
   corpus_name: string;
   dataset_name: string;
+  num_relevant_documents: number;
 }
 export interface Document {
   id: string;
   title: string | null;
   text: string;
   corpus_name: string;
+  num_relevant_queries: number;
 }
 export interface DocumentSearchHit {
   score: number;
@@ -35,9 +37,4 @@ export interface Paginated<T> {
   total_num_items: number;
   offset: number;
   items: T[];
-}
-
-export interface ListItem<T> {
-  target: string;
-  item: T;
 }
