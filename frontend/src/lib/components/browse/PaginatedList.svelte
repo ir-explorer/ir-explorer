@@ -37,7 +37,9 @@
 </script>
 
 {#await initialLoad}
-  <p>Loading...</p>
+  <div class="flex w-full justify-center">
+    <span class="loading"></span>
+  </div>
 {:then}
   <List bind:listItems {head} {item} {getTargetLink} />
   <div class="mt-4 join flex h-8 w-full justify-center">
