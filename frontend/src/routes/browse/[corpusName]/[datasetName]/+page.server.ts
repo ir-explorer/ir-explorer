@@ -11,8 +11,5 @@ export const load: PageServerLoad = async ({ params, url }) => {
     query = await getQuery(params.corpusName, params.datasetName, queryID);
   }
 
-  return {
-    datasetName: params.datasetName,
-    query: query,
-  };
+  return { datasetName: params.datasetName, query: query };
 };

@@ -23,6 +23,7 @@ export interface Document {
   title: string | null;
   text: string;
   corpus_name: string;
+  num_relevant_queries: number;
 }
 export interface DocumentSearchHit {
   score: number;

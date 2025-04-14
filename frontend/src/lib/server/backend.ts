@@ -77,6 +77,23 @@ export async function getDocument(
   return (await res.json()) as Document;
 }
 
+export async function getDocuments(
+  corpusName: string,
+  numResults: number | null = 10,
+  offset: number | null = 0,
+): Promise<Paginated<Document>> {
+  let searchParams = new URLSearchParams({ corpus_name: corpusName });
+  if (numResults !== null) {
+    searchParams.append("num_results", numResults.toString());
+  }
+  if (offset !== null) {
+    searchParams.append("offset", offset.toString());
+  }
+
+  const res = await fetch(`${BACKEND_REST_URL}/get_documents?${searchParams}`);
+  return (await res.json()) as Paginated<Document>;
+}
+
 export async function searchDocuments(
   q: string,
   language: string | null,
