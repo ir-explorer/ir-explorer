@@ -4,7 +4,7 @@
   import type { Snippet } from "svelte";
 
   let {
-    listItems,
+    listItems = $bindable(),
     head,
     item,
     getTargetLink,
@@ -17,7 +17,7 @@
 </script>
 
 <ul class="list rounded-box bg-base-100 shadow-md">
-  <li class="p-4 text-xs">{@render head()}</li>
+  <li class="bg-base-200 p-4 text-xs">{@render head()}</li>
 
   {#each listItems as listItem}
     <a href={getTargetLink(listItem)}>

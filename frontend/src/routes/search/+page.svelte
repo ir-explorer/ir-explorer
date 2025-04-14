@@ -56,7 +56,7 @@
   </ul>
 
   {#if data.totalPages > 1}
-    <div class="mt-4 join flex w-full items-stretch justify-center">
+    <div class="mt-4 join flex w-full justify-center">
       {#if data.prevPageLink != null}
         <a
           href={data.prevPageLink}
