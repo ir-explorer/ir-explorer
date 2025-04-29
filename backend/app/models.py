@@ -6,7 +6,7 @@ T = TypeVar("T")
 
 @dataclass
 class CorpusInfo:
-    """A corpus for insertion."""
+    """Corpus attributes."""
 
     name: str
     language: str
@@ -14,7 +14,7 @@ class CorpusInfo:
 
 @dataclass
 class Corpus(CorpusInfo):
-    """A corpus with statistics."""
+    """Corpus with attributes and statistics."""
 
     num_datasets: int
     num_documents_estimate: int
@@ -22,7 +22,7 @@ class Corpus(CorpusInfo):
 
 @dataclass
 class DatasetInfo:
-    """A dataset for insertion."""
+    """Dataset attributes."""
 
     name: str
     corpus_name: str
@@ -31,7 +31,7 @@ class DatasetInfo:
 
 @dataclass
 class Dataset:
-    """A dataset with statistics."""
+    """Dataset with attributes, associated corpus, and statistics."""
 
     name: str
     corpus_name: str
@@ -40,25 +40,8 @@ class Dataset:
 
 
 @dataclass
-class QRelInfo:
-    """A single query-document relevance score for bulk insertion."""
-
-    query_id: str
-    document_id: str
-    relevance: int
-
-
-@dataclass
-class QRel(QRelInfo):
-    """A single query-document relevance score."""
-
-    corpus_name: str
-    dataset_name: str
-
-
-@dataclass
 class QueryInfo:
-    """A single query for bulk insertion."""
+    """Query attributes."""
 
     id: str
     text: str
@@ -67,7 +50,7 @@ class QueryInfo:
 
 @dataclass
 class Query(QueryInfo):
-    """A single query with statistics."""
+    """Query with attributes, associated dataset, and statistics."""
 
     corpus_name: str
     dataset_name: str
@@ -76,7 +59,7 @@ class Query(QueryInfo):
 
 @dataclass
 class DocumentInfo:
-    """A single document for bulk insertion."""
+    """Document attributes."""
 
     id: str
     title: str | None
@@ -85,7 +68,7 @@ class DocumentInfo:
 
 @dataclass
 class Document(DocumentInfo):
-    """A single document."""
+    """Document with attributes, associated corpus, and statistics."""
 
     corpus_name: str
     num_relevant_queries: int
@@ -93,7 +76,7 @@ class Document(DocumentInfo):
 
 @dataclass
 class DocumentSearchHit:
-    """A document retrieved by a search engine."""
+    """Document retrieved by a search engine."""
 
     id: str
     title: str | None
@@ -103,8 +86,28 @@ class DocumentSearchHit:
 
 
 @dataclass
+class QRelInfo:
+    """QRel with IDs and relevance only."""
+
+    query_id: str
+    document_id: str
+    relevance: int
+
+
+@dataclass
+class QRel:
+    """QRel with attributes and relevance."""
+
+    query_info: QueryInfo
+    document_info: DocumentInfo
+    corpus_name: str
+    dataset_name: str
+    relevance: int
+
+
+@dataclass
 class Paginated(Generic[T]):
-    """An incomplete list of items."""
+    """Part of a list of items for pagination."""
 
     items: list[T]
     offset: int

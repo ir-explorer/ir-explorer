@@ -44,7 +44,7 @@
   <List bind:listItems {head} {item} {getTargetLink} />
   <div class="mt-4 join flex h-8 w-full justify-center">
     <div
-      class="join-item flex flex-col justify-center border border-base-200 px-2">
+      class="join-item flex flex-col justify-center border border-base-300 bg-base-200 px-2">
       <p class="text-sm">
         Showing {numItemsDisplayed} out of {totalNumItems} items
       </p>
