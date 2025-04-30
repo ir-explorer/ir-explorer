@@ -328,7 +328,7 @@ class DBController(Controller):
         sql = (
             select(
                 ORMQuery,
-                func.count(ORMQRel.relevance >= ORMDataset.min_relevance),
+                func.count(),
                 ORMDataset.name,
             )
             .join(ORMDataset)
@@ -336,7 +336,9 @@ class DBController(Controller):
             .join(
                 ORMQRel,
                 and_(
-                    ORMQRel.query_id == ORMQuery.id, ORMQRel.dataset_id == ORMDataset.id
+                    ORMQRel.query_id == ORMQuery.id,
+                    ORMQRel.dataset_id == ORMDataset.id,
+                    ORMQRel.relevance >= ORMDataset.min_relevance,
                 ),
             )
             .where(*where_clauses)
