@@ -504,6 +504,7 @@ class DBController(Controller):
                 and_(
                     ORMQRel.document_id == ORMDocument.id,
                     ORMQRel.dataset_id == ORMDataset.id,
+                    ORMQRel.relevance >= ORMDataset.min_relevance,
                 ),
             )
             .where(ORMCorpus.name == corpus_name)
