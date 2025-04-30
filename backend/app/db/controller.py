@@ -328,12 +328,12 @@ class DBController(Controller):
         sql = (
             select(
                 ORMQuery,
-                func.count(),
+                func.count(ORMQRel.relevance >= ORMDataset.min_relevance),
                 ORMDataset.name,
             )
             .join(ORMDataset)
             .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
-            .join(
+            .outerjoin(
                 ORMQRel,
                 and_(
                     ORMQRel.query_id == ORMQuery.id,
