@@ -10,6 +10,7 @@ export interface Dataset {
   min_relevance: number;
   num_queries_estimate: number;
 }
+
 export interface Query {
   id: string;
   text: string;
@@ -18,12 +19,26 @@ export interface Query {
   dataset_name: string;
   num_relevant_documents: number;
 }
+export interface RelevantQuery {
+  id: string;
+  snippet: string;
+  corpus_name: string;
+  dataset_name: string;
+  relevance: number;
+}
+
 export interface Document {
   id: string;
   title: string | null;
   text: string;
   corpus_name: string;
   num_relevant_queries: number;
+}
+export interface RelevantDocument {
+  id: string;
+  snippet: string;
+  corpus_name: string;
+  relevance: number;
 }
 export interface DocumentSearchHit {
   score: number;

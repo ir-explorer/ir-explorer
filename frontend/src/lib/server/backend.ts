@@ -6,6 +6,8 @@ import type {
   DocumentSearchHit,
   Paginated,
   Query,
+  RelevantDocument,
+  RelevantQuery,
 } from "$lib/types";
 
 const BACKEND_REST_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}`;
@@ -120,4 +122,81 @@ export async function searchDocuments(
     `${BACKEND_REST_URL}/search_documents?${searchParams}`,
   );
   return (await res.json()) as Paginated<DocumentSearchHit>;
+}
+
+export async function getRelevantDocuments(
+  queryID: string,
+  datasetName: string,
+  corpusName: string,
+  numResults: number | null = 10,
+  offset: number | null = 0,
+): Promise<Paginated<RelevantDocument>> {
+  const searchParams = new URLSearchParams({
+    query_id: queryID,
+    dataset_name: datasetName,
+    corpus_name: corpusName,
+  });
+  if (numResults !== null) {
+    searchParams.append("num_results", numResults.toString());
+  }
+  if (offset !== null) {
+    searchParams.append("offset", offset.toString());
+  }
+
+  return new Promise<Paginated<RelevantDocument>>(async (resolve) => {
+    const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);
+    const res_json = await res.json();
+    let documents: RelevantDocument[] = [];
+    for (const item of res_json["items"]) {
+      documents.push({
+        id: item["document_info"]["id"],
+        snippet: item["document_info"]["text"],
+        corpus_name: item["corpus_name"],
+        relevance: item["relevance"],
+      } as RelevantDocument);
+    }
+    resolve({
+      total_num_items: res_json["total_num_items"],
+      offset: res_json["offset"],
+      items: documents,
+    } as Paginated<RelevantDocument>);
+  });
+}
+
+export async function getRelevantQueries(
+  documentID: string,
+  corpusName: string,
+  numResults: number | null = 10,
+  offset: number | null = 0,
+): Promise<Paginated<RelevantQuery>> {
+  const searchParams = new URLSearchParams({
+    document_id: documentID,
+    corpus_name: corpusName,
+  });
+  if (numResults !== null) {
+    searchParams.append("num_results", numResults.toString());
+  }
+  if (offset !== null) {
+    searchParams.append("offset", offset.toString());
+  }
+
+  return new Promise<Paginated<RelevantQuery>>(async (resolve) => {
+    const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);
+    const res_json = await res.json();
+    let queries: RelevantQuery[] = [];
+    for (const item of res_json["items"]) {
+      queries.push({
+        id: item["query_info"]["id"],
+        snippet: item["query_info"]["text"],
+        corpus_name: item["corpus_name"],
+        dataset_name: item["dataset_name"],
+        relevance: item["relevance"],
+      } as RelevantQuery);
+    }
+    resolve({
+      total_num_items: res_json["total_num_items"],
+      offset: res_json["offset"],
+      items: queries,
+    } as Paginated<RelevantQuery>);
+  });
 }
