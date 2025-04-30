@@ -46,21 +46,19 @@ export async function getQueries(
   corpusName: string,
   datasetName: string | null = null,
   match: string | null = null,
-  numResults: number | null = 10,
-  offset: number | null = 0,
+  numResults: number,
+  offset: number = 0,
 ): Promise<Paginated<Query>> {
-  let searchParams = new URLSearchParams({ corpus_name: corpusName });
+  let searchParams = new URLSearchParams({
+    corpus_name: corpusName,
+    num_results: numResults.toString(),
+    offset: offset.toString(),
+  });
   if (datasetName !== null) {
     searchParams.append("dataset_name", datasetName);
   }
   if (match !== null) {
     searchParams.append("match", match);
-  }
-  if (numResults !== null) {
-    searchParams.append("num_results", numResults.toString());
-  }
-  if (offset !== null) {
-    searchParams.append("offset", offset.toString());
   }
 
   const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
@@ -81,15 +79,15 @@ export async function getDocument(
 
 export async function getDocuments(
   corpusName: string,
-  numResults: number | null = 10,
-  offset: number | null = 0,
+  numResults: number,
+  offset: number,
 ): Promise<Paginated<Document>> {
-  let searchParams = new URLSearchParams({ corpus_name: corpusName });
+  let searchParams = new URLSearchParams({
+    corpus_name: corpusName,
+    offset: offset.toString(),
+  });
   if (numResults !== null) {
     searchParams.append("num_results", numResults.toString());
-  }
-  if (offset !== null) {
-    searchParams.append("offset", offset.toString());
   }
 
   const res = await fetch(`${BACKEND_REST_URL}/get_documents?${searchParams}`);
@@ -128,20 +126,16 @@ export async function getRelevantDocuments(
   queryID: string,
   datasetName: string,
   corpusName: string,
-  numResults: number | null = 10,
-  offset: number | null = 0,
+  numResults: number,
+  offset: number,
 ): Promise<Paginated<RelevantDocument>> {
   const searchParams = new URLSearchParams({
     query_id: queryID,
     dataset_name: datasetName,
     corpus_name: corpusName,
+    num_results: numResults.toString(),
+    offset: offset.toString(),
   });
-  if (numResults !== null) {
-    searchParams.append("num_results", numResults.toString());
-  }
-  if (offset !== null) {
-    searchParams.append("offset", offset.toString());
-  }
 
   return new Promise<Paginated<RelevantDocument>>(async (resolve) => {
     const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);
@@ -166,19 +160,15 @@ export async function getRelevantDocuments(
 export async function getRelevantQueries(
   documentID: string,
   corpusName: string,
-  numResults: number | null = 10,
-  offset: number | null = 0,
+  numResults: number,
+  offset: number,
 ): Promise<Paginated<RelevantQuery>> {
   const searchParams = new URLSearchParams({
     document_id: documentID,
     corpus_name: corpusName,
+    num_results: numResults.toString(),
+    offset: offset.toString(),
   });
-  if (numResults !== null) {
-    searchParams.append("num_results", numResults.toString());
-  }
-  if (offset !== null) {
-    searchParams.append("offset", offset.toString());
-  }
 
   return new Promise<Paginated<RelevantQuery>>(async (resolve) => {
     const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);

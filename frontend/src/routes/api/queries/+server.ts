@@ -17,8 +17,8 @@ export async function GET({ url }) {
       corpusName,
       datasetName,
       match,
-      numResults ? Number(numResults) : null,
-      offset ? Number(offset) : null,
+      numResults ? Number(numResults) : 10,
+      offset ? Number(offset) : 0,
     ),
   );
 }

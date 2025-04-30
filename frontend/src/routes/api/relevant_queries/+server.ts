@@ -15,8 +15,8 @@ export async function GET({ url }) {
     await getRelevantQueries(
       documentID,
       corpusName,
-      numResults ? Number(numResults) : null,
-      offset ? Number(offset) : null,
+      numResults ? Number(numResults) : 10,
+      offset ? Number(offset) : 0,
     ),
   );
 }
