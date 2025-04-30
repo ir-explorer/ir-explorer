@@ -328,16 +328,15 @@ class DBController(Controller):
         sql = (
             select(
                 ORMQuery,
-                func.count(ORMQRel.document_id),
+                func.count(ORMQRel.relevance >= ORMDataset.min_relevance),
                 ORMDataset.name,
             )
             .join(ORMDataset)
             .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
-            .outerjoin(
+            .join(
                 ORMQRel,
                 and_(
-                    ORMQRel.query_id == ORMQuery.id,
-                    ORMQRel.relevance >= ORMDataset.min_relevance,
+                    ORMQRel.query_id == ORMQuery.id, ORMQRel.dataset_id == ORMDataset.id
                 ),
             )
             .where(*where_clauses)
@@ -493,14 +492,16 @@ class DBController(Controller):
         )
 
         sql = (
-            select(ORMDocument, func.count(ORMQRel.query_id))
+            select(
+                ORMDocument, func.count(ORMQRel.relevance >= ORMDataset.min_relevance)
+            )
             .join(ORMCorpus, ORMDocument.corpus_id == ORMCorpus.id)
             .join(ORMDataset)
             .outerjoin(
                 ORMQRel,
                 and_(
                     ORMQRel.document_id == ORMDocument.id,
-                    ORMQRel.relevance >= ORMDataset.min_relevance,
+                    ORMQRel.dataset_id == ORMDataset.id,
                 ),
             )
             .where(ORMCorpus.name == corpus_name)
