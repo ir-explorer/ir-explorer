@@ -1,22 +1,22 @@
-import { getQueries } from "$lib/server/backend";
+import { getRelevantDocuments } from "$lib/server/backend";
 import { error, json } from "@sveltejs/kit";
 
 export async function GET({ url }) {
-  const corpusName = url.searchParams.get("corpus_name");
+  const queryID = url.searchParams.get("query_id");
   const datasetName = url.searchParams.get("dataset_name");
-  const match = url.searchParams.get("match");
+  const corpusName = url.searchParams.get("corpus_name");
   const numResults = url.searchParams.get("num_results");
   const offset = url.searchParams.get("offset");
 
-  if (corpusName === null) {
+  if (queryID === null || datasetName === null || corpusName === null) {
     error(400);
   }
 
   return json(
-    await getQueries(
-      corpusName,
+    await getRelevantDocuments(
+      queryID,
       datasetName,
-      match,
+      corpusName,
       numResults ? Number(numResults) : 10,
       offset ? Number(offset) : 0,
     ),

@@ -13,6 +13,7 @@ from models import (
     DocumentInfo,
     DocumentSearchHit,
     Paginated,
+    QRel,
     QRelInfo,
     Query,
     QueryInfo,
@@ -327,15 +328,16 @@ class DBController(Controller):
         sql = (
             select(
                 ORMQuery,
-                func.count(ORMQRel.document_id),
+                func.count(),
                 ORMDataset.name,
             )
             .join(ORMDataset)
             .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
-            .outerjoin(
+            .join(
                 ORMQRel,
                 and_(
                     ORMQRel.query_id == ORMQuery.id,
+                    ORMQRel.dataset_id == ORMDataset.id,
                     ORMQRel.relevance >= ORMDataset.min_relevance,
                 ),
             )
@@ -492,14 +494,16 @@ class DBController(Controller):
         )
 
         sql = (
-            select(ORMDocument, func.count(ORMQRel.query_id))
+            select(
+                ORMDocument, func.count(ORMQRel.relevance >= ORMDataset.min_relevance)
+            )
             .join(ORMCorpus, ORMDocument.corpus_id == ORMCorpus.id)
             .join(ORMDataset)
             .outerjoin(
                 ORMQRel,
                 and_(
                     ORMQRel.document_id == ORMDocument.id,
-                    ORMQRel.relevance >= ORMDataset.min_relevance,
+                    ORMQRel.dataset_id == ORMDataset.id,
                 ),
             )
             .where(ORMCorpus.name == corpus_name)
@@ -611,6 +615,89 @@ class DBController(Controller):
                     score=score,
                 )
                 for id, title, corpus_name, score, snippet in results
+            ],
+            offset=offset,
+            total_num_items=total_num_results,
+        )
+
+    @get(path="/get_qrels")
+    async def get_qrels(
+        self,
+        transaction: "AsyncSession",
+        corpus_name: str,
+        document_id: str | None = None,
+        dataset_name: str | None = None,
+        query_id: str | None = None,
+        num_results: int | None = 10,
+        offset: int = 0,
+    ) -> Paginated[QRel]:
+        """Return query-document pairs annotated as relevant.
+
+        :param transaction: A DB transaction.
+        :param corpus_name: The corpus name.
+        :param document_id: Return QRels for this document only.
+        :param dataset_name: Return QRels for this dataset only.
+        :param query_id: Return QRels for this query only.
+        :param num_results: How many QRels to return.
+        :param offset: Offset for pagination.
+        :return: Paginated list of QRels, ordered by relevance.
+        """
+        where_clauses = [
+            ORMCorpus.name == corpus_name,
+            ORMQRel.relevance >= ORMDataset.min_relevance,
+        ]
+        if document_id is not None:
+            where_clauses.append(ORMQRel.document_id == document_id)
+        if dataset_name is not None:
+            where_clauses.append(ORMDataset.name == dataset_name)
+        if query_id is not None:
+            where_clauses.append(ORMQRel.query_id == query_id)
+
+        sql_count = (
+            select(func.count())
+            .select_from(ORMQRel)
+            .join(ORMDataset, ORMQRel.dataset_id == ORMDataset.id)
+            .join(ORMCorpus)
+            .where(and_(*where_clauses))
+        )
+
+        sql = (
+            select(ORMQRel)
+            .join(ORMDataset, ORMQRel.dataset_id == ORMDataset.id)
+            .join(ORMCorpus)
+            .options(
+                joinedload(ORMQRel.document).joinedload(ORMDocument.corpus),
+                joinedload(ORMQRel.query)
+                .joinedload(ORMQuery.dataset)
+                .joinedload(ORMDataset.corpus),
+            )
+            .where(and_(*where_clauses))
+            .order_by(ORMQRel.relevance.desc())
+            .offset(offset)
+        )
+        if num_results is not None:
+            sql = sql.limit(num_results)
+
+        total_num_results = (await transaction.execute(sql_count)).scalar_one()
+        result = (await transaction.execute(sql)).scalars()
+        return Paginated[QRel](
+            items=[
+                QRel(
+                    query_info=QueryInfo(
+                        id=qrel.query.id,
+                        text=qrel.query.text,
+                        description=qrel.query.description,
+                    ),
+                    document_info=DocumentInfo(
+                        id=qrel.document.id,
+                        title=qrel.document.title,
+                        text=qrel.document.text,
+                    ),
+                    relevance=qrel.relevance,
+                    corpus_name=qrel.document.corpus.name,
+                    dataset_name=qrel.query.dataset.name,
+                )
+                for qrel in result
             ],
             offset=offset,
             total_num_items=total_num_results,
