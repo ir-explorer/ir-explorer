@@ -9,29 +9,18 @@
 
   let { data }: PageProps = $props();
 
-  // dataset list
-  const getDatasetTargetLink = (d: Dataset) =>
-    `/browse/${page.params.corpusName}/${d.name}`;
-
   // document list
-  const getDocumentTargetLink = (d: Document) =>
-    `/browse/${page.params.corpusName}?document_id=${d.id}`;
-
   async function getDocumentsPage(num_items: number, offset: number) {
     const searchParams = new URLSearchParams({
       corpus_name: page.params.corpusName,
       num_results: num_items.toString(),
       offset: offset.toString(),
     });
-
     const res = await fetch("/api/documents?" + searchParams);
     return (await res.json()) as Paginated<Document>;
   }
 
   // relevent queries list
-  const getQueryTargetLink = (q: RelevantQuery) =>
-    `/browse/${page.params.corpusName}/${q.dataset_name}?query_id=${q.id}`;
-
   async function getQueriesPage(num_items: number, offset: number) {
     const searchParams = new URLSearchParams({
       corpus_name: page.params.corpusName,
@@ -39,7 +28,6 @@
       num_results: num_items.toString(),
       offset: offset.toString(),
     });
-
     const res = await fetch("/api/relevant_queries?" + searchParams);
     return (await res.json()) as Paginated<RelevantQuery>;
   }
@@ -61,7 +49,8 @@
 
   <PaginatedList
     getPage={getQueriesPage}
-    getTargetLink={getQueryTargetLink}
+    getTargetLink={(q: RelevantQuery) =>
+      `/browse/${page.params.corpusName}/${q.dataset_name}?query_id=${q.id}`}
     itemsPerPage={10}>
     {#snippet head()}
       <p class="flex flex-row items-center gap-2">
@@ -74,7 +63,10 @@
   </PaginatedList>
 {:else}
   {#if data.datasetList !== null}
-    <List listItems={data.datasetList} getTargetLink={getDatasetTargetLink}>
+    <List
+      listItems={data.datasetList}
+      getTargetLink={(d: Dataset) =>
+        `/browse/${page.params.corpusName}/${d.name}`}>
       {#snippet head()}
         <p class="flex flex-row items-center gap-2">
           <Fa icon={datasetIcon} />Datasets
@@ -90,7 +82,8 @@
 
   <PaginatedList
     getPage={getDocumentsPage}
-    getTargetLink={getDocumentTargetLink}
+    getTargetLink={(d: Document) =>
+      `/browse/${page.params.corpusName}?document_id=${d.id}`}
     itemsPerPage={10}>
     {#snippet head()}
       <p class="flex flex-row items-center gap-2">
