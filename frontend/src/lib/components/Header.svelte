@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Menu from "./Menu.svelte";
   import Logo from "./Logo.svelte";
   import BusyIndicator from "./BusyIndicator.svelte";
 
