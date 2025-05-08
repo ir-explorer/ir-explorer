@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
-  import List from "$lib/components/browse/List.svelte";
+  import CardGrid from "$lib/components/browse/CardGrid.svelte";
   import type { Corpus } from "$lib/types";
   import Fa from "svelte-fa";
   import { corpusIcon } from "$lib/icons";
@@ -8,15 +8,20 @@
   let { data }: PageProps = $props();
 </script>
 
-<List
-  listItems={data.corpusList}
+<CardGrid
+  gridItems={data.corpusList}
   getTargetLink={(c: Corpus) => `/browse/${c.name}`}>
-  {#snippet head()}
-    <div class="flex flex-row items-center gap-2">
-      <Fa icon={corpusIcon} />Corpora
-    </div>
-  {/snippet}
   {#snippet item(c: Corpus)}
-    {c.name} ({c.num_datasets} datasets, {c.num_documents_estimate} documents)
+    <p class="flex items-center gap-2 text-lg">
+      <Fa icon={corpusIcon} />
+      {c.name}
+    </p>
+    <p>
+      <span class="text-xl font-thin">{c.num_documents_estimate}</span> documents
+    </p>
+    <p>
+      <span class="text-xl font-thin">{c.num_datasets}</span>
+      {c.num_datasets == 1 ? "dataset" : "datasets"}
+    </p>
   {/snippet}
-</List>
+</CardGrid>

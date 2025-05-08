@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
-  import List from "$lib/components/browse/List.svelte";
+  import CardGrid from "$lib/components/browse/CardGrid.svelte";
   import Fa from "svelte-fa";
-  import { datasetIcon, documentIcon } from "$lib/icons";
+  import { corpusIcon, datasetIcon, documentIcon } from "$lib/icons";
   import type { Dataset, Paginated, Document, RelevantQuery } from "$lib/types";
   import { page } from "$app/state";
 
@@ -63,21 +63,24 @@
   </PaginatedList>
 {:else}
   {#if data.datasetList !== null}
-    <List
-      listItems={data.datasetList}
+    <CardGrid
+      gridItems={data.datasetList}
       getTargetLink={(d: Dataset) =>
         `/browse/${page.params.corpusName}/${d.name}`}>
-      {#snippet head()}
-        <p class="flex flex-row items-center gap-2">
-          <Fa icon={datasetIcon} />Datasets
+      {#snippet item(d: Dataset)}
+        <p class="flex items-center gap-2 text-sm font-thin">
+          <Fa icon={corpusIcon} />
+          {d.corpus_name}
+        </p>
+        <p class="flex items-center gap-2 text-lg">
+          <Fa icon={datasetIcon} />
+          {d.name}
+        </p>
+        <p>
+          <span class="text-xl font-thin">{d.num_queries_estimate}</span> queries
         </p>
       {/snippet}
-      {#snippet item(d: Dataset)}
-        {d.name} ({d.num_queries_estimate} queries)
-      {/snippet}
-    </List>
-
-    <div class="divider"></div>
+    </CardGrid>
   {/if}
 
   <PaginatedList
