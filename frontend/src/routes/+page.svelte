@@ -3,13 +3,18 @@
   import Logo from "$lib/components/Logo.svelte";
   import SearchBar from "$lib/components/search/SearchBar.svelte";
   import BusyIndicator from "$lib/components/BusyIndicator.svelte";
-  import Menu from "$lib/components/Menu.svelte";
+  import Fa from "svelte-fa";
+  import { browseIcon } from "$lib/icons";
 
   let { data }: PageProps = $props();
 </script>
 
 <div class="fixed top-0 z-1 navbar px-8">
-  <div class="navbar-start"><Menu /></div>
+  <div class="navbar-start">
+    <a href="/browse" class="flex items-center gap-2 text-sm link-hover">
+      <Fa icon={browseIcon} />Browse
+    </a>
+  </div>
   <div class="navbar-end">
     <BusyIndicator />
   </div>
