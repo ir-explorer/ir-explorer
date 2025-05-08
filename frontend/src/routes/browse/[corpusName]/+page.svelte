@@ -6,6 +6,7 @@
   import { corpusIcon, datasetIcon, documentIcon } from "$lib/icons";
   import type { Dataset, Paginated, Document, RelevantQuery } from "$lib/types";
   import { page } from "$app/state";
+  import { toHumanReadable } from "$lib/util";
 
   let { data }: PageProps = $props();
 
@@ -77,7 +78,9 @@
           {d.name}
         </p>
         <p>
-          <span class="text-xl font-thin">{d.num_queries_estimate}</span> queries
+          <span class="text-xl">
+            {toHumanReadable(d.num_queries_estimate)}
+          </span> queries
         </p>
       {/snippet}
     </CardGrid>
