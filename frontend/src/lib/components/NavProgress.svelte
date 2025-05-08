@@ -5,11 +5,13 @@
 
   NProgress.configure({ showSpinner: false });
 
+  let timeout: number;
   beforeNavigate(() => {
-    NProgress.start();
+    timeout = setTimeout(NProgress.start, 200);
   });
 
   afterNavigate(() => {
+    clearTimeout(timeout);
     NProgress.done();
   });
 </script>
