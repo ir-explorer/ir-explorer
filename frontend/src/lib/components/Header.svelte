@@ -12,12 +12,9 @@
     {#if start}
       {@render start()}
     {:else}
-      <div class="flex gap-4">
-        <Menu />
-        <a href="/">
-          <Logo />
-        </a>
-      </div>
+      <a href="/">
+        <Logo />
+      </a>
     {/if}
   </div>
   <div class="navbar-center">

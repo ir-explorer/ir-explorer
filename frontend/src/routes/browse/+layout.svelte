@@ -1,5 +1,6 @@
 <script lang="ts">
   import Header from "$lib/components/Header.svelte";
+  import Logo from "$lib/components/Logo.svelte";
   import Fa from "svelte-fa";
   import {
     browseIcon,
@@ -13,9 +14,10 @@
 </script>
 
 <Header>
-  {#snippet center()}
+  {#snippet start()}
     <div class="breadcrumbs text-sm">
       <ul>
+        <li><a href="/"><Logo /></a></li>
         <li><a href="/browse"><Fa icon={browseIcon} />Browse</a></li>
         {#if data.corpusName}
           <li>

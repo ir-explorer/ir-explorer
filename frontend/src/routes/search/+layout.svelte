@@ -11,13 +11,15 @@
 </script>
 
 <Header>
-  <div class="w-2xl">
-    <SearchBar
-      corpora={data.corpora}
-      {searchInit}
-      {languageInit}
-      {selectedCorporaInit} />
-  </div>
+  {#snippet center()}
+    <div class="w-2xl">
+      <SearchBar
+        corpora={data.corpora}
+        {searchInit}
+        {languageInit}
+        {selectedCorporaInit} />
+    </div>
+  {/snippet}
 </Header>
 
 <div class="mx-4 mt-20 mb-4 max-w-full">
