@@ -8,7 +8,7 @@
   import { page } from "$app/state";
   import { toHumanReadable } from "$lib/util";
 
-  let { data }: PageProps = $props();
+  const { data }: PageProps = $props();
 
   // document list
   async function getDocumentsPage(num_items: number, offset: number) {
@@ -64,24 +64,42 @@
   </PaginatedList>
 {:else}
   {#if data.datasetList !== null}
+    {@const totalNumQueries = data.datasetList.reduce(
+      (acc, dataset) => acc + dataset.num_queries_estimate,
+      0,
+    )}
     <CardGrid
-      gridItems={data.datasetList}
+      gridItems={data.datasetList.sort(
+        (a, b) => b.num_queries_estimate - a.num_queries_estimate,
+      )}
       getTargetLink={(d: Dataset) =>
         `/browse/${page.params.corpusName}/${d.name}`}>
       {#snippet item(d: Dataset)}
-        <p class="flex items-center gap-2 text-sm font-thin">
-          <Fa icon={corpusIcon} />
-          {d.corpus_name}
-        </p>
-        <p class="flex items-center gap-2 text-lg">
-          <Fa icon={datasetIcon} />
-          {d.name}
-        </p>
-        <p>
-          <span class="text-xl">
-            {toHumanReadable(d.num_queries_estimate)}
-          </span> queries
-        </p>
+        {@const fraction = d.num_queries_estimate / totalNumQueries}
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-2">
+            <p class="flex items-center gap-2 text-sm font-thin">
+              <Fa icon={corpusIcon} />
+              {d.corpus_name}
+            </p>
+            <p class="flex items-center gap-2 text-lg">
+              <Fa icon={datasetIcon} />
+              {d.name}
+            </p>
+          </div>
+          <div class="flex flex-col gap-2 text-center">
+            <div
+              class="radial-progress border-4 border-base-200 bg-base-200 text-primary"
+              style=" --size:4em;
+                  --value:{fraction * 100};
+                  --thickness: 0.25em;">
+              <span class="text-lg">
+                {toHumanReadable(d.num_queries_estimate)}
+              </span>
+            </div>
+            <span class="text-xs">queries</span>
+          </div>
+        </div>
       {/snippet}
     </CardGrid>
   {/if}

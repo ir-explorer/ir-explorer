@@ -14,7 +14,8 @@
 
 <div class="grid grid-cols-3 gap-4">
   {#each gridItems as gridItem}
-    <div class="card border border-base-300 bg-base-100 hover:bg-base-300">
+    <div
+      class="card border border-base-300 bg-base-100 shadow hover:bg-base-300">
       <a href={getTargetLink(gridItem)}>
         <div class="card-body">
           {@render item(gridItem)}
