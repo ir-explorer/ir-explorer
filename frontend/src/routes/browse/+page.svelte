@@ -5,6 +5,7 @@
   import Fa from "svelte-fa";
   import { toHumanReadable } from "$lib/util";
   import { corpusIcon } from "$lib/icons";
+  import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
 
   const { data }: PageProps = $props();
   const totalNumDocs = data.corpusList.reduce(
@@ -19,8 +20,6 @@
   )}
   getTargetLink={(c: Corpus) => `/browse/${c.name}`}>
   {#snippet item(c: Corpus)}
-    {@const fraction = c.num_documents_estimate / totalNumDocs}
-
     <div class="flex items-center justify-between">
       <div class="flex flex-col gap-2">
         <p class="flex items-center gap-2 text-lg">
@@ -32,18 +31,10 @@
           {c.num_datasets == 1 ? "dataset" : "datasets"}
         </p>
       </div>
-      <div class="flex flex-col gap-2 text-center">
-        <div
-          class="radial-progress border-4 border-base-200 bg-base-200 text-primary"
-          style=" --size:4em;
-                  --value:{fraction * 100};
-                  --thickness: 0.25em;">
-          <span class="text-lg">
-            {toHumanReadable(c.num_documents_estimate)}
-          </span>
-        </div>
-        <span class="text-xs">documents</span>
-      </div>
+      <SizeIndicator
+        value={c.num_documents_estimate}
+        total={totalNumDocs}
+        desc={"documents"} />
     </div>
   {/snippet}
 </CardGrid>

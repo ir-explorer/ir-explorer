@@ -6,7 +6,7 @@
   import { corpusIcon, datasetIcon, documentIcon } from "$lib/icons";
   import type { Dataset, Paginated, Document, RelevantQuery } from "$lib/types";
   import { page } from "$app/state";
-  import { toHumanReadable } from "$lib/util";
+  import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
 
   const { data }: PageProps = $props();
 
@@ -87,18 +87,10 @@
               {d.name}
             </p>
           </div>
-          <div class="flex flex-col gap-2 text-center">
-            <div
-              class="radial-progress border-4 border-base-200 bg-base-200 text-primary"
-              style=" --size:4em;
-                  --value:{fraction * 100};
-                  --thickness: 0.25em;">
-              <span class="text-lg">
-                {toHumanReadable(d.num_queries_estimate)}
-              </span>
-            </div>
-            <span class="text-xs">queries</span>
-          </div>
+          <SizeIndicator
+            value={d.num_queries_estimate}
+            total={totalNumQueries}
+            desc={"queries"} />
         </div>
       {/snippet}
     </CardGrid>
