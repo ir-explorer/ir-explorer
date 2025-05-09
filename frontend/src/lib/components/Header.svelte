@@ -2,7 +2,7 @@
   import Logo from "./Logo.svelte";
   import BusyIndicator from "./BusyIndicator.svelte";
 
-  let { start = null, center = null, end = null } = $props();
+  const { start = null, center = null, end = null } = $props();
 </script>
 
 <div

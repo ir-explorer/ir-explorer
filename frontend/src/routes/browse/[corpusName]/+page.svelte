@@ -90,7 +90,8 @@
           <SizeIndicator
             value={d.num_queries_estimate}
             total={totalNumQueries}
-            desc={"queries"} />
+            desc={"queries"}
+            isEstimate />
         </div>
       {/snippet}
     </CardGrid>

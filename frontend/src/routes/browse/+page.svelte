@@ -3,7 +3,6 @@
   import CardGrid from "$lib/components/browse/CardGrid.svelte";
   import type { Corpus } from "$lib/types";
   import Fa from "svelte-fa";
-  import { toHumanReadable } from "$lib/util";
   import { corpusIcon } from "$lib/icons";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
 
@@ -34,7 +33,8 @@
       <SizeIndicator
         value={c.num_documents_estimate}
         total={totalNumDocs}
-        desc={"documents"} />
+        desc={"documents"}
+        isEstimate />
     </div>
   {/snippet}
 </CardGrid>

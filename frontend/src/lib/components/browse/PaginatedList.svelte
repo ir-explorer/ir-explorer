@@ -3,7 +3,7 @@
   import { onMount, type Snippet } from "svelte";
   import type { Paginated } from "$lib/types";
 
-  let {
+  const {
     getPage,
     head,
     item,
