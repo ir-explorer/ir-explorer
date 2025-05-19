@@ -41,27 +41,27 @@
     <span class="loading"></span>
   </div>
 {:then}
-  <List bind:listItems {head} {item} {getTargetLink} />
-  <div class="mt-4 join flex h-8 w-full justify-center">
-    <div
-      class="join-item flex flex-col justify-center border border-base-300 bg-base-200 px-2">
-      <p class="text-sm">
-        Showing {numItemsDisplayed} out of {totalNumItems} items
-      </p>
-    </div>
-    {#if working}
-      <div class="btn-disabled btn h-8 w-24">
-        <span class="loading loading-sm"></span>
+  <div class="relative">
+    <List bind:listItems headBegin={head} {item} {getTargetLink}>
+      {#snippet headEnd()}
+        <p class="badge-soft badge badge-primary">
+          Showing {numItemsDisplayed} of {totalNumItems}
+        </p>
+      {/snippet}
+    </List>
+    {#if numItemsDisplayed < totalNumItems}
+      <div class="absolute -bottom-4 flex w-full justify-center">
+        <div class="bg-base-100">
+          <button
+            class="btn w-24 shadow btn-soft btn-sm btn-primary"
+            disabled={working}
+            onclick={async () => {
+              await showNextPage();
+            }}
+            ><span class={[working && "loading loading-sm"]}>Show more</span>
+          </button>
+        </div>
       </div>
-    {:else}
-      <button
-        class="btn join-item h-8 w-24 btn-soft btn-sm btn-primary"
-        disabled={numItemsDisplayed >= totalNumItems}
-        onclick={async () => {
-          await showNextPage();
-        }}
-        >Show more
-      </button>
     {/if}
   </div>
 {/await}
