@@ -1,7 +1,7 @@
 <script lang="ts" generics="T">
   import { showMoreIcon } from "$lib/icons";
   import type { Paginated } from "$lib/types";
-  import { type Snippet } from "svelte";
+  import { onMount, type Snippet } from "svelte";
   import Fa from "svelte-fa";
   import List from "./List.svelte";
 
@@ -11,14 +11,14 @@
     item,
     getTargetLink,
     itemsPerPage,
-    loadFistPage = true,
+    loadFirstPage = true,
   }: {
     getPage: (num_items: number, offset: number) => Promise<Paginated<T>>;
     head: Snippet;
     item: Snippet<[T]>;
     getTargetLink: (listItem: T) => string;
     itemsPerPage: number;
-    loadFistPage?: boolean;
+    loadFirstPage?: boolean;
   } = $props();
 
   let listItems: T[] = $state([]);
@@ -36,8 +36,8 @@
     loaded = true;
   }
 
-  if (loadFistPage) {
-    showNextPage();
+  if (loadFirstPage) {
+    onMount(showNextPage);
   }
 </script>
 
