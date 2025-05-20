@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
-  import { queryIcon } from "$lib/icons";
+  import { documentIcon, queryIcon } from "$lib/icons";
   import type { Paginated, Query, RelevantDocument } from "$lib/types";
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
@@ -55,11 +55,17 @@
     itemsPerPage={10}>
     {#snippet head()}
       <p class="flex flex-row items-center gap-2">
-        <Fa icon={queryIcon} />Relevant documents
+        <Fa icon={documentIcon} />Relevant documents
       </p>
     {/snippet}
     {#snippet item(d: RelevantDocument)}
-      {d.id} (relevance: {d.relevance})
+      <div class="flex flex-col gap-2">
+        <div class="flex gap-2">
+          <p class="badge badge-primary">ID: {d.id}</p>
+          <p class="badge badge-secondary">Relevance: {d.relevance}</p>
+        </div>
+        <p>{d.snippet}</p>
+      </div>
     {/snippet}
   </PaginatedList>
 {:else}
@@ -78,7 +84,7 @@
         <div class="flex gap-2">
           <p class="badge badge-primary">ID: {q.id}</p>
           {#if q.num_relevant_documents > 0}
-            <p class="badge-soft badge badge-secondary">
+            <p class="badge badge-secondary">
               {q.num_relevant_documents} relevant
               {q.num_relevant_documents == 1 ? "document" : "documents"}
             </p>
