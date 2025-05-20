@@ -59,11 +59,13 @@
       {/snippet}
       {#snippet item(q: RelevantQuery)}
         <div class="flex flex-col gap-2">
-          <div class="flex gap-2">
-            <p class="badge badge-primary">ID: {q.id}</p>
-            <p class="badge badge-secondary">Relevance: {q.relevance}</p>
-          </div>
           <p>{q.snippet}</p>
+          <div class="flex gap-2 font-bold">
+            <p class="badge badge-sm badge-primary">ID: {q.id}</p>
+            <p class="badge badge-sm badge-secondary">
+              relevance: {q.relevance}
+            </p>
+          </div>
         </div>
       {/snippet}
     </PaginatedList>
@@ -116,19 +118,19 @@
 
     {#snippet item(d: Document)}
       <div class="flex flex-col gap-2">
-        <div class="flex gap-2">
-          <p class="badge badge-primary">ID: {d.id}</p>
-          {#if d.num_relevant_queries > 0}
-            <p class="badge badge-secondary">
-              Relevant for {d.num_relevant_queries}
-              {d.num_relevant_queries == 1 ? "query" : "queries"}
-            </p>
-          {/if}
-        </div>
         {#if d.title !== null}
           <p class="font-bold">{d.title}</p>
         {/if}
         <p>{d.text}</p>
+        <div class="flex gap-2 font-bold">
+          <p class="badge badge-sm badge-primary">ID: {d.id}</p>
+          {#if d.num_relevant_queries > 0}
+            <p class="badge badge-sm badge-secondary">
+              {d.num_relevant_queries}
+              {d.num_relevant_queries == 1 ? "query" : "queries"}
+            </p>
+          {/if}
+        </div>
       </div>
     {/snippet}
   </PaginatedList>

@@ -59,11 +59,13 @@
       {/snippet}
       {#snippet item(d: RelevantDocument)}
         <div class="flex flex-col gap-2">
-          <div class="flex gap-2">
-            <p class="badge badge-primary">ID: {d.id}</p>
-            <p class="badge badge-secondary">Relevance: {d.relevance}</p>
-          </div>
           <p>{d.snippet}</p>
+          <div class="flex gap-2 font-bold">
+            <p class="badge badge-sm badge-primary">ID: {d.id}</p>
+            <p class="badge badge-sm badge-secondary">
+              relevance: {d.relevance}
+            </p>
+          </div>
         </div>
       {/snippet}
     </PaginatedList>
@@ -81,16 +83,16 @@
     {/snippet}
     {#snippet item(q: Query)}
       <div class="flex flex-col gap-2">
-        <div class="flex gap-2">
-          <p class="badge badge-primary">ID: {q.id}</p>
+        <p>{q.text}</p>
+        <div class="flex gap-2 font-bold">
+          <p class="badge badge-sm badge-primary">ID: {q.id}</p>
           {#if q.num_relevant_documents > 0}
-            <p class="badge badge-secondary">
-              {q.num_relevant_documents} relevant
+            <p class="badge badge-sm badge-secondary">
+              {q.num_relevant_documents}
               {q.num_relevant_documents == 1 ? "document" : "documents"}
             </p>
           {/if}
         </div>
-        <p>{q.text}</p>
       </div>
     {/snippet}
   </PaginatedList>

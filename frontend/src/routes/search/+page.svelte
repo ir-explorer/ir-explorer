@@ -33,7 +33,7 @@
         <div>
           <div class="flex gap-2">
             <p
-              class="badge-soft tooltip badge badge-primary"
+              class="badge-soft tooltip badge badge-primary tooltip-info"
               data-tip="Score: {hit.score}">
               #<span class="-ml-1 font-bold">
                 {data.result.offset + index + 1}
