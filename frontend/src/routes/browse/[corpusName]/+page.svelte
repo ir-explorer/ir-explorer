@@ -85,7 +85,7 @@
           `/browse/${page.params.corpusName}/${d.name}`}>
         {#snippet item(d: Dataset)}
           {@const fraction = d.num_queries_estimate / totalNumQueries}
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between gap-4">
             <div class="flex flex-col gap-2">
               <p class="flex items-center gap-2 text-sm font-thin">
                 <Fa icon={corpusIcon} />

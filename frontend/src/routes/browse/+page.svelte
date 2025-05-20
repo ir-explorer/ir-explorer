@@ -19,7 +19,7 @@
   )}
   getTargetLink={(c: Corpus) => `/browse/${c.name}`}>
   {#snippet item(c: Corpus)}
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between gap-4">
       <div class="flex flex-col gap-2">
         <p class="flex items-center gap-2 text-lg">
           <Fa icon={corpusIcon} />
