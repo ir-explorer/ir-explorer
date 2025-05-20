@@ -1,9 +1,9 @@
 <script lang="ts" generics="T">
-  import List from "./List.svelte";
-  import { type Snippet } from "svelte";
   import { showMoreIcon } from "$lib/icons";
-  import Fa from "svelte-fa";
   import type { Paginated } from "$lib/types";
+  import { type Snippet } from "svelte";
+  import Fa from "svelte-fa";
+  import List from "./List.svelte";
 
   const {
     getPage,
@@ -11,12 +11,14 @@
     item,
     getTargetLink,
     itemsPerPage,
+    loadFistPage = true,
   }: {
     getPage: (num_items: number, offset: number) => Promise<Paginated<T>>;
     head: Snippet;
     item: Snippet<[T]>;
     getTargetLink: (listItem: T) => string;
     itemsPerPage: number;
+    loadFistPage?: boolean;
   } = $props();
 
   let listItems: T[] = $state([]);
@@ -32,6 +34,10 @@
     totalNumItems = currentPage.total_num_items;
     working = false;
     loaded = true;
+  }
+
+  if (loadFistPage) {
+    showNextPage();
   }
 </script>
 
