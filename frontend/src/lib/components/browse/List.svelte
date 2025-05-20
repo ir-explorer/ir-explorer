@@ -19,7 +19,7 @@
 </script>
 
 <ul class="list rounded-box bg-base-100 shadow">
-  <li class="bg-base-200 p-4 text-xs">
+  <li class="bg-base-200 p-4">
     <div class="flex flex-row justify-between">
       {@render headBegin()}
       {@render headEnd()}
