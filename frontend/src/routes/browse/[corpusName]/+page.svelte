@@ -34,104 +34,106 @@
   }
 </script>
 
-{#if data.document !== null}
-  <div class="collapse mb-4 border border-base-300 bg-base-200">
-    <input type="checkbox" checked />
-    <div class="collapse-title flex flex-row items-center gap-2">
-      <Fa icon={documentIcon} />
-      {data.document.id}
+<div class="flex flex-col gap-4">
+  {#if data.document !== null}
+    <div class="collapse border border-base-300 bg-base-200">
+      <input type="checkbox" checked />
+      <div class="collapse-title flex flex-row items-center gap-2">
+        <Fa icon={documentIcon} />
+        {data.document.id}
+      </div>
+      <div class="collapse-content text-sm">
+        {data.document.text}
+      </div>
     </div>
-    <div class="collapse-content text-sm">
-      {data.document.text}
-    </div>
-  </div>
 
-  {#if data.document.num_relevant_queries > 0}
+    {#if data.document.num_relevant_queries > 0}
+      <PaginatedList
+        getPage={getQueriesPage}
+        getTargetLink={(q: RelevantQuery) =>
+          `/browse/${page.params.corpusName}/${q.dataset_name}?query_id=${q.id}`}
+        itemsPerPage={10}>
+        {#snippet head()}
+          <p class="flex flex-row items-center gap-2">
+            <Fa icon={queryIcon} />Relevant queries
+          </p>
+        {/snippet}
+        {#snippet item(q: RelevantQuery)}
+          <div class="flex flex-col gap-2">
+            <p>{q.snippet}</p>
+            <div class="flex gap-2 font-bold">
+              <p class="badge badge-sm badge-primary">ID: {q.id}</p>
+              <p class="badge badge-sm badge-secondary">
+                relevance: {q.relevance}
+              </p>
+            </div>
+          </div>
+        {/snippet}
+      </PaginatedList>
+    {/if}
+  {:else}
+    {#if data.datasetList !== null}
+      {@const totalNumQueries = data.datasetList.reduce(
+        (acc, dataset) => acc + dataset.num_queries_estimate,
+        0,
+      )}
+      <CardGrid
+        gridItems={data.datasetList.sort(
+          (a, b) => b.num_queries_estimate - a.num_queries_estimate,
+        )}
+        getTargetLink={(d: Dataset) =>
+          `/browse/${page.params.corpusName}/${d.name}`}>
+        {#snippet item(d: Dataset)}
+          {@const fraction = d.num_queries_estimate / totalNumQueries}
+          <div class="flex items-center justify-between">
+            <div class="flex flex-col gap-2">
+              <p class="flex items-center gap-2 text-sm font-thin">
+                <Fa icon={corpusIcon} />
+                {d.corpus_name}
+              </p>
+              <p class="flex items-center gap-2 text-lg">
+                <Fa icon={datasetIcon} />
+                {d.name}
+              </p>
+            </div>
+            <SizeIndicator
+              value={d.num_queries_estimate}
+              total={totalNumQueries}
+              desc={"queries"}
+              isEstimate />
+          </div>
+        {/snippet}
+      </CardGrid>
+    {/if}
+
     <PaginatedList
-      getPage={getQueriesPage}
-      getTargetLink={(q: RelevantQuery) =>
-        `/browse/${page.params.corpusName}/${q.dataset_name}?query_id=${q.id}`}
+      getPage={getDocumentsPage}
+      getTargetLink={(d: Document) =>
+        `/browse/${page.params.corpusName}?document_id=${d.id}`}
       itemsPerPage={10}>
       {#snippet head()}
         <p class="flex flex-row items-center gap-2">
-          <Fa icon={queryIcon} />Relevant queries
+          <Fa icon={documentIcon} />Documents
         </p>
       {/snippet}
-      {#snippet item(q: RelevantQuery)}
+
+      {#snippet item(d: Document)}
         <div class="flex flex-col gap-2">
-          <p>{q.snippet}</p>
+          {#if d.title !== null}
+            <p class="font-bold">{d.title}</p>
+          {/if}
+          <p>{d.text}</p>
           <div class="flex gap-2 font-bold">
-            <p class="badge badge-sm badge-primary">ID: {q.id}</p>
-            <p class="badge badge-sm badge-secondary">
-              relevance: {q.relevance}
-            </p>
+            <p class="badge badge-sm badge-primary">ID: {d.id}</p>
+            {#if d.num_relevant_queries > 0}
+              <p class="badge badge-sm badge-secondary">
+                {d.num_relevant_queries}
+                {d.num_relevant_queries == 1 ? "query" : "queries"}
+              </p>
+            {/if}
           </div>
         </div>
       {/snippet}
     </PaginatedList>
   {/if}
-{:else}
-  {#if data.datasetList !== null}
-    {@const totalNumQueries = data.datasetList.reduce(
-      (acc, dataset) => acc + dataset.num_queries_estimate,
-      0,
-    )}
-    <CardGrid
-      gridItems={data.datasetList.sort(
-        (a, b) => b.num_queries_estimate - a.num_queries_estimate,
-      )}
-      getTargetLink={(d: Dataset) =>
-        `/browse/${page.params.corpusName}/${d.name}`}>
-      {#snippet item(d: Dataset)}
-        {@const fraction = d.num_queries_estimate / totalNumQueries}
-        <div class="flex items-center justify-between">
-          <div class="flex flex-col gap-2">
-            <p class="flex items-center gap-2 text-sm font-thin">
-              <Fa icon={corpusIcon} />
-              {d.corpus_name}
-            </p>
-            <p class="flex items-center gap-2 text-lg">
-              <Fa icon={datasetIcon} />
-              {d.name}
-            </p>
-          </div>
-          <SizeIndicator
-            value={d.num_queries_estimate}
-            total={totalNumQueries}
-            desc={"queries"}
-            isEstimate />
-        </div>
-      {/snippet}
-    </CardGrid>
-  {/if}
-
-  <PaginatedList
-    getPage={getDocumentsPage}
-    getTargetLink={(d: Document) =>
-      `/browse/${page.params.corpusName}?document_id=${d.id}`}
-    itemsPerPage={10}>
-    {#snippet head()}
-      <p class="flex flex-row items-center gap-2">
-        <Fa icon={documentIcon} />Documents
-      </p>
-    {/snippet}
-
-    {#snippet item(d: Document)}
-      <div class="flex flex-col gap-2">
-        {#if d.title !== null}
-          <p class="font-bold">{d.title}</p>
-        {/if}
-        <p>{d.text}</p>
-        <div class="flex gap-2 font-bold">
-          <p class="badge badge-sm badge-primary">ID: {d.id}</p>
-          {#if d.num_relevant_queries > 0}
-            <p class="badge badge-sm badge-secondary">
-              {d.num_relevant_queries}
-              {d.num_relevant_queries == 1 ? "query" : "queries"}
-            </p>
-          {/if}
-        </div>
-      </div>
-    {/snippet}
-  </PaginatedList>
-{/if}
+</div>

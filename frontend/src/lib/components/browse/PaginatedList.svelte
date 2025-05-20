@@ -41,7 +41,7 @@
   }
 </script>
 
-<div class="relative">
+<div class="relative mb-4">
   <List bind:listItems headBegin={head} {item} {getTargetLink}>
     {#snippet headEnd()}
       {#if loaded}
