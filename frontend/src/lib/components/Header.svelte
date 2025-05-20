@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Logo from "./Logo.svelte";
   import BusyIndicator from "./BusyIndicator.svelte";
+  import Logo from "./Logo.svelte";
 
   const { start = null, center = null, end = null } = $props();
 </script>

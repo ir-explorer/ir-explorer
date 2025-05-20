@@ -1,14 +1,16 @@
 <script lang="ts">
-  import type { PageProps } from "./$types";
-  import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
-  import CardGrid from "$lib/components/browse/CardGrid.svelte";
-  import Fa from "svelte-fa";
-  import { corpusIcon, datasetIcon, documentIcon } from "$lib/icons";
-  import type { Dataset, Paginated, Document, RelevantQuery } from "$lib/types";
   import { page } from "$app/state";
+  import CardGrid from "$lib/components/browse/CardGrid.svelte";
+  import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
+  import { corpusIcon, datasetIcon, documentIcon } from "$lib/icons";
+  import type { Dataset, Document, Paginated, RelevantQuery } from "$lib/types";
+  import Fa from "svelte-fa";
+  import type { PageProps } from "./$types";
 
   const { data }: PageProps = $props();
+
+  const SNIPPET_LEN = 200;
 
   // document list
   async function getDocumentsPage(num_items: number, offset: number) {
@@ -107,8 +109,23 @@
         <Fa icon={documentIcon} />Documents
       </p>
     {/snippet}
+
     {#snippet item(d: Document)}
-      {d.id} ({d.num_relevant_queries} relevant queries)
+      <div class="flex flex-col gap-2">
+        <div class="flex gap-2">
+          <p class="badge badge-primary">ID: {d.id}</p>
+          {#if d.num_relevant_queries > 0}
+            <p class="badge-soft badge badge-secondary">
+              Relevant for {d.num_relevant_queries}
+              {d.num_relevant_queries == 1 ? "query" : "queries"}
+            </p>
+          {/if}
+        </div>
+        {#if d.title !== null}
+          <p class="font-bold">{d.title}</p>
+        {/if}
+        <p>{d.text.substring(0, SNIPPET_LEN)}...</p>
+      </div>
     {/snippet}
   </PaginatedList>
 {/if}

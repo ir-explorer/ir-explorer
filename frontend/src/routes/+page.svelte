@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { PageProps } from "./$types";
+  import BusyIndicator from "$lib/components/BusyIndicator.svelte";
   import Logo from "$lib/components/Logo.svelte";
   import SearchBar from "$lib/components/search/SearchBar.svelte";
-  import BusyIndicator from "$lib/components/BusyIndicator.svelte";
-  import Fa from "svelte-fa";
   import { browseIcon } from "$lib/icons";
+  import Fa from "svelte-fa";
+  import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
 </script>

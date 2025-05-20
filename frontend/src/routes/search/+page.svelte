@@ -1,14 +1,14 @@
 <script lang="ts">
-  import type { PageProps } from "./$types";
-  import Fa from "svelte-fa";
+  import { page } from "$app/state";
   import {
     corpusIcon,
     documentIcon,
+    infoIcon,
     nextPageIcon,
     prevPageIcon,
-    infoIcon,
   } from "$lib/icons";
-  import { page } from "$app/state";
+  import Fa from "svelte-fa";
+  import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
 </script>

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { LayoutProps } from "./$types";
   import { page } from "$app/state";
-  import SearchBar from "$lib/components/search/SearchBar.svelte";
   import Header from "$lib/components/Header.svelte";
+  import SearchBar from "$lib/components/search/SearchBar.svelte";
+  import type { LayoutProps } from "./$types";
 
   let { data, children }: LayoutProps = $props();
   let searchInit = $derived(page.url.searchParams.get("q"));

@@ -1,14 +1,14 @@
 <script lang="ts">
   import Header from "$lib/components/Header.svelte";
   import Logo from "$lib/components/Logo.svelte";
-  import Fa from "svelte-fa";
   import {
     browseIcon,
-    datasetIcon,
     corpusIcon,
+    datasetIcon,
     documentIcon,
     queryIcon,
   } from "$lib/icons.js";
+  import Fa from "svelte-fa";
 
   let { data, children } = $props();
 </script>

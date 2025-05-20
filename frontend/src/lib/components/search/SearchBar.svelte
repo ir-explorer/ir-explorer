@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { corpusIcon, searchIcon, settingsIcon } from "$lib/icons";
   import type { Corpus } from "$lib/types";
   import { Fa } from "svelte-fa";
-  import { corpusIcon, settingsIcon, searchIcon } from "$lib/icons";
 
   let {
     corpora,

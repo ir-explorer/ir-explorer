@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { PageProps } from "./$types";
+  import { page } from "$app/state";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
-  import Fa from "svelte-fa";
   import { queryIcon } from "$lib/icons";
   import type { Paginated, Query, RelevantDocument } from "$lib/types";
-  import { page } from "$app/state";
+  import Fa from "svelte-fa";
+  import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
 
@@ -74,7 +74,18 @@
       </p>
     {/snippet}
     {#snippet item(q: Query)}
-      {q.id} ({q.num_relevant_documents} relevant documents)
+      <div class="flex flex-col gap-2">
+        <div class="flex gap-2">
+          <p class="badge badge-primary">ID: {q.id}</p>
+          {#if q.num_relevant_documents > 0}
+            <p class="badge-soft badge badge-secondary">
+              {q.num_relevant_documents} relevant
+              {q.num_relevant_documents == 1 ? "document" : "documents"}
+            </p>
+          {/if}
+        </div>
+        <p>{q.text}</p>
+      </div>
     {/snippet}
   </PaginatedList>
 {/if}

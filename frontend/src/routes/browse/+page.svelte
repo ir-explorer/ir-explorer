@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { PageProps } from "./$types";
   import CardGrid from "$lib/components/browse/CardGrid.svelte";
+  import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
+  import { corpusIcon } from "$lib/icons";
   import type { Corpus } from "$lib/types";
   import Fa from "svelte-fa";
-  import { corpusIcon } from "$lib/icons";
-  import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
+  import type { PageProps } from "./$types";
 
   const { data }: PageProps = $props();
   const totalNumDocs = data.corpusList.reduce(

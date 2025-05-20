@@ -1,8 +1,8 @@
 <script lang="ts">
-  import "../app.css";
-  import { Fa } from "svelte-fa";
-  import { faGithub } from "@fortawesome/free-brands-svg-icons";
   import NavProgress from "$lib/components/NavProgress.svelte";
+  import { faGithub } from "@fortawesome/free-brands-svg-icons";
+  import { Fa } from "svelte-fa";
+  import "../app.css";
 
   let { data, children } = $props();
 </script>
