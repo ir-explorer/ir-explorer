@@ -46,28 +46,28 @@
     </div>
   </div>
 
-  <div class="divider"></div>
-
-  <PaginatedList
-    getPage={getQueriesPage}
-    getTargetLink={(q: RelevantQuery) =>
-      `/browse/${page.params.corpusName}/${q.dataset_name}?query_id=${q.id}`}
-    itemsPerPage={10}>
-    {#snippet head()}
-      <p class="flex flex-row items-center gap-2">
-        <Fa icon={queryIcon} />Relevant queries
-      </p>
-    {/snippet}
-    {#snippet item(q: RelevantQuery)}
-      <div class="flex flex-col gap-2">
-        <div class="flex gap-2">
-          <p class="badge badge-primary">ID: {q.id}</p>
-          <p class="badge badge-secondary">Relevance: {q.relevance}</p>
+  {#if data.document.num_relevant_queries > 0}
+    <PaginatedList
+      getPage={getQueriesPage}
+      getTargetLink={(q: RelevantQuery) =>
+        `/browse/${page.params.corpusName}/${q.dataset_name}?query_id=${q.id}`}
+      itemsPerPage={10}>
+      {#snippet head()}
+        <p class="flex flex-row items-center gap-2">
+          <Fa icon={queryIcon} />Relevant queries
+        </p>
+      {/snippet}
+      {#snippet item(q: RelevantQuery)}
+        <div class="flex flex-col gap-2">
+          <div class="flex gap-2">
+            <p class="badge badge-primary">ID: {q.id}</p>
+            <p class="badge badge-secondary">Relevance: {q.relevance}</p>
+          </div>
+          <p>{q.snippet}</p>
         </div>
-        <p>{q.snippet}</p>
-      </div>
-    {/snippet}
-  </PaginatedList>
+      {/snippet}
+    </PaginatedList>
+  {/if}
 {:else}
   {#if data.datasetList !== null}
     {@const totalNumQueries = data.datasetList.reduce(

@@ -46,28 +46,28 @@
     </div>
   </div>
 
-  <div class="divider"></div>
-
-  <PaginatedList
-    getPage={getDocumentsPage}
-    getTargetLink={(d: RelevantDocument) =>
-      `/browse/${page.params.corpusName}?${new URLSearchParams({ document_id: d.id })}`}
-    itemsPerPage={10}>
-    {#snippet head()}
-      <p class="flex flex-row items-center gap-2">
-        <Fa icon={documentIcon} />Relevant documents
-      </p>
-    {/snippet}
-    {#snippet item(d: RelevantDocument)}
-      <div class="flex flex-col gap-2">
-        <div class="flex gap-2">
-          <p class="badge badge-primary">ID: {d.id}</p>
-          <p class="badge badge-secondary">Relevance: {d.relevance}</p>
+  {#if data.query.num_relevant_documents > 0}
+    <PaginatedList
+      getPage={getDocumentsPage}
+      getTargetLink={(d: RelevantDocument) =>
+        `/browse/${page.params.corpusName}?${new URLSearchParams({ document_id: d.id })}`}
+      itemsPerPage={10}>
+      {#snippet head()}
+        <p class="flex flex-row items-center gap-2">
+          <Fa icon={documentIcon} />Relevant documents
+        </p>
+      {/snippet}
+      {#snippet item(d: RelevantDocument)}
+        <div class="flex flex-col gap-2">
+          <div class="flex gap-2">
+            <p class="badge badge-primary">ID: {d.id}</p>
+            <p class="badge badge-secondary">Relevance: {d.relevance}</p>
+          </div>
+          <p>{d.snippet}</p>
         </div>
-        <p>{d.snippet}</p>
-      </div>
-    {/snippet}
-  </PaginatedList>
+      {/snippet}
+    </PaginatedList>
+  {/if}
 {:else}
   <PaginatedList
     getPage={getQueriesPage}
