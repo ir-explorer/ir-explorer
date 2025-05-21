@@ -376,16 +376,15 @@ class DBController(Controller):
         :return: The query object.
         """
         sql = (
-            select(ORMQuery, func.count(ORMQRel.document_id))
-            .join(ORMDataset)
-            .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
-            .outerjoin(
-                ORMQRel,
-                and_(
-                    ORMQRel.query_id == ORMQuery.id,
-                    ORMQRel.relevance >= ORMDataset.min_relevance,
+            select(
+                ORMQuery,
+                func.count(ORMQRel.document_id).filter(
+                    ORMQRel.relevance >= ORMDataset.min_relevance
                 ),
             )
+            .join(ORMDataset)
+            .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
+            .outerjoin(ORMQRel)
             .where(
                 and_(
                     ORMQuery.id == query_id,
@@ -430,16 +429,15 @@ class DBController(Controller):
         :return: The document object.
         """
         sql = (
-            select(ORMDocument, func.count(ORMQRel.query_id))
-            .join(ORMCorpus, ORMDocument.corpus_id == ORMCorpus.id)
-            .join(ORMDataset)
-            .outerjoin(
-                ORMQRel,
-                and_(
-                    ORMQRel.document_id == ORMDocument.id,
-                    ORMQRel.relevance >= ORMDataset.min_relevance,
+            select(
+                ORMDocument,
+                func.count(ORMQRel.query_id).filter(
+                    ORMQRel.relevance >= ORMDataset.min_relevance
                 ),
             )
+            .join(ORMCorpus, ORMDocument.corpus_id == ORMCorpus.id)
+            .join(ORMDataset)
+            .outerjoin(ORMQRel)
             .where(ORMCorpus.name == corpus_name, ORMDocument.id == document_id)
         ).group_by(ORMDocument.id, ORMDocument.corpus_id)
 
