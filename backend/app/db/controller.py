@@ -299,7 +299,7 @@ class DBController(Controller):
         corpus_name: str,
         dataset_name: str | None = None,
         match: str | None = None,
-        num_results: int | None = 10,
+        num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[Query]:
         """List queries.
@@ -337,9 +337,8 @@ class DBController(Controller):
             .where(*where_clauses)
             .group_by(ORMQuery.id, ORMQuery.dataset_id, ORMDataset.name)
             .offset(offset)
+            .limit(num_results)
         )
-        if num_results is not None:
-            sql = sql.limit(num_results)
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         result = (await transaction.execute(sql)).all()
@@ -469,10 +468,10 @@ class DBController(Controller):
         self,
         transaction: "AsyncSession",
         corpus_name: str,
-        num_results: int | None = 10,
+        num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[Document]:
-        """Return all documents in a corpus.
+        """List documents.
 
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
@@ -499,9 +498,8 @@ class DBController(Controller):
             .where(ORMDocument.corpus_id == sql_corpus_id.scalar_subquery())
             .group_by(ORMDocument.id, ORMDocument.corpus_id)
             .offset(offset)
+            .limit(num_results)
         )
-        if num_results is not None:
-            sql = sql.limit(num_results)
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         result = (await transaction.execute(sql)).all()
@@ -527,7 +525,7 @@ class DBController(Controller):
         q: str,
         language: str = "english",
         corpus_name: list[str] | None = None,
-        num_results: int | None = 10,
+        num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[DocumentSearchHit]:
         """Search documents (using full-text search).
@@ -576,9 +574,8 @@ class DBController(Controller):
             .order_by(desc("score"))
             .order_by(ORMDocument.id)
             .offset(offset)
+            .limit(num_results)
         )
-        if num_results is not None:
-            sql_results_page = sql_results_page.limit(num_results)
 
         # compute snippets for the current page
         sql_results = select(
@@ -618,7 +615,7 @@ class DBController(Controller):
         document_id: str | None = None,
         dataset_name: str | None = None,
         query_id: str | None = None,
-        num_results: int | None = 10,
+        num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[QRel]:
         """Return query-document pairs annotated as relevant.
@@ -664,9 +661,8 @@ class DBController(Controller):
             .where(and_(*where_clauses))
             .order_by(ORMQRel.relevance.desc())
             .offset(offset)
+            .limit(num_results)
         )
-        if num_results is not None:
-            sql = sql.limit(num_results)
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         result = (await transaction.execute(sql)).scalars()
