@@ -1,7 +1,8 @@
 <script lang="ts">
-  import "../app.css";
-  import { Fa } from "svelte-fa";
+  import NavProgress from "$lib/components/NavProgress.svelte";
   import { faGithub } from "@fortawesome/free-brands-svg-icons";
+  import { Fa } from "svelte-fa";
+  import "../app.css";
 
   let { data, children } = $props();
 </script>
@@ -10,6 +11,7 @@
   <title>IR explorer</title>
 </svelte:head>
 
+<NavProgress />
 <div class="grid h-screen max-h-full w-screen max-w-full grid-rows-[1fr_auto]">
   <div>
     {@render children()}

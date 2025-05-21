@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { corpusIcon, searchIcon, settingsIcon } from "$lib/icons";
   import type { Corpus } from "$lib/types";
   import { Fa } from "svelte-fa";
-  import { corpusIcon, settingsIcon, searchIcon } from "$lib/icons";
 
   let {
     corpora,
@@ -37,20 +37,20 @@
   class="flex w-full flex-row items-center gap-2"
   action="/search"
   method="get">
-  <details class="dropdown">
+  <details class="dropdown dropdown-start">
     <summary class="btn btn-circle h-8 w-8">
       <Fa icon={settingsIcon} />
     </summary>
     <div
-      class="dropdown-content card-border card mt-4 border-base-300 bg-base-200 shadow">
+      class="dropdown-content card-border card mt-2 border-base-300 bg-base-200/75 shadow backdrop-blur-sm">
       <div class="card-body min-w-64">
         <fieldset class="fieldset gap-2">
-          <legend class="fieldset-legend">Settings</legend>
+          <legend class="fieldset-legend">Search settings</legend>
 
           <label class="fieldset-label flex flex-col items-start"
             >Query language
             <select
-              class="select w-full select-sm select-primary"
+              class="select w-full select-sm"
               name="language"
               value={languageInit}>
               {#each languages as language}
@@ -59,23 +59,26 @@
             </select>
           </label>
 
-          <label class="fieldset-label flex flex-col items-start"
-            >Search only in
-            <div
-              class="menu w-full gap-2 rounded border border-primary bg-base-100 text-sm">
-              {#each corpora as corpus}
-                <label>
-                  <input
-                    type="checkbox"
-                    class="checkbox mr-2 checkbox-sm"
-                    value={corpus.name}
-                    bind:group={selectedCorpora}
-                    name="corpus" />
-                  {corpus.name}
-                </label>
-              {/each}
-            </div>
+          <label
+            for="filter-corpora"
+            class="fieldset-label flex flex-col items-start">
+            Search only in
           </label>
+          <div
+            id="filter-corpora"
+            class="menu w-full gap-2 rounded-box border border-base-300 bg-base-100 text-sm">
+            {#each corpora as corpus}
+              <label>
+                <input
+                  type="checkbox"
+                  class="toggle mr-2 toggle-sm"
+                  value={corpus.name}
+                  bind:group={selectedCorpora}
+                  name="corpus" />
+                {corpus.name}
+              </label>
+            {/each}
+          </div>
         </fieldset>
       </div>
     </div>
@@ -89,7 +92,7 @@
       name="q" />
     <span class="label"
       ><Fa icon={corpusIcon} />
-      {#if selectedCorpora.length == 0}
+      {#if selectedCorpora.length == 0 || selectedCorpora.length == corpora.length}
         all corpora
       {:else if selectedCorpora.length == 1}
         {selectedCorpora[0]}

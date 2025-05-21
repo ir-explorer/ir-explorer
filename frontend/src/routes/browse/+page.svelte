@@ -1,22 +1,40 @@
 <script lang="ts">
-  import type { PageProps } from "./$types";
-  import List from "$lib/components/browse/List.svelte";
+  import CardGrid from "$lib/components/browse/CardGrid.svelte";
+  import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
+  import { corpusIcon } from "$lib/icons";
   import type { Corpus } from "$lib/types";
   import Fa from "svelte-fa";
-  import { corpusIcon } from "$lib/icons";
+  import type { PageProps } from "./$types";
 
-  let { data }: PageProps = $props();
-
-  const getTargetLink = (c: Corpus) => `/browse/${c.name}`;
+  const { data }: PageProps = $props();
+  const totalNumDocs = data.corpusList.reduce(
+    (acc, corpus) => acc + corpus.num_documents_estimate,
+    0,
+  );
 </script>
 
-<List listItems={data.corpusList} {getTargetLink}>
-  {#snippet head()}
-    <div class="flex flex-row items-center gap-2">
-      <Fa icon={corpusIcon} />Corpora
+<CardGrid
+  gridItems={data.corpusList.sort(
+    (a, b) => b.num_documents_estimate - a.num_documents_estimate,
+  )}
+  getTargetLink={(c: Corpus) => `/browse/${c.name}`}>
+  {#snippet item(c: Corpus)}
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex flex-col gap-2">
+        <p class="flex items-center gap-2 text-lg">
+          <Fa icon={corpusIcon} />
+          {c.name}
+        </p>
+        <p>
+          <span class="text-xl">{c.num_datasets}</span>
+          {c.num_datasets == 1 ? "dataset" : "datasets"}
+        </p>
+      </div>
+      <SizeIndicator
+        value={c.num_documents_estimate}
+        total={totalNumDocs}
+        desc={"documents"}
+        isEstimate />
     </div>
   {/snippet}
-  {#snippet item(c: Corpus)}
-    {c.name} ({c.num_datasets} datasets, {c.num_documents_estimate} documents)
-  {/snippet}
-</List>
+</CardGrid>

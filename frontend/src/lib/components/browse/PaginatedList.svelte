@@ -1,26 +1,31 @@
 <script lang="ts" generics="T">
-  import List from "./List.svelte";
-  import { onMount, type Snippet } from "svelte";
+  import { showMoreIcon } from "$lib/icons";
   import type { Paginated } from "$lib/types";
+  import { onMount, type Snippet } from "svelte";
+  import Fa from "svelte-fa";
+  import List from "./List.svelte";
 
-  let {
+  const {
     getPage,
     head,
     item,
     getTargetLink,
     itemsPerPage,
+    loadFirstPage = true,
   }: {
     getPage: (num_items: number, offset: number) => Promise<Paginated<T>>;
     head: Snippet;
     item: Snippet<[T]>;
     getTargetLink: (listItem: T) => string;
     itemsPerPage: number;
+    loadFirstPage?: boolean;
   } = $props();
 
   let listItems: T[] = $state([]);
   let working = $state(false);
   let numItemsDisplayed = $derived(listItems.length);
   let totalNumItems = $state(0);
+  let loaded = $state(false);
 
   async function showNextPage() {
     working = true;
@@ -28,40 +33,37 @@
     listItems = [...listItems, ...currentPage.items];
     totalNumItems = currentPage.total_num_items;
     working = false;
+    loaded = true;
   }
 
-  let initialLoad = $state();
-  onMount(() => {
-    initialLoad = showNextPage();
-  });
+  if (loadFirstPage) {
+    onMount(showNextPage);
+  }
 </script>
 
-{#await initialLoad}
-  <div class="flex w-full justify-center">
-    <span class="loading"></span>
-  </div>
-{:then}
-  <List bind:listItems {head} {item} {getTargetLink} />
-  <div class="mt-4 join flex h-8 w-full justify-center">
+<div class="relative mb-4">
+  <List bind:listItems headBegin={head} {item} {getTargetLink}>
+    {#snippet headEnd()}
+      {#if loaded}
+        <p class="badge-soft badge badge-primary">
+          Showing {numItemsDisplayed} of {totalNumItems}
+        </p>
+      {/if}
+    {/snippet}
+  </List>
+  {#if !loaded || numItemsDisplayed < totalNumItems}
     <div
-      class="join-item flex flex-col justify-center border border-base-300 bg-base-200 px-2">
-      <p class="text-sm">
-        Showing {numItemsDisplayed} out of {totalNumItems} items
-      </p>
-    </div>
-    {#if working}
-      <div class="btn-disabled btn h-8 w-24">
-        <span class="loading loading-sm"></span>
-      </div>
-    {:else}
+      class="absolute right-0 -bottom-4 left-0 m-auto mx-auto w-fit rounded-full bg-base-100">
       <button
-        class="btn join-item h-8 w-24 btn-soft btn-sm btn-primary"
-        disabled={numItemsDisplayed >= totalNumItems}
+        class="btn btn-circle shadow btn-soft btn-sm btn-primary"
+        disabled={working}
         onclick={async () => {
           await showNextPage();
         }}
-        >Show more
+        ><span class={[working && "loading loading-sm"]}>
+          <Fa icon={showMoreIcon} />
+        </span>
       </button>
-    {/if}
-  </div>
-{/await}
+    </div>
+  {/if}
+</div>

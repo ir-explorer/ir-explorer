@@ -1,13 +1,14 @@
 <script lang="ts">
-  import type { PageProps } from "./$types";
-  import Fa from "svelte-fa";
+  import { page } from "$app/state";
   import {
     corpusIcon,
     documentIcon,
+    infoIcon,
     nextPageIcon,
     prevPageIcon,
-    infoIcon,
   } from "$lib/icons";
+  import Fa from "svelte-fa";
+  import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
 </script>
@@ -22,32 +23,36 @@
 {:else}
   <ul class="list rounded-box bg-base-100 shadow-md">
     <li class="p-4 text-xs">
-      Displaying results {data.result.offset + 1} to {data.result.offset +
-        data.result.items.length} (total: {data.result.total_num_items})
+      Results {data.result.offset + 1} to {data.result.offset +
+        data.result.items.length} (total: {data.result.total_num_items}) for
+      query <i><b>{page.url.searchParams.get("q")}</b></i>.
     </li>
 
     {#each data.result.items as hit, index}
       <li class="list-row">
         <div>
-          <div class="join">
-            <span
-              class="badge-soft tooltip join-item badge badge-primary"
+          <div class="flex gap-2">
+            <p
+              class="badge-soft tooltip badge badge-primary tooltip-info"
               data-tip="Score: {hit.score}">
-              #<span class="-ml-1 font-bold"
-                >{data.result.offset + index + 1}</span>
-            </span>
-            <a
-              class="badge-soft join-item badge hover:text-primary"
-              href="/browse/{hit.corpus_name}">
-              <Fa icon={corpusIcon} />
-              {hit.corpus_name}
-            </a>
-            <a
-              class="badge-soft join-item badge hover:text-primary"
-              href="/browse/{hit.corpus_name}?document_id={hit.id}">
-              <Fa icon={documentIcon} />
-              {hit.id}
-            </a>
+              #<span class="-ml-1 font-bold">
+                {data.result.offset + index + 1}
+              </span>
+            </p>
+            <div class="join">
+              <a
+                class="badge-soft join-item badge hover:text-primary"
+                href="/browse/{hit.corpus_name}">
+                <Fa icon={corpusIcon} />
+                {hit.corpus_name}
+              </a>
+              <a
+                class="badge-soft join-item badge hover:text-primary"
+                href="/browse/{hit.corpus_name}?document_id={hit.id}">
+                <Fa icon={documentIcon} />
+                {hit.id}
+              </a>
+            </div>
           </div>
           <p class="my-2">{@html hit.snippet}</p>
         </div>

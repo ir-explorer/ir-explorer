@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Fa } from "svelte-fa";
   import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+  import { Fa } from "svelte-fa";
 </script>
 
 <div class="flex font-serif text-2xl select-none">

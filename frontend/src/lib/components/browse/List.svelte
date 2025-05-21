@@ -5,19 +5,26 @@
 
   let {
     listItems = $bindable(),
-    head,
+    headBegin,
+    headEnd,
     item,
     getTargetLink,
   }: {
     listItems: T[];
-    head: Snippet;
+    headBegin: Snippet;
+    headEnd: Snippet;
     item: Snippet<[T]>;
     getTargetLink: (listItem: T) => string;
   } = $props();
 </script>
 
-<ul class="list rounded-box bg-base-100 shadow-md">
-  <li class="bg-base-200 p-4 text-xs">{@render head()}</li>
+<ul class="list rounded-box bg-base-100 shadow">
+  <li class="bg-base-200 p-4">
+    <div class="flex flex-row justify-between">
+      {@render headBegin()}
+      {@render headEnd()}
+    </div>
+  </li>
 
   {#each listItems as listItem}
     <a href={getTargetLink(listItem)}>
