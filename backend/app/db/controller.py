@@ -328,19 +328,12 @@ class DBController(Controller):
         sql = (
             select(
                 ORMQuery,
-                func.count(ORMQRel.relevance >= ORMDataset.min_relevance),
+                func.count().filter(ORMQRel.relevance >= ORMDataset.min_relevance),
                 ORMDataset.name,
             )
             .join(ORMDataset)
-            .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
-            .outerjoin(
-                ORMQRel,
-                and_(
-                    ORMQRel.query_id == ORMQuery.id,
-                    ORMQRel.dataset_id == ORMDataset.id,
-                    ORMQRel.relevance >= ORMDataset.min_relevance,
-                ),
-            )
+            .join(ORMCorpus)
+            .outerjoin(ORMQRel)
             .where(*where_clauses)
             .group_by(ORMQuery.id, ORMQuery.dataset_id, ORMDataset.name)
             .offset(offset)
@@ -487,27 +480,23 @@ class DBController(Controller):
         :param offset: Offset for pagination.
         :return: Paginated list of documents.
         """
-        sql_count = (
-            select(func.count(ORMDocument.id))
-            .join(ORMCorpus)
-            .where(ORMCorpus.name == corpus_name)
+        # a subquery seems to be much faster than a join here
+        sql_corpus_id = select(ORMCorpus.id).where(ORMCorpus.name == corpus_name)
+
+        sql_count = select(func.count(ORMDocument.id)).where(
+            ORMDocument.corpus_id == sql_corpus_id.scalar_subquery()
         )
 
         sql = (
             select(
-                ORMDocument, func.count(ORMQRel.relevance >= ORMDataset.min_relevance)
+                ORMDocument.id,
+                ORMDocument.title,
+                ORMDocument.text,
+                func.count().filter(ORMQRel.relevance >= ORMDataset.min_relevance),
             )
-            .join(ORMCorpus, ORMDocument.corpus_id == ORMCorpus.id)
-            .join(ORMDataset)
-            .outerjoin(
-                ORMQRel,
-                and_(
-                    ORMQRel.document_id == ORMDocument.id,
-                    ORMQRel.dataset_id == ORMDataset.id,
-                    ORMQRel.relevance >= ORMDataset.min_relevance,
-                ),
-            )
-            .where(ORMCorpus.name == corpus_name)
+            .outerjoin(ORMQRel, ORMQRel.document_id == ORMDocument.id)
+            .join(ORMDataset, ORMDataset.id == ORMQRel.dataset_id)
+            .where(ORMDocument.corpus_id == sql_corpus_id.scalar_subquery())
             .group_by(ORMDocument.id, ORMDocument.corpus_id)
             .offset(offset)
         )
@@ -519,13 +508,13 @@ class DBController(Controller):
         return Paginated[Document](
             items=[
                 Document(
-                    id=db_document.id,
+                    id=id,
                     corpus_name=corpus_name,
-                    title=db_document.title,
-                    text=db_document.text,
+                    title=title,
+                    text=text,
                     num_relevant_queries=num_rel_queries,
                 )
-                for db_document, num_rel_queries in result
+                for id, title, text, num_rel_queries in result
             ],
             offset=offset,
             total_num_items=total_num_results,
