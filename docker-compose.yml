@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres
+    image: paradedb/paradedb
     restart: always
     volumes:
       - pgdata:/var/lib/postgresql/data

@@ -1,7 +1,6 @@
 from sqlalchemy import (
     DDL,
     ForeignKey,
-    ForeignKeyConstraint,
     Index,
     UniqueConstraint,
     event,
@@ -35,7 +34,7 @@ class ORMDataset(ORMBase):
     __table_args__ = (UniqueConstraint("name", "corpus_pkey"),)
     pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column()
     corpus_pkey: Mapped[int] = mapped_column(ForeignKey("corpora.pkey"))
     min_relevance: Mapped[int] = mapped_column()
 
@@ -63,14 +62,30 @@ class ORMDocument(ORMBase):
 
     __tablename__ = "documents"
     __table_args__ = (
-        UniqueConstraint("id", "corpus_pkey"),
-        # index of foreign key to speed up deletion
-        Index(None, "corpus_pkey"),
+        Index(
+            None,
+            "pkey",
+            "title",
+            "text",
+            postgresql_using="bm25",
+            postgresql_with={
+                "key_field": "pkey",
+                "text_fields": """\'{
+                    "text": {
+                        "tokenizer": {
+                            "type": "default",
+                            "stemmer": "English",
+                            "stopwords_language": "English"
+                        }
+                    }
+                }\'""",
+            },
+        ),
     )
     pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     id: Mapped[str] = mapped_column()
-    corpus_pkey: Mapped[int] = mapped_column(ForeignKey("corpora.pkey"))
+    corpus_pkey: Mapped[int] = mapped_column(ForeignKey("corpora.pkey"), index=True)
     title: Mapped[str] = mapped_column(nullable=True)
     text: Mapped[str] = mapped_column()
 
@@ -82,17 +97,12 @@ class ORMQRel(ORMBase):
     """ORM class representing a query relevance judgment (QRel)."""
 
     __tablename__ = "qrels"
-    __table_args__ = (
-        # indexes of foreign keys to speed up deletion
-        Index(None, "query_pkey"),
-        Index(None, "document_pkey"),
-    )
 
     query_pkey: Mapped[str] = mapped_column(
-        ForeignKey("queries.pkey"), primary_key=True
+        ForeignKey("queries.pkey"), primary_key=True, index=True
     )
     document_pkey: Mapped[str] = mapped_column(
-        ForeignKey("documents.pkey"), primary_key=True
+        ForeignKey("documents.pkey"), primary_key=True, index=True
     )
     relevance: Mapped[int] = mapped_column()
 
