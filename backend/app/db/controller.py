@@ -459,7 +459,7 @@ class DBController(Controller):
                 ),
             )
             .join(ORMCorpus)
-            .join(ORMDataset)
+            .outerjoin(ORMDataset)
             .outerjoin(ORMQRel)
             .where(ORMCorpus.name == corpus_name, ORMDocument.id == document_id)
         ).group_by(ORMDocument.pkey)
