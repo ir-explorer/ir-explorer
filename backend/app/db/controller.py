@@ -702,14 +702,16 @@ class DBController(Controller):
         :param corpus_name: The name of the corpus the dataset is in.
         :param dataset_name: The name of the dataset to remove.
         """
-        dataset_id = (
-            select(ORMDataset.id)
+        dataset_pkey = (
+            select(ORMDataset.pkey)
             .join(ORMCorpus)
             .where(and_(ORMDataset.name == dataset_name, ORMCorpus.name == corpus_name))
         ).scalar_subquery()
-        sql_del_qrels = delete_(ORMQRel).filter_by(dataset_id=dataset_id)
-        sql_del_queries = delete_(ORMQuery).filter_by(dataset_id=dataset_id)
-        sql_del_dataset = delete_(ORMDataset).filter_by(id=dataset_id)
+        sql_del_qrels = delete_(ORMQRel).where(
+            ORMQRel.query_pkey == ORMQuery.pkey, ORMQuery.dataset_pkey == dataset_pkey
+        )
+        sql_del_queries = delete_(ORMQuery).filter_by(dataset_pkey=dataset_pkey)
+        sql_del_dataset = delete_(ORMDataset).filter_by(pkey=dataset_pkey)
 
         await transaction.execute(sql_del_qrels)
         await transaction.execute(sql_del_queries)
@@ -741,8 +743,8 @@ class DBController(Controller):
                 extra={"corpus_name": corpus_name},
             )
 
-        sql_del_documents = delete_(ORMDocument).filter_by(corpus_id=corpus.id)
-        sql_del_corpus = delete_(ORMCorpus).filter_by(id=corpus.id)
+        sql_del_documents = delete_(ORMDocument).filter_by(corpus_pkey=corpus.pkey)
+        sql_del_corpus = delete_(ORMCorpus).filter_by(name=corpus_name)
 
         try:
             await transaction.execute(sql_del_documents)
