@@ -22,7 +22,7 @@ from models import (
     Query,
     QueryInfo,
 )
-from sqlalchemy import and_, func, insert, select
+from sqlalchemy import SQLColumnExpression, and_, desc, func, insert, select
 from sqlalchemy import delete as delete_
 from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
 from sqlalchemy.orm import joinedload
@@ -545,7 +545,6 @@ class DBController(Controller):
         self,
         transaction: "AsyncSession",
         q: str,
-        language: str = "english",
         corpus_name: list[str] | None = None,
         num_results: int = 10,
         offset: int = 0,
@@ -554,16 +553,57 @@ class DBController(Controller):
 
         :param transaction: A DB transaction.
         :param q: The search query.
-        :param language: The query language.
         :param corpus_name: Search only within these corpora.
         :param num_results: How many hits to return.
         :param offset: Offset for pagination.
         :return: Paginated list of results, ordered by score.
         """
+        where_clauses: list[SQLColumnExpression] = [ORMDocument.text.bool_op("@@@")(q)]
+        if corpus_name is not None:
+            where_clauses.append(ORMCorpus.name.in_(corpus_name))
+
+        # count the total number of hits
+        sql_count = (
+            select(func.count(ORMDocument.pkey))
+            .join(ORMCorpus)
+            .where(
+                and_(*where_clauses),
+            )
+        )
+
+        sql_results_page = (
+            select(
+                ORMDocument.id,
+                ORMDocument.title,
+                ORMDocument.text,
+                ORMCorpus.name,
+                func.paradedb.score(ORMDocument.pkey).label("score"),
+            )
+            .join(ORMCorpus)
+            .where(
+                and_(*where_clauses),
+            )
+            .order_by(desc("score"))
+            .order_by(ORMDocument.id)
+            .offset(offset)
+            .limit(num_results)
+        )
+
+        total_num_results = (await transaction.execute(sql_count)).scalar_one()
+        results = (await transaction.execute(sql_results_page)).all()
         return Paginated[DocumentSearchHit](
-            items=[],
-            offset=0,
-            total_num_items=0,
+            items=[
+                DocumentSearchHit(
+                    id=id,
+                    corpus_name=corpus_name,
+                    title=title,
+                    snippet=text,
+                    score=score,
+                )
+                for id, title, text, corpus_name, score in results
+            ],
+            offset=offset,
+            total_num_items=total_num_results,
         )
 
     @get(path="/get_qrels")
