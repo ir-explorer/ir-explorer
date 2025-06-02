@@ -82,7 +82,9 @@ class DBController(Controller):
         sql = insert(ORMDataset).values(
             {
                 "name": data.name,
-                "corpus_id": select(ORMCorpus.id).filter_by(name=data.corpus_name),
+                "corpus_id": select(ORMCorpus.id)
+                .filter_by(name=data.corpus_name)
+                .scalar_subquery(),
                 "min_relevance": data.min_relevance,
             }
         )
@@ -169,7 +171,6 @@ class DBController(Controller):
                     "corpus_id": select(corpus_cte.c.id),
                     "title": doc.title,
                     "text": doc.text,
-                    "language": select(corpus_cte.c.language),
                 }
                 for doc in data
             ]
@@ -247,7 +248,7 @@ class DBController(Controller):
                 func.count(ORMDataset.id),
                 func.estimate_num_docs(ORMCorpus.id).label("num_documents_estimate"),
             )
-            .join(ORMDataset)
+            .outerjoin(ORMDataset)
             .group_by(ORMCorpus.id)
         )
 

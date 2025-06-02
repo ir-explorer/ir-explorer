@@ -1,13 +1,10 @@
 from sqlalchemy import (
     DDL,
-    Column,
-    Computed,
     ForeignKey,
     ForeignKeyConstraint,
     Index,
     UniqueConstraint,
     event,
-    func,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
@@ -15,8 +12,6 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
-
-from db.types import RegConfigType, TSVectorType
 
 ORMBase = declarative_base()
 
@@ -28,9 +23,7 @@ class ORMCorpus(ORMBase):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(unique=True)
-
-    # language used to construct TSVectors
-    language: Mapped[str] = mapped_column(RegConfigType())
+    language: Mapped[str] = mapped_column()
 
     datasets: Mapped[list["ORMDataset"]] = relationship(back_populates="corpus")
 
@@ -77,21 +70,9 @@ class ORMDocument(ORMBase):
     corpus: Mapped["ORMCorpus"] = relationship()
     qrels: Mapped[list["ORMQRel"]] = relationship(back_populates="document")
 
-    # language used to construct TSVectors; maintaining this column seems to be the only
-    # way to allow for multiple languages within one table
-    language = Column(RegConfigType())
-
-    # full-text search column
-    text_tsv = Column(
-        TSVectorType(text.column),
-        Computed(func.to_tsvector(language, text.column), persisted=True),
-    )
-
     __table_args__ = (
-        # full-text search index
-        Index("text_tsv_gin", text_tsv, postgresql_using="gin"),
         # index of foreign key to speed up deletion
-        Index("corpus_id", corpus_id),
+        Index(None, corpus_id),
     )
 
 
@@ -119,9 +100,9 @@ class ORMQRel(ORMBase):
             ["documents.id", "documents.corpus_id"],
         ),
         # indexes of foreign keys to speed up deletion
-        Index("document_id", document_id),
-        Index("dataset_id", dataset_id),
-        Index("corpus_id", corpus_id),
+        Index(None, document_id),
+        Index(None, dataset_id),
+        Index(None, corpus_id),
     )
 
 
