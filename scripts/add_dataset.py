@@ -18,7 +18,7 @@ def main():
     ap.add_argument("DATASET_NAME", type=str)
     ap.add_argument("CORPUS_NAME", type=str)
     ap.add_argument("--batch_size", type=int, default=2**10)
-    ap.add_argument("--language", default="english")
+    ap.add_argument("--language", default="English")
     ap.add_argument("--min_relevance", type=int, default=1)
     ap.add_argument("--add_corpus", action="store_true")
     ap.add_argument("--hostname", default="localhost")

@@ -3,7 +3,11 @@ from typing import TYPE_CHECKING
 from litestar import Controller, delete, get, post
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
-from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
+from litestar.status_codes import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+    HTTP_409_CONFLICT,
+)
 from models import (
     Corpus,
     CorpusInfo,
@@ -18,7 +22,7 @@ from models import (
     Query,
     QueryInfo,
 )
-from sqlalchemy import and_, func, insert, select, text
+from sqlalchemy import and_, func, insert, select
 from sqlalchemy import delete as delete_
 from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
 from sqlalchemy.orm import joinedload
@@ -38,15 +42,15 @@ class DBController(Controller):
     dependencies = {"transaction": Provide(provide_transaction)}
 
     @get(path="/get_available_languages")
-    async def get_available_languages(self, transaction: "AsyncSession") -> list[str]:
+    def get_available_languages(self) -> list[str]:
         """List all corpus languages supported by the DB engine (for full-text search).
 
         :return: All available languages.
         """
-        sql = text("SELECT cfgname FROM pg_catalog.pg_ts_config;")
-
-        result = (await transaction.execute(sql)).scalars().all()
-        return list(result)
+        # currently, paradedb does not support configuration based on a language column,
+        # so, for now, only english is supported
+        # https://github.com/paradedb/paradedb/issues/1793
+        return ["English"]
 
     @post(path="/create_corpus")
     async def create_corpus(
@@ -58,6 +62,14 @@ class DBController(Controller):
         :param data: The corpus.
         :raises HTTPException: When the corpus cannot be added to the database.
         """
+        # for now, only english is supported
+        if data.language != "English":
+            raise HTTPException(
+                "Unsupported language.",
+                status_code=HTTP_400_BAD_REQUEST,
+                extra={"language": data.language},
+            )
+
         sql = insert(ORMCorpus).values({"name": data.name, "language": data.language})
 
         try:
