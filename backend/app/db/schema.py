@@ -48,8 +48,8 @@ class ORMQuery(ORMBase):
     __table_args__ = (UniqueConstraint("id", "dataset_pkey"),)
     pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-    id: Mapped[str] = mapped_column()
-    dataset_pkey: Mapped[int] = mapped_column(ForeignKey("datasets.pkey"))
+    id: Mapped[str] = mapped_column(index=True)
+    dataset_pkey: Mapped[int] = mapped_column(ForeignKey("datasets.pkey"), index=True)
     text: Mapped[str] = mapped_column()
     description: Mapped[str] = mapped_column(nullable=True)
 
@@ -84,7 +84,7 @@ class ORMDocument(ORMBase):
     )
     pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-    id: Mapped[str] = mapped_column()
+    id: Mapped[str] = mapped_column(index=True)
     corpus_pkey: Mapped[int] = mapped_column(ForeignKey("corpora.pkey"), index=True)
     title: Mapped[str] = mapped_column(nullable=True)
     text: Mapped[str] = mapped_column()
