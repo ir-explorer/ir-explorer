@@ -1,13 +1,9 @@
 from sqlalchemy import (
     DDL,
-    Column,
-    Computed,
     ForeignKey,
-    ForeignKeyConstraint,
     Index,
     UniqueConstraint,
     event,
-    func,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
@@ -16,8 +12,6 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from db.types import RegConfigType, TSVectorType
-
 ORMBase = declarative_base()
 
 
@@ -25,12 +19,10 @@ class ORMCorpus(ORMBase):
     """ORM class representing a corpus."""
 
     __tablename__ = "corpora"
+    pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(unique=True)
-
-    # language used to construct TSVectors
-    language: Mapped[str] = mapped_column(RegConfigType())
+    language: Mapped[str] = mapped_column()
 
     datasets: Mapped[list["ORMDataset"]] = relationship(back_populates="corpus")
 
@@ -39,12 +31,12 @@ class ORMDataset(ORMBase):
     """ORM class representing a dataset."""
 
     __tablename__ = "datasets"
-    __table_args__ = (UniqueConstraint("name", "corpus_id"),)
+    __table_args__ = (UniqueConstraint("name", "corpus_pkey"),)
+    pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str]
-    corpus_id: Mapped[int] = mapped_column(ForeignKey("corpora.id"))
-    min_relevance: Mapped[int]
+    name: Mapped[str] = mapped_column()
+    corpus_pkey: Mapped[int] = mapped_column(ForeignKey("corpora.pkey"))
+    min_relevance: Mapped[int] = mapped_column()
 
     corpus: Mapped[ORMCorpus] = relationship(back_populates="datasets")
 
@@ -53,9 +45,11 @@ class ORMQuery(ORMBase):
     """ORM class representing a query."""
 
     __tablename__ = "queries"
+    __table_args__ = (UniqueConstraint("id", "dataset_pkey"),)
+    pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-    id: Mapped[str] = mapped_column(primary_key=True)
-    dataset_id: Mapped[int] = mapped_column(ForeignKey("datasets.id"), primary_key=True)
+    id: Mapped[str] = mapped_column(index=True)
+    dataset_pkey: Mapped[int] = mapped_column(ForeignKey("datasets.pkey"), index=True)
     text: Mapped[str] = mapped_column()
     description: Mapped[str] = mapped_column(nullable=True)
 
@@ -67,51 +61,51 @@ class ORMDocument(ORMBase):
     """ORM class representing a document."""
 
     __tablename__ = "documents"
+    __table_args__ = (
+        Index(
+            None,
+            "pkey",
+            "title",
+            "text",
+            "corpus_pkey",
+            postgresql_using="bm25",
+            postgresql_with={
+                "key_field": "pkey",
+                "text_fields": """\'{
+                    "text": {
+                        "tokenizer": {
+                            "type": "default",
+                            "stemmer": "English",
+                            "stopwords_language": "English"
+                        }
+                    }
+                }\'""",
+            },
+        ),
+    )
+    pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-    id: Mapped[str] = mapped_column(primary_key=True)
-    corpus_id: Mapped[int] = mapped_column(ForeignKey("corpora.id"), primary_key=True)
+    id: Mapped[str] = mapped_column(index=True)
+    corpus_pkey: Mapped[int] = mapped_column(ForeignKey("corpora.pkey"), index=True)
     title: Mapped[str] = mapped_column(nullable=True)
     text: Mapped[str] = mapped_column()
 
     corpus: Mapped["ORMCorpus"] = relationship()
     qrels: Mapped[list["ORMQRel"]] = relationship(back_populates="document")
 
-    # language used to construct TSVectors; maintaining this column seems to be the only
-    # way to allow for multiple languages within one table
-    language = Column(RegConfigType())
-
-    # full-text search column
-    text_tsv = Column(
-        TSVectorType(text.column),
-        Computed(func.to_tsvector(language, text.column), persisted=True),
-    )
-
-    __table_args__ = (
-        # full-text search index
-        Index("text_tsv_gin", text_tsv, postgresql_using="gin"),
-    )
-
 
 class ORMQRel(ORMBase):
     """ORM class representing a query relevance judgment (QRel)."""
 
     __tablename__ = "qrels"
-    __table_args__ = (
-        ForeignKeyConstraint(
-            ["query_id", "dataset_id"],
-            ["queries.id", "queries.dataset_id"],
-        ),
-        ForeignKeyConstraint(
-            ["document_id", "corpus_id"],
-            ["documents.id", "documents.corpus_id"],
-        ),
-    )
 
-    query_id: Mapped[str] = mapped_column(primary_key=True)
-    document_id: Mapped[str] = mapped_column(primary_key=True)
-    dataset_id: Mapped[int] = mapped_column(primary_key=True)
-    corpus_id: Mapped[int] = mapped_column(primary_key=True)
-    relevance: Mapped[int]
+    query_pkey: Mapped[str] = mapped_column(
+        ForeignKey("queries.pkey"), primary_key=True, index=True
+    )
+    document_pkey: Mapped[str] = mapped_column(
+        ForeignKey("documents.pkey"), primary_key=True, index=True
+    )
+    relevance: Mapped[int] = mapped_column()
 
     query: Mapped["ORMQuery"] = relationship(back_populates="qrels")
     document: Mapped["ORMDocument"] = relationship(back_populates="qrels")
@@ -126,7 +120,7 @@ event.listen(
     DDL(
         """
         CREATE OR REPLACE
-        FUNCTION estimate_num_docs(corpus_id int)
+        FUNCTION estimate_num_docs(corpus_pkey int)
         RETURNS int
         LANGUAGE plpgsql
         AS
@@ -135,8 +129,8 @@ event.listen(
             plan jsonb;
         BEGIN
             EXECUTE FORMAT(
-                'EXPLAIN (FORMAT JSON) SELECT * FROM documents WHERE corpus_id = %%s',
-                corpus_id
+                'EXPLAIN (FORMAT JSON) SELECT * FROM documents WHERE corpus_pkey = %%s',
+                corpus_pkey
             ) INTO plan;
             RETURN plan->0->'Plan'->'Plan Rows';
         END;
@@ -151,7 +145,7 @@ event.listen(
     DDL(
         """
         CREATE OR REPLACE
-        FUNCTION estimate_num_queries(dataset_id int)
+        FUNCTION estimate_num_queries(dataset_pkey int)
         RETURNS int
         LANGUAGE plpgsql
         AS
@@ -160,8 +154,8 @@ event.listen(
             plan jsonb;
         BEGIN
             EXECUTE FORMAT(
-                'EXPLAIN (FORMAT JSON) SELECT * FROM queries WHERE dataset_id = %%s',
-                dataset_id
+                'EXPLAIN (FORMAT JSON) SELECT * FROM queries WHERE dataset_pkey = %%s',
+                dataset_pkey
             ) INTO plan;
             RETURN plan->0->'Plan'->'Plan Rows';
         END;

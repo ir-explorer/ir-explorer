@@ -3,7 +3,11 @@ from typing import TYPE_CHECKING
 from litestar import Controller, delete, get, post
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
-from litestar.status_codes import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
+from litestar.status_codes import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+    HTTP_409_CONFLICT,
+)
 from models import (
     Corpus,
     CorpusInfo,
@@ -18,7 +22,16 @@ from models import (
     Query,
     QueryInfo,
 )
-from sqlalchemy import SQLColumnExpression, and_, desc, func, insert, select, text
+from sqlalchemy import (
+    VARCHAR,
+    SQLColumnExpression,
+    and_,
+    desc,
+    func,
+    insert,
+    literal_column,
+    select,
+)
 from sqlalchemy import delete as delete_
 from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
 from sqlalchemy.orm import joinedload
@@ -38,15 +51,15 @@ class DBController(Controller):
     dependencies = {"transaction": Provide(provide_transaction)}
 
     @get(path="/get_available_languages")
-    async def get_available_languages(self, transaction: "AsyncSession") -> list[str]:
+    def get_available_languages(self) -> list[str]:
         """List all corpus languages supported by the DB engine (for full-text search).
 
         :return: All available languages.
         """
-        sql = text("SELECT cfgname FROM pg_catalog.pg_ts_config;")
-
-        result = (await transaction.execute(sql)).scalars().all()
-        return list(result)
+        # currently, paradedb does not support configuration based on a language column,
+        # so, for now, only english is supported
+        # https://github.com/paradedb/paradedb/issues/1793
+        return ["English"]
 
     @post(path="/create_corpus")
     async def create_corpus(
@@ -58,6 +71,14 @@ class DBController(Controller):
         :param data: The corpus.
         :raises HTTPException: When the corpus cannot be added to the database.
         """
+        # for now, only english is supported
+        if data.language != "English":
+            raise HTTPException(
+                "Unsupported language.",
+                status_code=HTTP_400_BAD_REQUEST,
+                extra={"language": data.language},
+            )
+
         sql = insert(ORMCorpus).values({"name": data.name, "language": data.language})
 
         try:
@@ -82,7 +103,9 @@ class DBController(Controller):
         sql = insert(ORMDataset).values(
             {
                 "name": data.name,
-                "corpus_id": select(ORMCorpus.id).filter_by(name=data.corpus_name),
+                "corpus_pkey": select(ORMCorpus.pkey)
+                .filter_by(name=data.corpus_name)
+                .scalar_subquery(),
                 "min_relevance": data.min_relevance,
             }
         )
@@ -130,7 +153,7 @@ class DBController(Controller):
             [
                 {
                     "id": q.id,
-                    "dataset_id": select(dataset_cte.c.id),
+                    "dataset_pkey": select(dataset_cte.c.pkey),
                     "text": q.text,
                     "description": q.description,
                 }
@@ -166,10 +189,9 @@ class DBController(Controller):
             [
                 {
                     "id": doc.id,
-                    "corpus_id": select(corpus_cte.c.id),
+                    "corpus_pkey": select(corpus_cte.c.pkey),
                     "title": doc.title,
                     "text": doc.text,
-                    "language": select(corpus_cte.c.language),
                 }
                 for doc in data
             ]
@@ -213,10 +235,18 @@ class DBController(Controller):
         sql = insert(ORMQRel).values(
             [
                 {
-                    "query_id": qrel.query_id,
-                    "document_id": qrel.document_id,
-                    "corpus_id": select(dataset_cte.c.corpus_id),
-                    "dataset_id": select(dataset_cte.c.id),
+                    "query_pkey": select(ORMQuery.pkey)
+                    .where(
+                        ORMQuery.id == qrel.query_id,
+                        ORMQuery.dataset_pkey == dataset_cte.c.pkey,
+                    )
+                    .scalar_subquery(),
+                    "document_pkey": select(ORMDocument.pkey)
+                    .where(
+                        ORMDocument.id == qrel.document_id,
+                        ORMDocument.corpus_pkey == dataset_cte.c.corpus_pkey,
+                    )
+                    .scalar_subquery(),
                     "relevance": qrel.relevance,
                 }
                 for qrel in data
@@ -244,11 +274,11 @@ class DBController(Controller):
         sql = (
             select(
                 ORMCorpus,
-                func.count(ORMDataset.id),
-                func.estimate_num_docs(ORMCorpus.id).label("num_documents_estimate"),
+                func.count(ORMDataset.pkey),
+                func.estimate_num_docs(ORMCorpus.pkey).label("num_documents_estimate"),
             )
-            .join(ORMDataset)
-            .group_by(ORMCorpus.id)
+            .outerjoin(ORMDataset)
+            .group_by(ORMCorpus.pkey)
         )
 
         result = (await transaction.execute(sql)).all()
@@ -275,7 +305,9 @@ class DBController(Controller):
         sql = (
             select(
                 ORMDataset,
-                func.estimate_num_queries(ORMDataset.id).label("num_queries_estimate"),
+                func.estimate_num_queries(ORMDataset.pkey).label(
+                    "num_queries_estimate"
+                ),
             )
             .join(ORMCorpus)
             .where(ORMCorpus.name == corpus_name)
@@ -299,7 +331,7 @@ class DBController(Controller):
         corpus_name: str,
         dataset_name: str | None = None,
         match: str | None = None,
-        num_results: int | None = 10,
+        num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[Query]:
         """List queries.
@@ -319,34 +351,26 @@ class DBController(Controller):
             where_clauses.append(ORMQuery.text.match(match))
 
         sql_count = (
-            select(func.count(ORMQuery.id))
+            select(func.count(ORMQuery.pkey))
             .join(ORMDataset)
-            .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
+            .join(ORMCorpus)
             .where(*where_clauses)
         )
 
         sql = (
             select(
                 ORMQuery,
-                func.count(ORMQRel.relevance >= ORMDataset.min_relevance),
+                func.count().filter(ORMQRel.relevance >= ORMDataset.min_relevance),
                 ORMDataset.name,
             )
             .join(ORMDataset)
-            .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
-            .outerjoin(
-                ORMQRel,
-                and_(
-                    ORMQRel.query_id == ORMQuery.id,
-                    ORMQRel.dataset_id == ORMDataset.id,
-                    ORMQRel.relevance >= ORMDataset.min_relevance,
-                ),
-            )
+            .join(ORMCorpus)
+            .outerjoin(ORMQRel)
             .where(*where_clauses)
-            .group_by(ORMQuery.id, ORMQuery.dataset_id, ORMDataset.name)
+            .group_by(ORMQuery.pkey, ORMDataset.pkey)
             .offset(offset)
+            .limit(num_results)
         )
-        if num_results is not None:
-            sql = sql.limit(num_results)
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         result = (await transaction.execute(sql)).all()
@@ -384,16 +408,15 @@ class DBController(Controller):
         :return: The query object.
         """
         sql = (
-            select(ORMQuery, func.count(ORMQRel.document_id))
-            .join(ORMDataset)
-            .join(ORMCorpus, ORMDataset.corpus_id == ORMCorpus.id)
-            .outerjoin(
-                ORMQRel,
-                and_(
-                    ORMQRel.query_id == ORMQuery.id,
-                    ORMQRel.relevance >= ORMDataset.min_relevance,
+            select(
+                ORMQuery,
+                func.count(ORMQRel.document_pkey).filter(
+                    ORMQRel.relevance >= ORMDataset.min_relevance
                 ),
             )
+            .join(ORMDataset)
+            .join(ORMCorpus)
+            .outerjoin(ORMQRel)
             .where(
                 and_(
                     ORMQuery.id == query_id,
@@ -401,7 +424,7 @@ class DBController(Controller):
                     ORMDataset.name == dataset_name,
                 )
             )
-            .group_by(ORMQuery.id, ORMQuery.dataset_id)
+            .group_by(ORMQuery.pkey)
         )
 
         try:
@@ -438,18 +461,17 @@ class DBController(Controller):
         :return: The document object.
         """
         sql = (
-            select(ORMDocument, func.count(ORMQRel.query_id))
-            .join(ORMCorpus, ORMDocument.corpus_id == ORMCorpus.id)
-            .join(ORMDataset)
-            .outerjoin(
-                ORMQRel,
-                and_(
-                    ORMQRel.document_id == ORMDocument.id,
-                    ORMQRel.relevance >= ORMDataset.min_relevance,
+            select(
+                ORMDocument,
+                func.count(ORMQRel.query_pkey).filter(
+                    ORMQRel.relevance >= ORMDataset.min_relevance
                 ),
             )
+            .join(ORMCorpus)
+            .outerjoin(ORMDataset)
+            .outerjoin(ORMQRel)
             .where(ORMCorpus.name == corpus_name, ORMDocument.id == document_id)
-        ).group_by(ORMDocument.id, ORMDocument.corpus_id)
+        ).group_by(ORMDocument.pkey)
 
         try:
             db_document, num_rel_queries = (await transaction.execute(sql)).one()
@@ -476,10 +498,10 @@ class DBController(Controller):
         self,
         transaction: "AsyncSession",
         corpus_name: str,
-        num_results: int | None = 10,
+        num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[Document]:
-        """Return all documents in a corpus.
+        """List documents.
 
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
@@ -487,45 +509,41 @@ class DBController(Controller):
         :param offset: Offset for pagination.
         :return: Paginated list of documents.
         """
-        sql_count = (
-            select(func.count(ORMDocument.id))
-            .join(ORMCorpus)
-            .where(ORMCorpus.name == corpus_name)
+        # a subquery seems to be much faster than a join here
+        sql_corpus_pkey = select(ORMCorpus.pkey).where(ORMCorpus.name == corpus_name)
+
+        sql_count = select(func.count(ORMDocument.pkey)).where(
+            ORMDocument.corpus_pkey == sql_corpus_pkey.scalar_subquery()
         )
 
         sql = (
             select(
-                ORMDocument, func.count(ORMQRel.relevance >= ORMDataset.min_relevance)
+                ORMDocument.id,
+                ORMDocument.title,
+                ORMDocument.text,
+                func.count().filter(ORMQRel.relevance >= ORMDataset.min_relevance),
             )
-            .join(ORMCorpus, ORMDocument.corpus_id == ORMCorpus.id)
-            .join(ORMDataset)
-            .outerjoin(
-                ORMQRel,
-                and_(
-                    ORMQRel.document_id == ORMDocument.id,
-                    ORMQRel.dataset_id == ORMDataset.id,
-                    ORMQRel.relevance >= ORMDataset.min_relevance,
-                ),
-            )
-            .where(ORMCorpus.name == corpus_name)
-            .group_by(ORMDocument.id, ORMDocument.corpus_id)
+            .outerjoin(ORMQRel)
+            .outerjoin(ORMQuery)
+            .outerjoin(ORMDataset)
+            .where(ORMDocument.corpus_pkey == sql_corpus_pkey.scalar_subquery())
+            .group_by(ORMDocument.pkey)
             .offset(offset)
+            .limit(num_results)
         )
-        if num_results is not None:
-            sql = sql.limit(num_results)
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         result = (await transaction.execute(sql)).all()
         return Paginated[Document](
             items=[
                 Document(
-                    id=db_document.id,
+                    id=id,
                     corpus_name=corpus_name,
-                    title=db_document.title,
-                    text=db_document.text,
+                    title=title,
+                    text=text,
                     num_relevant_queries=num_rel_queries,
                 )
-                for db_document, num_rel_queries in result
+                for id, title, text, num_rel_queries in result
             ],
             offset=offset,
             total_num_items=total_num_results,
@@ -536,73 +554,61 @@ class DBController(Controller):
         self,
         transaction: "AsyncSession",
         q: str,
-        language: str = "english",
         corpus_name: list[str] | None = None,
-        num_results: int | None = 10,
+        num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[DocumentSearchHit]:
         """Search documents (using full-text search).
 
         :param transaction: A DB transaction.
         :param q: The search query.
-        :param language: The query language.
         :param corpus_name: Search only within these corpora.
         :param num_results: How many hits to return.
         :param offset: Offset for pagination.
         :return: Paginated list of results, ordered by score.
         """
-        ts_query = func.websearch_to_tsquery(language, q)
-
-        where_clauses: list[SQLColumnExpression] = [
-            ORMDocument.text_tsv.bool_op("@@")(ts_query)
-        ]
+        where_clauses: list[SQLColumnExpression] = [ORMDocument.text.bool_op("@@@")(q)]
         if corpus_name is not None:
-            where_clauses.append(ORMCorpus.name.in_(corpus_name))
+            corpus_cte = (
+                select(ORMCorpus.pkey).where(ORMCorpus.name.in_(corpus_name)).cte()
+            )
+
+            # use ParadeDB's set filter: https://docs.paradedb.com/documentation/full-text/filtering#set-filter
+            corpus_pkey_agg = select(
+                func.concat(
+                    "IN [",
+                    func.string_agg(
+                        func.cast(corpus_cte.c.pkey, VARCHAR), literal_column("' '")
+                    ),
+                    "]",
+                )
+            )
+            where_clauses.append(
+                ORMDocument.corpus_pkey.bool_op("@@@")(
+                    corpus_pkey_agg.scalar_subquery()
+                )
+            )
 
         # count the total number of hits
-        sql_count = (
-            select(func.count(ORMDocument.id))
-            .join(ORMCorpus)
-            .where(
-                and_(*where_clauses),
-            )
-        )
-
-        # score and rank documents, select a subset to return
-        ts_rank = func.ts_rank_cd(ORMDocument.text_tsv, ts_query)
+        sql_count = select(func.count(ORMDocument.pkey)).where(and_(*where_clauses))
 
         # results for the current page only
-        sql_results_page = (
+        sql_results_sq = (
             select(
-                ORMDocument.id.label("id"),
-                ORMDocument.title.label("title"),
-                ORMDocument.text.label("text"),
-                ORMCorpus.name.label("corpus_name"),
-                ts_rank.label("score"),
+                ORMDocument.id,
+                ORMDocument.corpus_pkey,
+                func.paradedb.score(ORMDocument.pkey).label("score"),
+                func.paradedb.snippet(ORMDocument.text, "<b>", "</b>", 500),
             )
-            .join(ORMCorpus)
-            .where(
-                and_(*where_clauses),
-            )
+            .where(and_(*where_clauses))
             .order_by(desc("score"))
             .order_by(ORMDocument.id)
             .offset(offset)
-        )
-        if num_results is not None:
-            sql_results_page = sql_results_page.limit(num_results)
+            .limit(num_results)
+        ).subquery()
 
-        # compute snippets for the current page
-        sql_results = select(
-            text("id"),
-            text("title"),
-            text("corpus_name"),
-            text("score"),
-            func.ts_headline(
-                text("text"),
-                ts_query,
-                "MaxFragments=5, FragmentDelimiter=' [...] '",
-            ).label("snippet"),
-        ).select_from(sql_results_page.subquery())
+        # use a subquery to get the corpus names only for the current results
+        sql_results = select(sql_results_sq, ORMCorpus.name).join(ORMCorpus)
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         results = (await transaction.execute(sql_results)).all()
@@ -611,11 +617,10 @@ class DBController(Controller):
                 DocumentSearchHit(
                     id=id,
                     corpus_name=corpus_name,
-                    title=title,
                     snippet=snippet,
                     score=score,
                 )
-                for id, title, corpus_name, score, snippet in results
+                for id, _, score, snippet, corpus_name in results
             ],
             offset=offset,
             total_num_items=total_num_results,
@@ -629,7 +634,7 @@ class DBController(Controller):
         document_id: str | None = None,
         dataset_name: str | None = None,
         query_id: str | None = None,
-        num_results: int | None = 10,
+        num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[QRel]:
         """Return query-document pairs annotated as relevant.
@@ -648,23 +653,27 @@ class DBController(Controller):
             ORMQRel.relevance >= ORMDataset.min_relevance,
         ]
         if document_id is not None:
-            where_clauses.append(ORMQRel.document_id == document_id)
+            where_clauses.append(ORMDocument.id == document_id)
         if dataset_name is not None:
             where_clauses.append(ORMDataset.name == dataset_name)
         if query_id is not None:
-            where_clauses.append(ORMQRel.query_id == query_id)
+            where_clauses.append(ORMQuery.id == query_id)
 
         sql_count = (
             select(func.count())
             .select_from(ORMQRel)
-            .join(ORMDataset, ORMQRel.dataset_id == ORMDataset.id)
+            .join(ORMQuery)
+            .join(ORMDocument)
+            .join(ORMDataset)
             .join(ORMCorpus)
             .where(and_(*where_clauses))
         )
 
         sql = (
             select(ORMQRel)
-            .join(ORMDataset, ORMQRel.dataset_id == ORMDataset.id)
+            .join(ORMQuery)
+            .join(ORMDocument)
+            .join(ORMDataset)
             .join(ORMCorpus)
             .options(
                 joinedload(ORMQRel.document).joinedload(ORMDocument.corpus),
@@ -675,9 +684,8 @@ class DBController(Controller):
             .where(and_(*where_clauses))
             .order_by(ORMQRel.relevance.desc())
             .offset(offset)
+            .limit(num_results)
         )
-        if num_results is not None:
-            sql = sql.limit(num_results)
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         result = (await transaction.execute(sql)).scalars()
@@ -714,14 +722,16 @@ class DBController(Controller):
         :param corpus_name: The name of the corpus the dataset is in.
         :param dataset_name: The name of the dataset to remove.
         """
-        dataset_id = (
-            select(ORMDataset.id)
+        dataset_pkey = (
+            select(ORMDataset.pkey)
             .join(ORMCorpus)
             .where(and_(ORMDataset.name == dataset_name, ORMCorpus.name == corpus_name))
         ).scalar_subquery()
-        sql_del_qrels = delete_(ORMQRel).filter_by(dataset_id=dataset_id)
-        sql_del_queries = delete_(ORMQuery).filter_by(dataset_id=dataset_id)
-        sql_del_dataset = delete_(ORMDataset).filter_by(id=dataset_id)
+        sql_del_qrels = delete_(ORMQRel).where(
+            ORMQRel.query_pkey == ORMQuery.pkey, ORMQuery.dataset_pkey == dataset_pkey
+        )
+        sql_del_queries = delete_(ORMQuery).filter_by(dataset_pkey=dataset_pkey)
+        sql_del_dataset = delete_(ORMDataset).filter_by(pkey=dataset_pkey)
 
         await transaction.execute(sql_del_qrels)
         await transaction.execute(sql_del_queries)
@@ -753,8 +763,8 @@ class DBController(Controller):
                 extra={"corpus_name": corpus_name},
             )
 
-        sql_del_documents = delete_(ORMDocument).filter_by(corpus_id=corpus.id)
-        sql_del_corpus = delete_(ORMCorpus).filter_by(id=corpus.id)
+        sql_del_documents = delete_(ORMDocument).filter_by(corpus_pkey=corpus.pkey)
+        sql_del_corpus = delete_(ORMCorpus).filter_by(name=corpus_name)
 
         try:
             await transaction.execute(sql_del_documents)

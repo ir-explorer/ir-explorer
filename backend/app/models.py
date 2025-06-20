@@ -79,7 +79,6 @@ class DocumentSearchHit:
     """Document retrieved by a search engine."""
 
     id: str
-    title: str | None
     snippet: str
     score: float
     corpus_name: str
