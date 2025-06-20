@@ -598,8 +598,7 @@ class DBController(Controller):
                 ORMDocument.id,
                 ORMDocument.corpus_pkey,
                 func.paradedb.score(ORMDocument.pkey).label("score"),
-                func.paradedb.snippet(ORMDocument.text),
-                func.snippet_positions(ORMDocument.text),
+                func.paradedb.snippet(ORMDocument.text, "<b>", "</b>", 500),
             )
             .where(and_(*where_clauses))
             .order_by(desc("score"))
@@ -618,11 +617,10 @@ class DBController(Controller):
                 DocumentSearchHit(
                     id=id,
                     corpus_name=corpus_name,
-                    title=None,
                     snippet=snippet,
                     score=score,
                 )
-                for id, _, score, snippet, positions, corpus_name in results
+                for id, _, score, snippet, corpus_name in results
             ],
             offset=offset,
             total_num_items=total_num_results,

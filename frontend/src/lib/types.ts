@@ -43,7 +43,6 @@ export interface RelevantDocument {
 export interface DocumentSearchHit {
   score: number;
   id: string;
-  title: string | null;
   snippet: string;
   corpus_name: string;
 }
