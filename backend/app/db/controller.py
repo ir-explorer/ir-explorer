@@ -22,7 +22,16 @@ from models import (
     Query,
     QueryInfo,
 )
-from sqlalchemy import SQLColumnExpression, and_, desc, func, insert, select
+from sqlalchemy import (
+    VARCHAR,
+    SQLColumnExpression,
+    and_,
+    desc,
+    func,
+    insert,
+    literal_column,
+    select,
+)
 from sqlalchemy import delete as delete_
 from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
 from sqlalchemy.orm import joinedload
@@ -560,47 +569,60 @@ class DBController(Controller):
         """
         where_clauses: list[SQLColumnExpression] = [ORMDocument.text.bool_op("@@@")(q)]
         if corpus_name is not None:
-            where_clauses.append(ORMCorpus.name.in_(corpus_name))
+            corpus_cte = (
+                select(ORMCorpus.pkey).where(ORMCorpus.name.in_(corpus_name)).cte()
+            )
+
+            # use ParadeDB's set filter: https://docs.paradedb.com/documentation/full-text/filtering#set-filter
+            corpus_pkey_agg = select(
+                func.concat(
+                    "IN [",
+                    func.string_agg(
+                        func.cast(corpus_cte.c.pkey, VARCHAR), literal_column("' '")
+                    ),
+                    "]",
+                )
+            )
+            where_clauses.append(
+                ORMDocument.corpus_pkey.bool_op("@@@")(
+                    corpus_pkey_agg.scalar_subquery()
+                )
+            )
 
         # count the total number of hits
-        sql_count = (
-            select(func.count(ORMDocument.pkey))
-            .join(ORMCorpus)
-            .where(
-                and_(*where_clauses),
-            )
-        )
+        sql_count = select(func.count(ORMDocument.pkey)).where(and_(*where_clauses))
 
-        sql_results_page = (
+        # results for the current page only
+        sql_results_sq = (
             select(
                 ORMDocument.id,
-                ORMDocument.title,
-                ORMDocument.text,
-                ORMCorpus.name,
+                ORMDocument.corpus_pkey,
                 func.paradedb.score(ORMDocument.pkey).label("score"),
+                func.paradedb.snippet(ORMDocument.text),
+                func.snippet_positions(ORMDocument.text),
             )
-            .join(ORMCorpus)
-            .where(
-                and_(*where_clauses),
-            )
+            .where(and_(*where_clauses))
             .order_by(desc("score"))
             .order_by(ORMDocument.id)
             .offset(offset)
             .limit(num_results)
-        )
+        ).subquery()
+
+        # use a subquery to get the corpus names only for the current results
+        sql_results = select(sql_results_sq, ORMCorpus.name).join(ORMCorpus)
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
-        results = (await transaction.execute(sql_results_page)).all()
+        results = (await transaction.execute(sql_results)).all()
         return Paginated[DocumentSearchHit](
             items=[
                 DocumentSearchHit(
                     id=id,
                     corpus_name=corpus_name,
-                    title=title,
-                    snippet=text,
+                    title=None,
+                    snippet=snippet,
                     score=score,
                 )
-                for id, title, text, corpus_name, score in results
+                for id, _, score, snippet, positions, corpus_name in results
             ],
             offset=offset,
             total_num_items=total_num_results,
