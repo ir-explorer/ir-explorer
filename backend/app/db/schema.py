@@ -67,6 +67,7 @@ class ORMDocument(ORMBase):
             "pkey",
             "title",
             "text",
+            "corpus_pkey",
             postgresql_using="bm25",
             postgresql_with={
                 "key_field": "pkey",
