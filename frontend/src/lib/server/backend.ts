@@ -51,7 +51,6 @@ export async function getQuery(
 export async function getQueries(
   corpusName: string,
   datasetName: string | null = null,
-  match: string | null = null,
   numResults: number,
   offset: number = 0,
 ): Promise<Paginated<Query>> {
@@ -62,9 +61,6 @@ export async function getQueries(
   });
   if (datasetName !== null) {
     searchParams.append("dataset_name", datasetName);
-  }
-  if (match !== null) {
-    searchParams.append("match", match);
   }
 
   const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);

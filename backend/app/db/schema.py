@@ -1,9 +1,7 @@
 from sqlalchemy import (
-    DDL,
     ForeignKey,
     Index,
     UniqueConstraint,
-    event,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
