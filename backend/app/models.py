@@ -5,6 +5,14 @@ T = TypeVar("T")
 
 
 @dataclass
+class SearchOptions:
+    """All available search options."""
+
+    query_languages: list[str]
+    corpus_names: list[str]
+
+
+@dataclass
 class CorpusInfo:
     """Corpus attributes."""
 
@@ -17,7 +25,7 @@ class Corpus(CorpusInfo):
     """Corpus with attributes and statistics."""
 
     num_datasets: int
-    num_documents_estimate: int
+    num_documents: int
 
 
 @dataclass
@@ -36,7 +44,7 @@ class Dataset:
     name: str
     corpus_name: str
     min_relevance: int
-    num_queries_estimate: int
+    num_queries: int
 
 
 @dataclass

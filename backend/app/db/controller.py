@@ -21,6 +21,7 @@ from models import (
     QRelInfo,
     Query,
     QueryInfo,
+    SearchOptions,
 )
 from sqlalchemy import (
     VARCHAR,
@@ -60,6 +61,17 @@ class DBController(Controller):
         # so, for now, only english is supported
         # https://github.com/paradedb/paradedb/issues/1793
         return ["English"]
+
+    @get(path="/get_search_options")
+    async def get_search_options(self, transaction: "AsyncSession") -> SearchOptions:
+        """Get available options for all search settings.
+
+        :param transaction: A DB transaction.
+        :return: The available options.
+        """
+        sql = select(ORMCorpus.name)
+        result = (await transaction.execute(sql)).scalars()
+        return SearchOptions(query_languages=["English"], corpus_names=list(result))
 
     @post(path="/create_corpus")
     async def create_corpus(
@@ -267,18 +279,23 @@ class DBController(Controller):
         """List all corpora including statistics about datasets and documents.
 
         :param transaction: A DB transaction.
-        :param num_results: How many corpora to return.
-        :param offset: Offset for pagination.
         :return: The list of corpora.
         """
+        sq_documents = (
+            select(ORMDocument.corpus_pkey, func.count().label("count"))
+            .group_by(ORMDocument.corpus_pkey)
+            .subquery()
+        )
+        sq_datasets = (
+            select(ORMDataset.corpus_pkey, func.count().label("count"))
+            .group_by(ORMDataset.corpus_pkey)
+            .subquery()
+        )
+
         sql = (
-            select(
-                ORMCorpus,
-                func.count(ORMDataset.pkey),
-                func.estimate_num_docs(ORMCorpus.pkey).label("num_documents_estimate"),
-            )
-            .outerjoin(ORMDataset)
-            .group_by(ORMCorpus.pkey)
+            select(ORMCorpus, sq_documents.c.count, sq_datasets.c.count)
+            .join(sq_documents)
+            .join(sq_datasets)
         )
 
         result = (await transaction.execute(sql)).all()
@@ -287,9 +304,9 @@ class DBController(Controller):
                 name=corpus.name,
                 language=corpus.language,
                 num_datasets=num_datasets,
-                num_documents_estimate=num_docs,
+                num_documents=num_documents,
             )
-            for corpus, num_datasets, num_docs in result
+            for corpus, num_documents, num_datasets in result
         ]
 
     @get(path="/get_datasets")
@@ -302,13 +319,15 @@ class DBController(Controller):
         :param corpus_name: The name of the corpus.
         :return: The list of datasets.
         """
+        sq_queries = (
+            select(ORMQuery.dataset_pkey, func.count().label("count"))
+            .group_by(ORMQuery.dataset_pkey)
+            .subquery()
+        )
+
         sql = (
-            select(
-                ORMDataset,
-                func.estimate_num_queries(ORMDataset.pkey).label(
-                    "num_queries_estimate"
-                ),
-            )
+            select(ORMDataset, sq_queries.c.count)
+            .join(sq_queries)
             .join(ORMCorpus)
             .where(ORMCorpus.name == corpus_name)
         )
@@ -319,9 +338,9 @@ class DBController(Controller):
                 name=dataset.name,
                 corpus_name=corpus_name,
                 min_relevance=dataset.min_relevance,
-                num_queries_estimate=num_queries_estimate,
+                num_queries=num_queries,
             )
-            for dataset, num_queries_estimate in result
+            for dataset, num_queries in result
         ]
 
     @get(path="/get_queries")
@@ -330,7 +349,6 @@ class DBController(Controller):
         transaction: "AsyncSession",
         corpus_name: str,
         dataset_name: str | None = None,
-        match: str | None = None,
         num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[Query]:
@@ -339,7 +357,6 @@ class DBController(Controller):
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: Return only queries in this dataset.
-        :param match: Return only queries that match this string.
         :param num_results: How many queries to return.
         :param offset: Offset for pagination.
         :return: Paginated list of queries.
@@ -347,8 +364,6 @@ class DBController(Controller):
         where_clauses = [ORMCorpus.name == corpus_name]
         if dataset_name is not None:
             where_clauses.append(ORMDataset.name == dataset_name)
-        if match is not None:
-            where_clauses.append(ORMQuery.text.match(match))
 
         sql_count = (
             select(func.count(ORMQuery.pkey))
@@ -357,19 +372,33 @@ class DBController(Controller):
             .where(*where_clauses)
         )
 
+        sq = (
+            select(
+                ORMQuery.pkey,
+                ORMQuery.dataset_pkey,
+                ORMQuery.id,
+                ORMQuery.text,
+                ORMQuery.description,
+            )
+            .join(ORMDataset)
+            .join(ORMCorpus)
+            .where(and_(*where_clauses))
+            .offset(offset)
+            .limit(num_results)
+            .subquery()
+        )
+
         sql = (
             select(
-                ORMQuery,
+                sq.c.id,
+                sq.c.text,
+                sq.c.description,
                 func.count().filter(ORMQRel.relevance >= ORMDataset.min_relevance),
                 ORMDataset.name,
             )
             .join(ORMDataset)
-            .join(ORMCorpus)
             .outerjoin(ORMQRel)
-            .where(*where_clauses)
-            .group_by(ORMQuery.pkey, ORMDataset.pkey)
-            .offset(offset)
-            .limit(num_results)
+            .group_by(*sq.columns, ORMDataset.name)
         )
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
@@ -377,14 +406,14 @@ class DBController(Controller):
         return Paginated[Query](
             items=[
                 Query(
-                    id=db_query.id,
+                    id=id,
                     corpus_name=corpus_name,
                     dataset_name=dataset_name,
-                    text=db_query.text,
-                    description=db_query.description,
+                    text=text,
+                    description=description,
                     num_relevant_documents=num_rel_docs,
                 )
-                for db_query, num_rel_docs, dataset_name in result
+                for id, text, description, num_rel_docs, dataset_name in result
             ],
             offset=offset,
             total_num_items=total_num_results,
@@ -509,27 +538,32 @@ class DBController(Controller):
         :param offset: Offset for pagination.
         :return: Paginated list of documents.
         """
-        # a subquery seems to be much faster than a join here
         sql_corpus_pkey = select(ORMCorpus.pkey).where(ORMCorpus.name == corpus_name)
-
-        sql_count = select(func.count(ORMDocument.pkey)).where(
+        sql_count = select(func.count()).where(
             ORMDocument.corpus_pkey == sql_corpus_pkey.scalar_subquery()
         )
 
+        sq = (
+            select(
+                ORMDocument.pkey, ORMDocument.id, ORMDocument.title, ORMDocument.text
+            )
+            .join(ORMCorpus)
+            .where(ORMCorpus.name == corpus_name)
+            .limit(num_results)
+            .offset(offset)
+            .subquery()
+        )
         sql = (
             select(
-                ORMDocument.id,
-                ORMDocument.title,
-                ORMDocument.text,
+                sq.c.id,
+                sq.c.title,
+                sq.c.text,
                 func.count().filter(ORMQRel.relevance >= ORMDataset.min_relevance),
             )
             .outerjoin(ORMQRel)
             .outerjoin(ORMQuery)
             .outerjoin(ORMDataset)
-            .where(ORMDocument.corpus_pkey == sql_corpus_pkey.scalar_subquery())
-            .group_by(ORMDocument.pkey)
-            .offset(offset)
-            .limit(num_results)
+            .group_by(*sq.columns)
         )
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()

@@ -1,9 +1,7 @@
 from sqlalchemy import (
-    DDL,
     ForeignKey,
     Index,
     UniqueConstraint,
-    event,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
@@ -109,57 +107,3 @@ class ORMQRel(ORMBase):
 
     query: Mapped["ORMQuery"] = relationship(back_populates="qrels")
     document: Mapped["ORMDocument"] = relationship(back_populates="qrels")
-
-
-# functions to estimate the number of documents and queries
-# https://wiki.postgresql.org/wiki/Count_estimate
-
-event.listen(
-    ORMBase.metadata,
-    "after_create",
-    DDL(
-        """
-        CREATE OR REPLACE
-        FUNCTION estimate_num_docs(corpus_pkey int)
-        RETURNS int
-        LANGUAGE plpgsql
-        AS
-        $function$
-        DECLARE
-            plan jsonb;
-        BEGIN
-            EXECUTE FORMAT(
-                'EXPLAIN (FORMAT JSON) SELECT * FROM documents WHERE corpus_pkey = %%s',
-                corpus_pkey
-            ) INTO plan;
-            RETURN plan->0->'Plan'->'Plan Rows';
-        END;
-        $function$;
-        """
-    ),
-)
-
-event.listen(
-    ORMBase.metadata,
-    "after_create",
-    DDL(
-        """
-        CREATE OR REPLACE
-        FUNCTION estimate_num_queries(dataset_pkey int)
-        RETURNS int
-        LANGUAGE plpgsql
-        AS
-        $function$
-        DECLARE
-            plan jsonb;
-        BEGIN
-            EXECUTE FORMAT(
-                'EXPLAIN (FORMAT JSON) SELECT * FROM queries WHERE dataset_pkey = %%s',
-                dataset_pkey
-            ) INTO plan;
-            RETURN plan->0->'Plan'->'Plan Rows';
-        END;
-        $function$;
-        """
-    ),
-)

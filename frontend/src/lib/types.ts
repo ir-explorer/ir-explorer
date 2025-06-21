@@ -1,14 +1,23 @@
+export interface SearchOptions {
+  query_languages: string[];
+  corpus_names: string[];
+}
+export interface SearchOptionsInit {
+  query_language: string | null;
+  selected_corpus_names: string[];
+}
+
 export interface Corpus {
   name: string;
   language: string;
   num_datasets: number;
-  num_documents_estimate: number;
+  num_documents: number;
 }
 export interface Dataset {
   name: string;
   corpus_name: string;
   min_relevance: number;
-  num_queries_estimate: number;
+  num_queries: number;
 }
 
 export interface Query {
