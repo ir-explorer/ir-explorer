@@ -74,17 +74,17 @@
   {:else}
     {#if data.datasetList !== null}
       {@const totalNumQueries = data.datasetList.reduce(
-        (acc, dataset) => acc + dataset.num_queries_estimate,
+        (acc, dataset) => acc + dataset.num_queries,
         0,
       )}
       <CardGrid
         gridItems={data.datasetList.sort(
-          (a, b) => b.num_queries_estimate - a.num_queries_estimate,
+          (a, b) => b.num_queries - a.num_queries,
         )}
         getTargetLink={(d: Dataset) =>
           `/browse/${page.params.corpusName}/${d.name}`}>
         {#snippet item(d: Dataset)}
-          {@const fraction = d.num_queries_estimate / totalNumQueries}
+          {@const fraction = d.num_queries / totalNumQueries}
           <div class="flex items-center justify-between gap-4">
             <div class="flex flex-col gap-2">
               <p class="flex items-center gap-2 text-sm font-thin">
@@ -97,10 +97,9 @@
               </p>
             </div>
             <SizeIndicator
-              value={d.num_queries_estimate}
+              value={d.num_queries}
               total={totalNumQueries}
-              desc={"queries"}
-              isEstimate />
+              desc={"queries"} />
           </div>
         {/snippet}
       </CardGrid>

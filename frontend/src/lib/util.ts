@@ -1,5 +1,5 @@
 export function toHumanReadable(n: number): string {
-  if (n < 1000) return "< 1k";
+  if (n < 1000) return n.toString();
   if (n > 1000000000000) return "> 1T";
 
   const suffixes = ["", "k", "M", "B"];

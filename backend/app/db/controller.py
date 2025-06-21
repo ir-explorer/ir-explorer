@@ -279,18 +279,23 @@ class DBController(Controller):
         """List all corpora including statistics about datasets and documents.
 
         :param transaction: A DB transaction.
-        :param num_results: How many corpora to return.
-        :param offset: Offset for pagination.
         :return: The list of corpora.
         """
+        sq_documents = (
+            select(ORMDocument.corpus_pkey, func.count().label("count"))
+            .group_by(ORMDocument.corpus_pkey)
+            .subquery()
+        )
+        sq_datasets = (
+            select(ORMDataset.corpus_pkey, func.count().label("count"))
+            .group_by(ORMDataset.corpus_pkey)
+            .subquery()
+        )
+
         sql = (
-            select(
-                ORMCorpus,
-                func.count(ORMDataset.pkey),
-                func.estimate_num_docs(ORMCorpus.pkey).label("num_documents_estimate"),
-            )
-            .outerjoin(ORMDataset)
-            .group_by(ORMCorpus.pkey)
+            select(ORMCorpus, sq_documents.c.count, sq_datasets.c.count)
+            .join(sq_documents)
+            .join(sq_datasets)
         )
 
         result = (await transaction.execute(sql)).all()
@@ -299,9 +304,9 @@ class DBController(Controller):
                 name=corpus.name,
                 language=corpus.language,
                 num_datasets=num_datasets,
-                num_documents_estimate=num_docs,
+                num_documents=num_documents,
             )
-            for corpus, num_datasets, num_docs in result
+            for corpus, num_documents, num_datasets in result
         ]
 
     @get(path="/get_datasets")
@@ -314,13 +319,15 @@ class DBController(Controller):
         :param corpus_name: The name of the corpus.
         :return: The list of datasets.
         """
+        sq_queries = (
+            select(ORMQuery.dataset_pkey, func.count().label("count"))
+            .group_by(ORMQuery.dataset_pkey)
+            .subquery()
+        )
+
         sql = (
-            select(
-                ORMDataset,
-                func.estimate_num_queries(ORMDataset.pkey).label(
-                    "num_queries_estimate"
-                ),
-            )
+            select(ORMDataset, sq_queries.c.count)
+            .join(sq_queries)
             .join(ORMCorpus)
             .where(ORMCorpus.name == corpus_name)
         )
@@ -331,9 +338,9 @@ class DBController(Controller):
                 name=dataset.name,
                 corpus_name=corpus_name,
                 min_relevance=dataset.min_relevance,
-                num_queries_estimate=num_queries_estimate,
+                num_queries=num_queries,
             )
-            for dataset, num_queries_estimate in result
+            for dataset, num_queries in result
         ]
 
     @get(path="/get_queries")
