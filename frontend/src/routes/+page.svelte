@@ -24,6 +24,6 @@
     <Logo />
   </div>
   <div class="w-1/3 min-w-128">
-    <SearchBar corpora={data.corpora} />
+    <SearchBar searchOptions={data.searchOptions} />
   </div>
 </div>

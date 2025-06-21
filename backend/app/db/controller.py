@@ -21,6 +21,7 @@ from models import (
     QRelInfo,
     Query,
     QueryInfo,
+    SearchOptions,
 )
 from sqlalchemy import (
     VARCHAR,
@@ -60,6 +61,17 @@ class DBController(Controller):
         # so, for now, only english is supported
         # https://github.com/paradedb/paradedb/issues/1793
         return ["English"]
+
+    @get(path="/get_search_options")
+    async def get_search_options(self, transaction: "AsyncSession") -> SearchOptions:
+        """Get available options for all search settings.
+
+        :param transaction: A DB transaction.
+        :return: The available options.
+        """
+        sql = select(ORMCorpus.name)
+        result = (await transaction.execute(sql)).scalars()
+        return SearchOptions(query_languages=["English"], corpus_names=list(result))
 
     @post(path="/create_corpus")
     async def create_corpus(

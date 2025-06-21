@@ -1,3 +1,12 @@
+export interface SearchOptions {
+  query_languages: string[];
+  corpus_names: string[];
+}
+export interface SearchOptionsInit {
+  query_language: string | null;
+  selected_corpus_names: string[];
+}
+
 export interface Corpus {
   name: string;
   language: string;

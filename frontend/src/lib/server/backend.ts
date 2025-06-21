@@ -8,6 +8,7 @@ import type {
   Query,
   RelevantDocument,
   RelevantQuery,
+  SearchOptions,
 } from "$lib/types";
 
 const BACKEND_REST_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}`;
@@ -15,6 +16,11 @@ const BACKEND_REST_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}`;
 export async function getAvailableLanguages(): Promise<string[]> {
   const res = await fetch(`${BACKEND_REST_URL}/get_available_languages`);
   return (await res.json()) as string[];
+}
+
+export async function getSearchOptions(): Promise<SearchOptions> {
+  const res = await fetch(`${BACKEND_REST_URL}/get_search_options`);
+  return (await res.json()) as SearchOptions;
 }
 
 export async function getCorpora(): Promise<Corpus[]> {

@@ -2,22 +2,24 @@
   import { page } from "$app/state";
   import Header from "$lib/components/Header.svelte";
   import SearchBar from "$lib/components/search/SearchBar.svelte";
+  import type { SearchOptionsInit } from "$lib/types";
   import type { LayoutProps } from "./$types";
 
   let { data, children }: LayoutProps = $props();
-  let searchInit = $derived(page.url.searchParams.get("q"));
-  let languageInit = $derived(page.url.searchParams.get("language"));
-  let selectedCorporaInit = $derived(page.url.searchParams.getAll("corpus"));
+  let searchInit = page.url.searchParams.get("q");
+  let searchOptionsInit = {
+    query_language: page.url.searchParams.get("language"),
+    selected_corpus_names: page.url.searchParams.getAll("corpus"),
+  } as SearchOptionsInit;
 </script>
 
 <Header>
   {#snippet center()}
     <div class="w-2xl">
       <SearchBar
-        corpora={data.corpora}
+        searchOptions={data.searchOptions}
         {searchInit}
-        {languageInit}
-        {selectedCorporaInit} />
+        {searchOptionsInit} />
     </div>
   {/snippet}
 </Header>

@@ -5,6 +5,14 @@ T = TypeVar("T")
 
 
 @dataclass
+class SearchOptions:
+    """All available search options."""
+
+    query_languages: list[str]
+    corpus_names: list[str]
+
+
+@dataclass
 class CorpusInfo:
     """Corpus attributes."""
 

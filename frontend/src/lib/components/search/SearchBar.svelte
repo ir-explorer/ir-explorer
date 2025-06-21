@@ -1,34 +1,24 @@
 <script lang="ts">
   import { corpusIcon, searchIcon, settingsIcon } from "$lib/icons";
-  import type { Corpus } from "$lib/types";
+  import type { SearchOptions, SearchOptionsInit } from "$lib/types";
   import { Fa } from "svelte-fa";
 
   let {
-    corpora,
+    searchOptions,
+    searchOptionsInit = null,
     searchInit = null,
-    languageInit = null,
-    selectedCorporaInit = [],
   }: {
-    corpora: Corpus[];
+    searchOptions: SearchOptions;
+    searchOptionsInit?: SearchOptionsInit | null;
     searchInit?: string | null;
-    languageInit?: string | null;
-    selectedCorporaInit?: string[];
   } = $props();
 
-  let languages = new Set();
-  for (const corpus of corpora) {
-    languages.add(corpus.language);
-  }
-
-  let selectedCorpora = $state(selectedCorporaInit);
-
-  // if no valid language is specified, select english if it exists.
-  // otherwise, fall back to a random one
-  if (languageInit == null || !languages.has(languageInit)) {
-    if (languages.has("english")) {
-      languageInit = "english";
-    } else {
-      languageInit = corpora[0].language;
+  let selectedCorpusNames: string[] = $state([]);
+  let languageInit = $state("English");
+  if (searchOptionsInit != null) {
+    selectedCorpusNames = searchOptionsInit.selected_corpus_names;
+    if (searchOptionsInit.query_language != null) {
+      languageInit = searchOptionsInit.query_language;
     }
   }
 </script>
@@ -53,7 +43,7 @@
               class="select w-full select-sm"
               name="language"
               value={languageInit}>
-              {#each languages as language}
+              {#each searchOptions.query_languages as language}
                 <option value={language}>{language}</option>
               {/each}
             </select>
@@ -67,15 +57,15 @@
           <div
             id="filter-corpora"
             class="menu w-full gap-2 rounded-box border border-base-300 bg-base-100 text-sm">
-            {#each corpora as corpus}
+            {#each searchOptions.corpus_names as corpusName}
               <label>
                 <input
                   type="checkbox"
                   class="toggle mr-2 toggle-sm"
-                  value={corpus.name}
-                  bind:group={selectedCorpora}
+                  value={corpusName}
+                  bind:group={selectedCorpusNames}
                   name="corpus" />
-                {corpus.name}
+                {corpusName}
               </label>
             {/each}
           </div>
@@ -92,12 +82,12 @@
       name="q" />
     <span class="label"
       ><Fa icon={corpusIcon} />
-      {#if selectedCorpora.length == 0 || selectedCorpora.length == corpora.length}
+      {#if selectedCorpusNames.length == 0 || selectedCorpusNames.length == searchOptions.corpus_names.length}
         all corpora
-      {:else if selectedCorpora.length == 1}
-        {selectedCorpora[0]}
+      {:else if selectedCorpusNames.length == 1}
+        {selectedCorpusNames[0]}
       {:else}
-        {selectedCorpora.length} corpora
+        {selectedCorpusNames.length} corpora
       {/if}
     </span>
   </label>
