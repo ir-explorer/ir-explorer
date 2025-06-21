@@ -400,7 +400,6 @@ class DBController(Controller):
             .outerjoin(ORMQRel)
             .group_by(*sq.columns, ORMDataset.name)
         )
-        print(sql.compile(compile_kwargs={"literal_binds": True}))
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         result = (await transaction.execute(sql)).all()

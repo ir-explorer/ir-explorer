@@ -121,7 +121,11 @@
           {#if d.title !== null}
             <p class="font-bold">{d.title}</p>
           {/if}
-          <p>{d.text}</p>
+          {#if d.text.length > 500}
+            <p>{d.text.substring(0, 500)}...</p>
+          {:else}
+            <p>{d.text}</p>
+          {/if}
           <div class="flex gap-2 font-bold">
             <p class="badge badge-sm badge-primary">ID: {d.id}</p>
             {#if d.num_relevant_queries > 0}
