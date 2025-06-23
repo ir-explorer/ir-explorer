@@ -81,15 +81,17 @@ export async function getDocument(
 
 export async function getDocuments(
   corpusName: string,
+  match: string | null,
   numResults: number,
   offset: number,
 ): Promise<Paginated<Document>> {
   let searchParams = new URLSearchParams({
     corpus_name: corpusName,
+    numResults: numResults.toString(),
     offset: offset.toString(),
   });
-  if (numResults !== null) {
-    searchParams.append("num_results", numResults.toString());
+  if (match !== null) {
+    searchParams.append("match", match);
   }
 
   const res = await fetch(`${BACKEND_REST_URL}/get_documents?${searchParams}`);

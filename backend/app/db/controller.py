@@ -527,6 +527,7 @@ class DBController(Controller):
         self,
         transaction: "AsyncSession",
         corpus_name: str,
+        match: str | None,
         num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[Document]:
@@ -534,21 +535,28 @@ class DBController(Controller):
 
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
+        :param match: Return only documents matching this.
         :param num_results: How many documents to return.
         :param offset: Offset for pagination.
         :return: Paginated list of documents.
         """
         sql_corpus_pkey = select(ORMCorpus.pkey).where(ORMCorpus.name == corpus_name)
-        sql_count = select(func.count()).where(
-            ORMDocument.corpus_pkey == sql_corpus_pkey.scalar_subquery()
-        )
+        where_clauses = [ORMDocument.corpus_pkey == sql_corpus_pkey.scalar_subquery()]
+        if match is not None:
+            where_clauses.append(
+                ORMDocument.corpus_pkey.bool_op("@@@")(
+                    func.paradedb.fuzzy_term(literal_column("'text'"), match)
+                )
+            )
+
+        sql_count = select(func.count()).where(*where_clauses)
 
         sq = (
             select(
                 ORMDocument.pkey, ORMDocument.id, ORMDocument.title, ORMDocument.text
             )
             .join(ORMCorpus)
-            .where(ORMCorpus.name == corpus_name)
+            .where(*where_clauses)
             .limit(num_results)
             .offset(offset)
             .subquery()
