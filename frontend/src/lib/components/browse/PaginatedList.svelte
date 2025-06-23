@@ -1,8 +1,6 @@
 <script lang="ts" generics="T">
-  import { showMoreIcon } from "$lib/icons";
   import type { Paginated } from "$lib/types";
   import { onMount, type Snippet } from "svelte";
-  import Fa from "svelte-fa";
   import List from "./List.svelte";
 
   const {
@@ -42,28 +40,23 @@
 </script>
 
 <div class="relative mb-4">
-  <List bind:listItems headBegin={head} {item} {getTargetLink}>
-    {#snippet headEnd()}
-      {#if loaded}
-        <p class="badge-soft badge badge-primary">
-          Showing {numItemsDisplayed} of {totalNumItems}
-        </p>
-      {/if}
-    {/snippet}
-  </List>
-  {#if !loaded || numItemsDisplayed < totalNumItems}
-    <div
-      class="absolute right-0 -bottom-4 left-0 m-auto mx-auto w-fit rounded-full bg-base-100">
+  <List bind:listItems headBegin={head} headEnd={null} {item} {getTargetLink} />
+  <div
+    class="absolute right-0 -bottom-3 left-0 m-auto mx-auto join w-fit rounded-full bg-base-300">
+    {#if loaded}
+      <p class="badge-soft join-item badge h-6 text-sm badge-primary">
+        Showing {numItemsDisplayed.toLocaleString()} of {totalNumItems.toLocaleString()}
+      </p>
+    {/if}
+    {#if numItemsDisplayed < totalNumItems}
       <button
-        class="btn btn-circle shadow btn-soft btn-sm btn-primary"
+        class="btn join-item h-6 w-12 btn-sm btn-primary"
         disabled={working}
         onclick={async () => {
           await showNextPage();
         }}
-        ><span class={[working && "loading loading-sm"]}>
-          <Fa icon={showMoreIcon} />
-        </span>
+        ><span class={[working && "loading loading-sm"]}>More</span>
       </button>
-    </div>
-  {/if}
+    {/if}
+  </div>
 </div>
