@@ -1,6 +1,8 @@
 <script lang="ts" generics="T">
+  import { searchIcon } from "$lib/icons";
   import type { Paginated } from "$lib/types";
   import { onMount, type Snippet } from "svelte";
+  import Fa from "svelte-fa";
   import List from "./List.svelte";
 
   const {
@@ -40,7 +42,20 @@
 </script>
 
 <div class="relative mb-4">
-  <List bind:listItems headBegin={head} headEnd={null} {item} {getTargetLink} />
+  <List bind:listItems headBegin={head} {item} {getTargetLink}>
+    {#snippet headEnd()}
+      <label class="input input-sm w-fit">
+        <span class="text-sm">
+          <Fa icon={searchIcon} />
+        </span>
+        <input
+          type="text"
+          class="w-12 transition-all focus:w-32"
+          placeholder="Filter..." />
+      </label>
+    {/snippet}
+  </List>
+
   <div
     class="absolute right-0 -bottom-3 left-0 m-auto mx-auto join w-fit rounded-full bg-base-300">
     {#if loaded}
