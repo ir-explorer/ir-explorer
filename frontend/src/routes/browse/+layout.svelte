@@ -50,8 +50,7 @@
     </div>
   {/snippet}
 </Header>
-<div class="mx-4 mt-20 mb-4 max-w-full">
-  <div class="mx-auto max-w-5xl">
-    {@render children()}
-  </div>
+
+<div class="mx-auto mt-20 mb-4 flex max-w-5xl flex-col gap-8">
+  {@render children()}
 </div>
