@@ -4,6 +4,7 @@ import { error, json } from "@sveltejs/kit";
 export async function GET({ url }) {
   const documentID = url.searchParams.get("document_id");
   const corpusName = url.searchParams.get("corpus_name");
+  const match = url.searchParams.get("match");
   const numResults = url.searchParams.get("num_results");
   const offset = url.searchParams.get("offset");
 
@@ -15,6 +16,7 @@ export async function GET({ url }) {
     await getRelevantQueries(
       documentID,
       corpusName,
+      match,
       numResults ? Number(numResults) : 10,
       offset ? Number(offset) : 0,
     ),

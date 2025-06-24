@@ -9,19 +9,31 @@
   let { data }: PageProps = $props();
 
   // query list
-  async function getQueriesPage(num_items: number, offset: number) {
+  async function getQueriesPage(
+    match: string | null,
+    num_items: number,
+    offset: number,
+  ) {
     const searchParams = new URLSearchParams({
       corpus_name: page.params.corpusName,
       dataset_name: page.params.datasetName,
       num_results: num_items.toString(),
       offset: offset.toString(),
     });
+    if (match !== null) {
+      searchParams.append("match", match);
+    }
+
     const res = await fetch("/api/queries?" + searchParams);
     return (await res.json()) as Paginated<Query>;
   }
 
   // relevant document list
-  async function getDocumentsPage(num_items: number, offset: number) {
+  async function getDocumentsPage(
+    match: string | null,
+    num_items: number,
+    offset: number,
+  ) {
     const searchParams = new URLSearchParams({
       query_id: data.query !== null ? data.query.id : "",
       dataset_name: page.params.datasetName,
@@ -29,12 +41,17 @@
       num_results: num_items.toString(),
       offset: offset.toString(),
     });
+    if (match !== null) {
+      searchParams.append("match", match);
+    }
+
     const res = await fetch("/api/relevant_documents?" + searchParams);
     return (await res.json()) as Paginated<RelevantDocument>;
   }
 </script>
 
 {#if data.query !== null}
+  <!-- display selected query -->
   <div class="collapse border border-base-300 bg-base-200">
     <input type="checkbox" checked />
     <div class="collapse-title flex flex-row items-center gap-2">
@@ -47,6 +64,7 @@
   </div>
 
   {#if data.query.num_relevant_documents > 0}
+    <!-- display relevant documents for selected query -->
     <PaginatedList
       getPage={getDocumentsPage}
       getTargetLink={(d: RelevantDocument) =>
@@ -71,6 +89,7 @@
     </PaginatedList>
   {/if}
 {:else}
+  <!-- display query list -->
   <PaginatedList
     getPage={getQueriesPage}
     getTargetLink={(q: Query) =>

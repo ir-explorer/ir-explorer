@@ -51,6 +51,7 @@ export async function getQuery(
 export async function getQueries(
   corpusName: string,
   datasetName: string | null = null,
+  match: string | null = null,
   numResults: number,
   offset: number = 0,
 ): Promise<Paginated<Query>> {
@@ -61,6 +62,9 @@ export async function getQueries(
   });
   if (datasetName !== null) {
     searchParams.append("dataset_name", datasetName);
+  }
+  if (match !== null) {
+    searchParams.append("match", match);
   }
 
   const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
@@ -81,7 +85,7 @@ export async function getDocument(
 
 export async function getDocuments(
   corpusName: string,
-  match: string | null,
+  match: string | null = null,
   numResults: number,
   offset: number,
 ): Promise<Paginated<Document>> {
@@ -130,6 +134,7 @@ export async function getRelevantDocuments(
   queryID: string,
   datasetName: string,
   corpusName: string,
+  match: string | null = null,
   numResults: number,
   offset: number,
 ): Promise<Paginated<RelevantDocument>> {
@@ -140,6 +145,9 @@ export async function getRelevantDocuments(
     num_results: numResults.toString(),
     offset: offset.toString(),
   });
+  if (match !== null) {
+    searchParams.append("match_document", match);
+  }
 
   return new Promise<Paginated<RelevantDocument>>(async (resolve) => {
     const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);
@@ -164,6 +172,7 @@ export async function getRelevantDocuments(
 export async function getRelevantQueries(
   documentID: string,
   corpusName: string,
+  match: string | null = null,
   numResults: number,
   offset: number,
 ): Promise<Paginated<RelevantQuery>> {
@@ -173,6 +182,9 @@ export async function getRelevantQueries(
     num_results: numResults.toString(),
     offset: offset.toString(),
   });
+  if (match !== null) {
+    searchParams.append("match_query", match);
+  }
 
   return new Promise<Paginated<RelevantQuery>>(async (resolve) => {
     const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);

@@ -1,11 +1,11 @@
 import {
   faBars,
-  faChevronDown,
   faChevronLeft,
   faChevronRight,
   faDatabase,
   faEye,
   faFileLines,
+  faFilter,
   faFolderClosed,
   faInfo,
   faLightbulb,
@@ -23,7 +23,8 @@ export const browseIcon = faEye;
 export const nextPageIcon = faChevronRight;
 export const prevPageIcon = faChevronLeft;
 export const listArrowIcon = faChevronRight;
-export const showMoreIcon = faChevronDown;
+
+export const filterIcon = faFilter;
 
 export const corpusIcon = faFolderClosed;
 export const documentIcon = faFileLines;

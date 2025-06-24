@@ -349,6 +349,7 @@ class DBController(Controller):
         transaction: "AsyncSession",
         corpus_name: str,
         dataset_name: str | None = None,
+        match: str | None = None,
         num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[Query]:
@@ -357,6 +358,7 @@ class DBController(Controller):
         :param transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: Return only queries in this dataset.
+        :param match: Return only queries matching this.
         :param num_results: How many queries to return.
         :param offset: Offset for pagination.
         :return: Paginated list of queries.
@@ -364,6 +366,12 @@ class DBController(Controller):
         where_clauses = [ORMCorpus.name == corpus_name]
         if dataset_name is not None:
             where_clauses.append(ORMDataset.name == dataset_name)
+        if match is not None:
+            where_clauses.append(
+                ORMQuery.pkey.bool_op("@@@")(
+                    func.paradedb.fuzzy_term(literal_column("'text'"), match)
+                )
+            )
 
         sql_count = (
             select(func.count(ORMQuery.pkey))
@@ -527,7 +535,7 @@ class DBController(Controller):
         self,
         transaction: "AsyncSession",
         corpus_name: str,
-        match: str | None,
+        match: str | None = None,
         num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[Document]:
@@ -544,7 +552,7 @@ class DBController(Controller):
         where_clauses = [ORMDocument.corpus_pkey == sql_corpus_pkey.scalar_subquery()]
         if match is not None:
             where_clauses.append(
-                ORMDocument.corpus_pkey.bool_op("@@@")(
+                ORMDocument.pkey.bool_op("@@@")(
                     func.paradedb.fuzzy_term(literal_column("'text'"), match)
                 )
             )
@@ -676,6 +684,8 @@ class DBController(Controller):
         document_id: str | None = None,
         dataset_name: str | None = None,
         query_id: str | None = None,
+        match_query: str | None = None,
+        match_document: str | None = None,
         num_results: int = 10,
         offset: int = 0,
     ) -> Paginated[QRel]:
@@ -686,6 +696,8 @@ class DBController(Controller):
         :param document_id: Return QRels for this document only.
         :param dataset_name: Return QRels for this dataset only.
         :param query_id: Return QRels for this query only.
+        :param match_query: Return only queries matching this.
+        :param match_document: Return only documents matching this.
         :param num_results: How many QRels to return.
         :param offset: Offset for pagination.
         :return: Paginated list of QRels, ordered by relevance.
@@ -700,6 +712,18 @@ class DBController(Controller):
             where_clauses.append(ORMDataset.name == dataset_name)
         if query_id is not None:
             where_clauses.append(ORMQuery.id == query_id)
+        if match_query is not None:
+            where_clauses.append(
+                ORMQuery.pkey.bool_op("@@@")(
+                    func.paradedb.fuzzy_term(literal_column("'text'"), match_query)
+                )
+            )
+        if match_document is not None:
+            where_clauses.append(
+                ORMDocument.pkey.bool_op("@@@")(
+                    func.paradedb.fuzzy_term(literal_column("'text'"), match_document)
+                )
+            )
 
         sql_count = (
             select(func.count())

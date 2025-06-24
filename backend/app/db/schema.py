@@ -43,7 +43,29 @@ class ORMQuery(ORMBase):
     """ORM class representing a query."""
 
     __tablename__ = "queries"
-    __table_args__ = (UniqueConstraint("id", "dataset_pkey"),)
+    __table_args__ = (
+        UniqueConstraint("id", "dataset_pkey"),
+        Index(
+            None,
+            "pkey",
+            "text",
+            "description",
+            "dataset_pkey",
+            postgresql_using="bm25",
+            postgresql_with={
+                "key_field": "pkey",
+                "text_fields": """\'{
+                    "text": {
+                        "tokenizer": {
+                            "type": "default",
+                            "stemmer": "English",
+                            "stopwords_language": "English"
+                        }
+                    }
+                }\'""",
+            },
+        ),
+    )
     pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     id: Mapped[str] = mapped_column(index=True)

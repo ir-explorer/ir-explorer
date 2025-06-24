@@ -1,5 +1,5 @@
 <script lang="ts" generics="T">
-  import { searchIcon } from "$lib/icons";
+  import { filterIcon } from "$lib/icons";
   import type { Paginated } from "$lib/types";
   import { onMount, type Snippet } from "svelte";
   import Fa from "svelte-fa";
@@ -13,7 +13,11 @@
     itemsPerPage,
     loadFirstPage = true,
   }: {
-    getPage: (num_items: number, offset: number) => Promise<Paginated<T>>;
+    getPage: (
+      match: string | null,
+      num_items: number,
+      offset: number,
+    ) => Promise<Paginated<T>>;
     head: Snippet;
     item: Snippet<[T]>;
     getTargetLink: (listItem: T) => string;
@@ -26,14 +30,51 @@
   let numItemsDisplayed = $derived(listItems.length);
   let totalNumItems = $state(0);
   let loaded = $state(false);
+  let filter = $state("");
+  let filterTrimmed = $derived(filter.trim());
 
-  async function showNextPage() {
+  let promiseNextPage: Promise<Paginated<T>> | null = null;
+  let abortToken = { abort: function () {} };
+
+  async function showNextPage(waitTime: number = 0) {
     working = true;
-    const currentPage = await getPage(itemsPerPage, listItems.length);
-    listItems = [...listItems, ...currentPage.items];
-    totalNumItems = currentPage.total_num_items;
-    working = false;
-    loaded = true;
+
+    if (promiseNextPage != null) {
+      abortToken.abort();
+    }
+
+    promiseNextPage = new Promise<Paginated<T>>(async (resolve, reject) => {
+      let aborted = false;
+      abortToken.abort = function () {
+        reject();
+        aborted = true;
+      };
+
+      // wait for a specified time so we can abort before fetching the results
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
+      if (aborted) {
+        return;
+      }
+
+      const nextPage = await getPage(
+        filterTrimmed.length > 0 ? filterTrimmed : null,
+        itemsPerPage,
+        listItems.length,
+      );
+      resolve(nextPage);
+    });
+
+    promiseNextPage.then((nextPage) => {
+      listItems = [...listItems, ...nextPage.items];
+      totalNumItems = nextPage.total_num_items;
+      working = false;
+      loaded = true;
+    });
+  }
+
+  function reset() {
+    listItems = [];
+    loaded = false;
   }
 
   if (loadFirstPage) {
@@ -46,24 +87,29 @@
     {#snippet headEnd()}
       <label class="input input-sm w-fit">
         <span class="text-sm">
-          <Fa icon={searchIcon} />
+          <Fa icon={filterIcon} />
         </span>
         <input
           type="text"
           class="w-12 transition-all focus:w-32"
-          placeholder="Filter..." />
+          placeholder="Filter..."
+          bind:value={filter}
+          oninput={async () => {
+            reset();
+            await showNextPage(1000);
+          }} />
       </label>
     {/snippet}
   </List>
 
   <div
-    class="absolute right-0 -bottom-3 left-0 m-auto mx-auto join w-fit rounded-full bg-base-300">
+    class="absolute right-0 -bottom-3 left-0 m-auto mx-auto join w-fit rounded bg-base-300">
     {#if loaded}
       <p class="badge-soft join-item badge h-6 text-sm badge-primary">
         Showing {numItemsDisplayed.toLocaleString()} of {totalNumItems.toLocaleString()}
       </p>
     {/if}
-    {#if numItemsDisplayed < totalNumItems}
+    {#if !loaded || numItemsDisplayed < totalNumItems}
       <button
         class="btn join-item h-6 w-12 btn-sm btn-primary"
         disabled={working}
