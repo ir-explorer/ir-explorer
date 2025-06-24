@@ -32,6 +32,7 @@ from sqlalchemy import (
     insert,
     literal_column,
     select,
+    text,
 )
 from sqlalchemy import delete as delete_
 from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
@@ -548,8 +549,7 @@ class DBController(Controller):
         :param offset: Offset for pagination.
         :return: Paginated list of documents.
         """
-        sql_corpus_pkey = select(ORMCorpus.pkey).where(ORMCorpus.name == corpus_name)
-        where_clauses = [ORMDocument.corpus_pkey == sql_corpus_pkey.scalar_subquery()]
+        where_clauses = [ORMCorpus.name == corpus_name]
         if match is not None:
             where_clauses.append(
                 ORMDocument.pkey.bool_op("@@@")(
@@ -557,29 +557,32 @@ class DBController(Controller):
                 )
             )
 
-        sql_count = select(func.count()).where(*where_clauses)
-
-        sq = (
-            select(
-                ORMDocument.pkey, ORMDocument.id, ORMDocument.title, ORMDocument.text
-            )
+        sql_count = (
+            select(func.count())
+            .select_from(ORMDocument)
             .join(ORMCorpus)
             .where(*where_clauses)
-            .limit(num_results)
-            .offset(offset)
-            .subquery()
         )
+
         sql = (
             select(
-                sq.c.id,
-                sq.c.title,
-                sq.c.text,
-                func.count().filter(ORMQRel.relevance >= ORMDataset.min_relevance),
+                ORMDocument.id,
+                ORMDocument.title,
+                ORMDocument.text,
+                func.count().label("count"),
             )
-            .outerjoin(ORMQRel)
-            .outerjoin(ORMQuery)
-            .outerjoin(ORMDataset)
-            .group_by(*sq.columns)
+            .select_from(ORMQRel)
+            .join(ORMQuery)
+            .join(ORMDocument)
+            .join(ORMDataset)
+            .join(ORMCorpus)
+            .where(*where_clauses, ORMQRel.relevance >= ORMDataset.min_relevance)
+            .group_by(
+                ORMDocument.pkey, ORMDocument.id, ORMDocument.title, ORMDocument.text
+            )
+            .order_by(desc(text("count")), ORMDocument.pkey)
+            .limit(num_results)
+            .offset(offset)
         )
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
