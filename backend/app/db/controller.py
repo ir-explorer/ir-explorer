@@ -387,15 +387,16 @@ class DBController(Controller):
                 ORMQuery.id,
                 ORMQuery.text,
                 ORMQuery.description,
-                func.count().label("count"),
+                func.count()
+                .filter(ORMQRel.relevance >= ORMDataset.min_relevance)
+                .label("count"),
                 ORMDataset.name,
             )
-            .select_from(ORMQRel)
-            .join(ORMQuery)
-            .join(ORMDocument)
+            .select_from(ORMQuery)
             .join(ORMDataset)
-            .join(ORMCorpus)
-            .where(*where_clauses, ORMQRel.relevance >= ORMDataset.min_relevance)
+            .outerjoin(ORMQRel)
+            .join(ORMCorpus, onclause=ORMDataset.corpus_pkey == ORMCorpus.pkey)
+            .where(*where_clauses)
             .group_by(
                 ORMQuery.pkey,
                 ORMQuery.id,
