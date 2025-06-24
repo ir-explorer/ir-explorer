@@ -375,39 +375,37 @@ class DBController(Controller):
             )
 
         sql_count = (
-            select(func.count(ORMQuery.pkey))
+            select(func.count())
+            .select_from(ORMQuery)
             .join(ORMDataset)
             .join(ORMCorpus)
             .where(*where_clauses)
         )
 
-        sq = (
+        sql = (
             select(
-                ORMQuery.pkey,
-                ORMQuery.dataset_pkey,
                 ORMQuery.id,
                 ORMQuery.text,
                 ORMQuery.description,
-            )
-            .join(ORMDataset)
-            .join(ORMCorpus)
-            .where(and_(*where_clauses))
-            .offset(offset)
-            .limit(num_results)
-            .subquery()
-        )
-
-        sql = (
-            select(
-                sq.c.id,
-                sq.c.text,
-                sq.c.description,
-                func.count().filter(ORMQRel.relevance >= ORMDataset.min_relevance),
+                func.count().label("count"),
                 ORMDataset.name,
             )
+            .select_from(ORMQRel)
+            .join(ORMQuery)
+            .join(ORMDocument)
             .join(ORMDataset)
-            .outerjoin(ORMQRel)
-            .group_by(*sq.columns, ORMDataset.name)
+            .join(ORMCorpus)
+            .where(*where_clauses, ORMQRel.relevance >= ORMDataset.min_relevance)
+            .group_by(
+                ORMQuery.pkey,
+                ORMQuery.id,
+                ORMQuery.description,
+                ORMQuery.text,
+                ORMDataset.name,
+            )
+            .order_by(desc(text("count")), ORMQuery.pkey)
+            .limit(num_results)
+            .offset(offset)
         )
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
