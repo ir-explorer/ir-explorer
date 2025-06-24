@@ -568,14 +568,16 @@ class DBController(Controller):
                 ORMDocument.id,
                 ORMDocument.title,
                 ORMDocument.text,
-                func.count().label("count"),
+                func.count()
+                .filter(ORMQRel.relevance >= ORMDataset.min_relevance)
+                .label("count"),
             )
-            .select_from(ORMQRel)
+            .select_from(ORMDocument)
+            .outerjoin(ORMQRel)
             .join(ORMQuery)
-            .join(ORMDocument)
             .join(ORMDataset)
             .join(ORMCorpus)
-            .where(*where_clauses, ORMQRel.relevance >= ORMDataset.min_relevance)
+            .where(*where_clauses)
             .group_by(
                 ORMDocument.pkey, ORMDocument.id, ORMDocument.title, ORMDocument.text
             )
