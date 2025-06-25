@@ -393,7 +393,7 @@ class DBController(Controller):
                 ORMDataset.name,
             )
             .select_from(ORMQuery)
-            .join(ORMDataset)
+            .join(ORMDataset, onclause=ORMQuery.dataset_pkey == ORMDataset.pkey)
             .outerjoin(ORMQRel)
             .join(ORMCorpus, onclause=ORMDataset.corpus_pkey == ORMCorpus.pkey)
             .where(*where_clauses)
@@ -574,9 +574,9 @@ class DBController(Controller):
             )
             .select_from(ORMDocument)
             .outerjoin(ORMQRel)
-            .join(ORMQuery)
-            .join(ORMDataset)
-            .join(ORMCorpus)
+            .outerjoin(ORMQuery)
+            .outerjoin(ORMDataset)
+            .join(ORMCorpus, onclause=ORMDocument.corpus_pkey == ORMCorpus.pkey)
             .where(*where_clauses)
             .group_by(
                 ORMDocument.pkey, ORMDocument.id, ORMDocument.title, ORMDocument.text

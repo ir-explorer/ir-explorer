@@ -116,7 +116,7 @@
         onclick={async () => {
           await showNextPage();
         }}
-        ><span class={[working && "loading loading-sm"]}>More</span>
+        ><span class={[working && "loading loading-xs"]}>More</span>
       </button>
     {/if}
   </div>
