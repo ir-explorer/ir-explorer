@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from litestar import Controller, delete, get, post
 from litestar.di import Provide
@@ -27,6 +27,7 @@ from sqlalchemy import (
     VARCHAR,
     SQLColumnExpression,
     and_,
+    asc,
     desc,
     func,
     insert,
@@ -353,6 +354,8 @@ class DBController(Controller):
         match: str | None = None,
         num_results: int = 10,
         offset: int = 0,
+        order_by: Literal["relevant_documents", "length", "match_score"] | None = None,
+        order_by_desc: bool = True,
     ) -> Paginated[Query]:
         """List queries.
 
@@ -362,6 +365,8 @@ class DBController(Controller):
         :param match: Return only queries matching this.
         :param num_results: How many queries to return.
         :param offset: Offset for pagination.
+        :param order_by: In what order to return the queries.
+        :param order_by_desc: Whether to order in a descending or ascending fashion.
         :return: Paginated list of queries.
         """
         where_clauses = [ORMCorpus.name == corpus_name]
@@ -373,6 +378,22 @@ class DBController(Controller):
                     func.paradedb.fuzzy_term(literal_column("'text'"), match)
                 )
             )
+
+        order_by_op = desc if order_by_desc else asc
+        if order_by == "relevant_documents":
+            order_by_clause = (order_by_op(text("count")), ORMQuery.pkey)
+        elif order_by == "length":
+            order_by_clause = (
+                order_by_op(func.length(ORMQuery.text)),
+                ORMQuery.pkey,
+            )
+        elif order_by == "match_score":
+            order_by_clause = (
+                order_by_op(func.paradedb.score(ORMQuery.pkey)),
+                ORMQuery.pkey,
+            )
+        else:
+            order_by_clause = (ORMQuery.pkey,)
 
         sql_count = (
             select(func.count())
@@ -404,7 +425,7 @@ class DBController(Controller):
                 ORMQuery.text,
                 ORMDataset.name,
             )
-            .order_by(desc(text("count")), ORMQuery.pkey)
+            .order_by(*order_by_clause)
             .limit(num_results)
             .offset(offset)
         )
@@ -538,6 +559,8 @@ class DBController(Controller):
         match: str | None = None,
         num_results: int = 10,
         offset: int = 0,
+        order_by: Literal["relevant_queries", "length", "match_score"] | None = None,
+        order_by_desc: bool = True,
     ) -> Paginated[Document]:
         """List documents.
 
@@ -546,8 +569,15 @@ class DBController(Controller):
         :param match: Return only documents matching this.
         :param num_results: How many documents to return.
         :param offset: Offset for pagination.
+        :param order_by: In what order to return the documents.
+        :param order_by_desc: Whether to order in a descending or ascending fashion.
         :return: Paginated list of documents.
         """
+        if order_by == "match_score" and match is None:
+            raise HTTPException(
+                "Nothing was provided to score.", status_code=HTTP_400_BAD_REQUEST
+            )
+
         where_clauses = [ORMCorpus.name == corpus_name]
         if match is not None:
             where_clauses.append(
@@ -562,6 +592,22 @@ class DBController(Controller):
             .join(ORMCorpus)
             .where(*where_clauses)
         )
+
+        order_by_op = desc if order_by_desc else asc
+        if order_by == "relevant_queries":
+            order_by_clause = (order_by_op(text("count")), ORMDocument.pkey)
+        elif order_by == "length":
+            order_by_clause = (
+                order_by_op(func.length(ORMDocument.text)),
+                ORMDocument.pkey,
+            )
+        elif order_by == "match_score":
+            order_by_clause = (
+                order_by_op(func.paradedb.score(ORMDocument.pkey)),
+                ORMDocument.pkey,
+            )
+        else:
+            order_by_clause = (ORMDocument.pkey,)
 
         sql = (
             select(
@@ -581,7 +627,7 @@ class DBController(Controller):
             .group_by(
                 ORMDocument.pkey, ORMDocument.id, ORMDocument.title, ORMDocument.text
             )
-            .order_by(desc(text("count")), ORMDocument.pkey)
+            .order_by(*order_by_clause)
             .limit(num_results)
             .offset(offset)
         )
