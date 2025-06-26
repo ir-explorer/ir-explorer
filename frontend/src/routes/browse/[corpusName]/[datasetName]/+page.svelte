@@ -41,6 +41,7 @@
   const orderQueriesOptions = [
     { name: "Relevant documents", option: "relevant_documents" },
     { name: "Length", option: "length" },
+    { name: "Filter", option: "match_score" },
   ] as OrderByOption[];
 
   // relevant document list
