@@ -573,11 +573,6 @@ class DBController(Controller):
         :param order_by_desc: Whether to order in a descending or ascending fashion.
         :return: Paginated list of documents.
         """
-        if order_by == "match_score" and match is None:
-            raise HTTPException(
-                "Nothing was provided to score.", status_code=HTTP_400_BAD_REQUEST
-            )
-
         where_clause = [ORMCorpus.name == corpus_name]
         if match is not None:
             where_clause.append(
@@ -763,16 +758,6 @@ class DBController(Controller):
         :param order_by_desc: Whether to order in a descending or ascending fashion.
         :return: Paginated list of QRels, ordered by relevance.
         """
-        if (
-            order_by == "query_match_score"
-            and match_query is None
-            or order_by == "document_match_score"
-            and match_document is None
-        ):
-            raise HTTPException(
-                "Nothing was provided to score.", status_code=HTTP_400_BAD_REQUEST
-            )
-
         where_clause = [
             ORMCorpus.name == corpus_name,
             ORMQRel.relevance >= ORMDataset.min_relevance,
