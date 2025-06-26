@@ -71,6 +71,11 @@
     const res = await fetch("/api/relevant_queries?" + searchParams);
     return (await res.json()) as Paginated<RelevantQuery>;
   }
+  const orderRelevantQueriesOptions = [
+    { name: "Relevance", option: "relevance" },
+    { name: "Length", option: "query_length" },
+    { name: "Filter", option: "query_match_score" },
+  ] as OrderByOption[];
 </script>
 
 {#if data.document !== null}
@@ -92,7 +97,8 @@
       getPage={getQueriesPage}
       getTargetLink={(q: RelevantQuery) =>
         `/browse/${page.params.corpusName}/${q.dataset_name}?query_id=${q.id}`}
-      itemsPerPage={10}>
+      itemsPerPage={10}
+      orderByOptions={orderRelevantQueriesOptions}>
       {#snippet head()}
         <p class="flex flex-row items-center gap-2">
           <Fa icon={queryIcon} />Relevant queries

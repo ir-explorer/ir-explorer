@@ -369,11 +369,11 @@ class DBController(Controller):
         :param order_by_desc: Whether to order in a descending or ascending fashion.
         :return: Paginated list of queries.
         """
-        where_clauses = [ORMCorpus.name == corpus_name]
+        where_clause = [ORMCorpus.name == corpus_name]
         if dataset_name is not None:
-            where_clauses.append(ORMDataset.name == dataset_name)
+            where_clause.append(ORMDataset.name == dataset_name)
         if match is not None:
-            where_clauses.append(
+            where_clause.append(
                 ORMQuery.pkey.bool_op("@@@")(
                     func.paradedb.fuzzy_term(literal_column("'text'"), match)
                 )
@@ -400,7 +400,7 @@ class DBController(Controller):
             .select_from(ORMQuery)
             .join(ORMDataset)
             .join(ORMCorpus)
-            .where(*where_clauses)
+            .where(*where_clause)
         )
 
         sql = (
@@ -417,7 +417,7 @@ class DBController(Controller):
             .join(ORMDataset, onclause=ORMQuery.dataset_pkey == ORMDataset.pkey)
             .outerjoin(ORMQRel)
             .join(ORMCorpus, onclause=ORMDataset.corpus_pkey == ORMCorpus.pkey)
-            .where(*where_clauses)
+            .where(*where_clause)
             .group_by(
                 ORMQuery.pkey,
                 ORMQuery.id,
@@ -578,9 +578,9 @@ class DBController(Controller):
                 "Nothing was provided to score.", status_code=HTTP_400_BAD_REQUEST
             )
 
-        where_clauses = [ORMCorpus.name == corpus_name]
+        where_clause = [ORMCorpus.name == corpus_name]
         if match is not None:
-            where_clauses.append(
+            where_clause.append(
                 ORMDocument.pkey.bool_op("@@@")(
                     func.paradedb.fuzzy_term(literal_column("'text'"), match)
                 )
@@ -590,7 +590,7 @@ class DBController(Controller):
             select(func.count())
             .select_from(ORMDocument)
             .join(ORMCorpus)
-            .where(*where_clauses)
+            .where(*where_clause)
         )
 
         order_by_op = desc if order_by_desc else asc
@@ -623,7 +623,7 @@ class DBController(Controller):
             .outerjoin(ORMQuery)
             .outerjoin(ORMDataset)
             .join(ORMCorpus, onclause=ORMDocument.corpus_pkey == ORMCorpus.pkey)
-            .where(*where_clauses)
+            .where(*where_clause)
             .group_by(
                 ORMDocument.pkey, ORMDocument.id, ORMDocument.title, ORMDocument.text
             )
@@ -667,7 +667,7 @@ class DBController(Controller):
         :param offset: Offset for pagination.
         :return: Paginated list of results, ordered by score.
         """
-        where_clauses: list[SQLColumnExpression] = [ORMDocument.text.bool_op("@@@")(q)]
+        where_clause: list[SQLColumnExpression] = [ORMDocument.text.bool_op("@@@")(q)]
         if corpus_name is not None:
             corpus_cte = (
                 select(ORMCorpus.pkey).where(ORMCorpus.name.in_(corpus_name)).cte()
@@ -683,14 +683,14 @@ class DBController(Controller):
                     "]",
                 )
             )
-            where_clauses.append(
+            where_clause.append(
                 ORMDocument.corpus_pkey.bool_op("@@@")(
                     corpus_pkey_agg.scalar_subquery()
                 )
             )
 
         # count the total number of hits
-        sql_count = select(func.count(ORMDocument.pkey)).where(and_(*where_clauses))
+        sql_count = select(func.count(ORMDocument.pkey)).where(and_(*where_clause))
 
         # results for the current page only
         sql_results_sq = (
@@ -700,7 +700,7 @@ class DBController(Controller):
                 func.paradedb.score(ORMDocument.pkey).label("score"),
                 func.paradedb.snippet(ORMDocument.text, "<b>", "</b>", 500),
             )
-            .where(and_(*where_clauses))
+            .where(and_(*where_clause))
             .order_by(desc("score"))
             .order_by(ORMDocument.id)
             .offset(offset)
@@ -738,6 +738,15 @@ class DBController(Controller):
         match_document: str | None = None,
         num_results: int = 10,
         offset: int = 0,
+        order_by: Literal[
+            "relevance",
+            "query_length",
+            "document_length",
+            "query_match_score",
+            "document_match_score",
+        ]
+        | None = None,
+        order_by_desc: bool = True,
     ) -> Paginated[QRel]:
         """Return query-document pairs annotated as relevant.
 
@@ -750,26 +759,38 @@ class DBController(Controller):
         :param match_document: Return only documents matching this.
         :param num_results: How many QRels to return.
         :param offset: Offset for pagination.
+        :param order_by: In what order to return the QRels.
+        :param order_by_desc: Whether to order in a descending or ascending fashion.
         :return: Paginated list of QRels, ordered by relevance.
         """
-        where_clauses = [
+        if (
+            order_by == "query_match_score"
+            and match_query is None
+            or order_by == "document_match_score"
+            and match_document is None
+        ):
+            raise HTTPException(
+                "Nothing was provided to score.", status_code=HTTP_400_BAD_REQUEST
+            )
+
+        where_clause = [
             ORMCorpus.name == corpus_name,
             ORMQRel.relevance >= ORMDataset.min_relevance,
         ]
         if document_id is not None:
-            where_clauses.append(ORMDocument.id == document_id)
+            where_clause.append(ORMDocument.id == document_id)
         if dataset_name is not None:
-            where_clauses.append(ORMDataset.name == dataset_name)
+            where_clause.append(ORMDataset.name == dataset_name)
         if query_id is not None:
-            where_clauses.append(ORMQuery.id == query_id)
+            where_clause.append(ORMQuery.id == query_id)
         if match_query is not None:
-            where_clauses.append(
+            where_clause.append(
                 ORMQuery.pkey.bool_op("@@@")(
                     func.paradedb.fuzzy_term(literal_column("'text'"), match_query)
                 )
             )
         if match_document is not None:
-            where_clauses.append(
+            where_clause.append(
                 ORMDocument.pkey.bool_op("@@@")(
                     func.paradedb.fuzzy_term(literal_column("'text'"), match_document)
                 )
@@ -782,8 +803,42 @@ class DBController(Controller):
             .join(ORMDocument)
             .join(ORMDataset)
             .join(ORMCorpus)
-            .where(and_(*where_clauses))
+            .where(and_(*where_clause))
         )
+
+        order_by_op = desc if order_by_desc else asc
+        if order_by == "relevance":
+            order_by_clause = (
+                order_by_op(ORMQRel.relevance),
+                ORMQRel.query_pkey,
+                ORMQRel.document_pkey,
+            )
+        elif order_by == "query_length":
+            order_by_clause = (
+                order_by_op(func.length(ORMQuery.text)),
+                ORMQRel.query_pkey,
+                ORMQRel.document_pkey,
+            )
+        elif order_by == "document_length":
+            order_by_clause = (
+                order_by_op(func.length(ORMDocument.text)),
+                ORMQRel.query_pkey,
+                ORMQRel.document_pkey,
+            )
+        elif order_by == "query_match_score":
+            order_by_clause = (
+                order_by_op(func.paradedb.score(ORMQuery.pkey)),
+                ORMQRel.query_pkey,
+                ORMQRel.document_pkey,
+            )
+        elif order_by == "document_match_score":
+            order_by_clause = (
+                order_by_op(func.paradedb.score(ORMDocument.pkey)),
+                ORMQRel.query_pkey,
+                ORMQRel.document_pkey,
+            )
+        else:
+            order_by_clause = (ORMQRel.query_pkey, ORMQRel.document_pkey)
 
         sql = (
             select(ORMQRel)
@@ -797,8 +852,8 @@ class DBController(Controller):
                 .joinedload(ORMQuery.dataset)
                 .joinedload(ORMDataset.corpus),
             )
-            .where(and_(*where_clauses))
-            .order_by(ORMQRel.relevance.desc())
+            .where(and_(*where_clause))
+            .order_by(*order_by_clause)
             .offset(offset)
             .limit(num_results)
         )

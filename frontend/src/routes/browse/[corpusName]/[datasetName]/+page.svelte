@@ -58,14 +58,23 @@
       corpus_name: page.params.corpusName,
       num_results: num_items.toString(),
       offset: offset.toString(),
+      desc: desc.toString(),
     });
     if (match !== null) {
       searchParams.append("match", match);
+    }
+    if (order_by !== null) {
+      searchParams.append("order_by", order_by);
     }
 
     const res = await fetch("/api/relevant_documents?" + searchParams);
     return (await res.json()) as Paginated<RelevantDocument>;
   }
+  const orderRelevantDocumentsOptions = [
+    { name: "Relevance", option: "relevance" },
+    { name: "Length", option: "document_length" },
+    { name: "Filter", option: "document_match_score" },
+  ] as OrderByOption[];
 </script>
 
 {#if data.query !== null}
@@ -87,7 +96,8 @@
       getPage={getDocumentsPage}
       getTargetLink={(d: RelevantDocument) =>
         `/browse/${page.params.corpusName}?${new URLSearchParams({ document_id: d.id })}`}
-      itemsPerPage={10}>
+      itemsPerPage={10}
+      orderByOptions={orderRelevantDocumentsOptions}>
       {#snippet head()}
         <p class="flex flex-row items-center gap-2">
           <Fa icon={documentIcon} />Relevant documents

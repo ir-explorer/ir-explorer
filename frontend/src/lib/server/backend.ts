@@ -147,6 +147,8 @@ export async function getRelevantDocuments(
   datasetName: string,
   corpusName: string,
   match: string | null = null,
+  orderBy: string | null = null,
+  desc: boolean = true,
   numResults: number,
   offset: number,
 ): Promise<Paginated<RelevantDocument>> {
@@ -156,9 +158,13 @@ export async function getRelevantDocuments(
     corpus_name: corpusName,
     num_results: numResults.toString(),
     offset: offset.toString(),
+    order_by_desc: desc.toString(),
   });
   if (match !== null) {
     searchParams.append("match_document", match);
+  }
+  if (orderBy !== null) {
+    searchParams.append("order_by", orderBy);
   }
 
   return new Promise<Paginated<RelevantDocument>>(async (resolve) => {
@@ -185,6 +191,8 @@ export async function getRelevantQueries(
   documentID: string,
   corpusName: string,
   match: string | null = null,
+  orderBy: string | null = null,
+  desc: boolean = true,
   numResults: number,
   offset: number,
 ): Promise<Paginated<RelevantQuery>> {
@@ -193,9 +201,13 @@ export async function getRelevantQueries(
     corpus_name: corpusName,
     num_results: numResults.toString(),
     offset: offset.toString(),
+    order_by_desc: desc.toString(),
   });
   if (match !== null) {
     searchParams.append("match_query", match);
+  }
+  if (orderBy !== null) {
+    searchParams.append("order_by", orderBy);
   }
 
   return new Promise<Paginated<RelevantQuery>>(async (resolve) => {
