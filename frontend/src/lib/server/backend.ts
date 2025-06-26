@@ -51,6 +51,9 @@ export async function getQuery(
 export async function getQueries(
   corpusName: string,
   datasetName: string | null = null,
+  match: string | null = null,
+  orderBy: string | null = null,
+  desc: boolean = true,
   numResults: number,
   offset: number = 0,
 ): Promise<Paginated<Query>> {
@@ -58,9 +61,16 @@ export async function getQueries(
     corpus_name: corpusName,
     num_results: numResults.toString(),
     offset: offset.toString(),
+    order_by_desc: desc.toString(),
   });
   if (datasetName !== null) {
     searchParams.append("dataset_name", datasetName);
+  }
+  if (match !== null) {
+    searchParams.append("match", match);
+  }
+  if (orderBy !== null) {
+    searchParams.append("order_by", orderBy);
   }
 
   const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
@@ -81,15 +91,23 @@ export async function getDocument(
 
 export async function getDocuments(
   corpusName: string,
+  match: string | null = null,
+  orderBy: string | null = null,
+  desc: boolean = true,
   numResults: number,
   offset: number,
 ): Promise<Paginated<Document>> {
   let searchParams = new URLSearchParams({
     corpus_name: corpusName,
+    numResults: numResults.toString(),
     offset: offset.toString(),
+    order_by_desc: desc.toString(),
   });
-  if (numResults !== null) {
-    searchParams.append("num_results", numResults.toString());
+  if (match !== null) {
+    searchParams.append("match", match);
+  }
+  if (orderBy !== null) {
+    searchParams.append("order_by", orderBy);
   }
 
   const res = await fetch(`${BACKEND_REST_URL}/get_documents?${searchParams}`);
@@ -128,6 +146,9 @@ export async function getRelevantDocuments(
   queryID: string,
   datasetName: string,
   corpusName: string,
+  match: string | null = null,
+  orderBy: string | null = null,
+  desc: boolean = true,
   numResults: number,
   offset: number,
 ): Promise<Paginated<RelevantDocument>> {
@@ -137,7 +158,14 @@ export async function getRelevantDocuments(
     corpus_name: corpusName,
     num_results: numResults.toString(),
     offset: offset.toString(),
+    order_by_desc: desc.toString(),
   });
+  if (match !== null) {
+    searchParams.append("match_document", match);
+  }
+  if (orderBy !== null) {
+    searchParams.append("order_by", orderBy);
+  }
 
   return new Promise<Paginated<RelevantDocument>>(async (resolve) => {
     const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);
@@ -162,6 +190,9 @@ export async function getRelevantDocuments(
 export async function getRelevantQueries(
   documentID: string,
   corpusName: string,
+  match: string | null = null,
+  orderBy: string | null = null,
+  desc: boolean = true,
   numResults: number,
   offset: number,
 ): Promise<Paginated<RelevantQuery>> {
@@ -170,7 +201,14 @@ export async function getRelevantQueries(
     corpus_name: corpusName,
     num_results: numResults.toString(),
     offset: offset.toString(),
+    order_by_desc: desc.toString(),
   });
+  if (match !== null) {
+    searchParams.append("match_query", match);
+  }
+  if (orderBy !== null) {
+    searchParams.append("order_by", orderBy);
+  }
 
   return new Promise<Paginated<RelevantQuery>>(async (resolve) => {
     const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);

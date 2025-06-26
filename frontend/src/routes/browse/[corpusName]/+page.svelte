@@ -4,37 +4,82 @@
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
   import { corpusIcon, datasetIcon, documentIcon, queryIcon } from "$lib/icons";
-  import type { Dataset, Document, Paginated, RelevantQuery } from "$lib/types";
+  import type {
+    Dataset,
+    Document,
+    OrderByOption,
+    Paginated,
+    RelevantQuery,
+  } from "$lib/types";
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
   const { data }: PageProps = $props();
 
   // document list
-  async function getDocumentsPage(num_items: number, offset: number) {
+  async function getDocumentsPage(
+    match: string | null,
+    order_by: string | null,
+    desc: boolean,
+    num_items: number,
+    offset: number,
+  ) {
     const searchParams = new URLSearchParams({
       corpus_name: page.params.corpusName,
+      desc: desc.toString(),
       num_results: num_items.toString(),
       offset: offset.toString(),
     });
+    if (match !== null) {
+      searchParams.append("match", match);
+    }
+    if (order_by !== null) {
+      searchParams.append("order_by", order_by);
+    }
+
     const res = await fetch("/api/documents?" + searchParams);
     return (await res.json()) as Paginated<Document>;
   }
+  const orderDocumentsOptions = [
+    { name: "Relevant queries", option: "relevant_queries" },
+    { name: "Length", option: "length" },
+    { name: "Filter", option: "match_score" },
+  ] as OrderByOption[];
 
   // relevent queries list
-  async function getQueriesPage(num_items: number, offset: number) {
+  async function getQueriesPage(
+    match: string | null,
+    order_by: string | null,
+    desc: boolean,
+    num_items: number,
+    offset: number,
+  ) {
     const searchParams = new URLSearchParams({
       corpus_name: page.params.corpusName,
       document_id: data.document !== null ? data.document.id : "",
       num_results: num_items.toString(),
       offset: offset.toString(),
+      desc: desc.toString(),
     });
+    if (match !== null) {
+      searchParams.append("match", match);
+    }
+    if (order_by !== null) {
+      searchParams.append("order_by", order_by);
+    }
+
     const res = await fetch("/api/relevant_queries?" + searchParams);
     return (await res.json()) as Paginated<RelevantQuery>;
   }
+  const orderRelevantQueriesOptions = [
+    { name: "Relevance", option: "relevance" },
+    { name: "Length", option: "query_length" },
+    { name: "Filter", option: "query_match_score" },
+  ] as OrderByOption[];
 </script>
 
 {#if data.document !== null}
+  <!-- display selected document -->
   <div class="collapse border border-base-300 bg-base-200">
     <input type="checkbox" checked />
     <div class="collapse-title flex flex-row items-center gap-2">
@@ -47,11 +92,13 @@
   </div>
 
   {#if data.document.num_relevant_queries > 0}
+    <!-- display relevant queries for selected document -->
     <PaginatedList
       getPage={getQueriesPage}
       getTargetLink={(q: RelevantQuery) =>
         `/browse/${page.params.corpusName}/${q.dataset_name}?query_id=${q.id}`}
-      itemsPerPage={10}>
+      itemsPerPage={10}
+      orderByOptions={orderRelevantQueriesOptions}>
       {#snippet head()}
         <p class="flex flex-row items-center gap-2">
           <Fa icon={queryIcon} />Relevant queries
@@ -71,6 +118,7 @@
     </PaginatedList>
   {/if}
 {:else}
+  <!-- display datasets -->
   {#if data.datasetList !== null}
     {@const totalNumQueries = data.datasetList.reduce(
       (acc, dataset) => acc + dataset.num_queries,
@@ -102,11 +150,13 @@
     </CardGrid>
   {/if}
 
+  <!-- display document list -->
   <PaginatedList
     getPage={getDocumentsPage}
     getTargetLink={(d: Document) =>
       `/browse/${page.params.corpusName}?document_id=${d.id}`}
-    itemsPerPage={10}>
+    itemsPerPage={10}
+    orderByOptions={orderDocumentsOptions}>
     {#snippet head()}
       <p class="flex flex-row items-center gap-2">
         <Fa icon={documentIcon} />Documents
