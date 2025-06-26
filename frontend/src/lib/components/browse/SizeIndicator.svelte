@@ -22,12 +22,8 @@
   data-tip="estimated value">
   <div
     class="radial-progress border-4 border-base-200 bg-base-200 text-primary"
-    style=" --size:4.5em;
-                  --value:{(value / total) * 100};
-                  --thickness: 0.25em;">
-    <span class="text-lg">
-      {toHumanReadable(value)}
-    </span>
+    style="--size:4.5em; --value:{(value / total) * 100}; --thickness: 0.25em;">
+    <span class="text-lg">{toHumanReadable(value)}</span>
   </div>
   <span class="text-xs">{desc}</span>
 </div>

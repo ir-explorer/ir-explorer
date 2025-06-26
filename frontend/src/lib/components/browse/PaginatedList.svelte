@@ -113,6 +113,7 @@
 
         <!-- order by -->
         <div class="join">
+          <!-- hide select if there are no options to order by -->
           {#if orderByOptions.length > 0}
             <select
               class="select join-item w-fit select-sm"
@@ -167,6 +168,7 @@
     {/snippet}
   </List>
 
+  <!-- number of items and "more" button -->
   <div
     class="absolute right-0 -bottom-3 left-0 m-auto mx-auto join w-fit rounded bg-base-300">
     {#if loaded}
