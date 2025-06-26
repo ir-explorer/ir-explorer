@@ -134,7 +134,7 @@
               for="order-desc"
               class="btn join-item gap-0 btn-sm has-checked:btn-primary">
               <input
-                class="w-0"
+                class="w-0 opacity-0"
                 type="radio"
                 id="order-desc"
                 name="radio-order"
@@ -150,7 +150,7 @@
               for="order-asc"
               class="btn join-item gap-0 btn-sm has-checked:btn-primary">
               <input
-                class="w-0"
+                class="w-0 opacity-0"
                 type="radio"
                 id="order-asc"
                 name="radio-order"
