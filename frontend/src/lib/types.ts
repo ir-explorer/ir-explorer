@@ -61,3 +61,8 @@ export interface Paginated<T> {
   offset: number;
   items: T[];
 }
+
+export interface OrderByOption {
+  name: string;
+  option: string;
+}

@@ -4,7 +4,13 @@
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
   import { corpusIcon, datasetIcon, documentIcon, queryIcon } from "$lib/icons";
-  import type { Dataset, Document, Paginated, RelevantQuery } from "$lib/types";
+  import type {
+    Dataset,
+    Document,
+    OrderByOption,
+    Paginated,
+    RelevantQuery,
+  } from "$lib/types";
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
@@ -13,25 +19,37 @@
   // document list
   async function getDocumentsPage(
     match: string | null,
+    order_by: string | null,
+    desc: boolean,
     num_items: number,
     offset: number,
   ) {
     const searchParams = new URLSearchParams({
       corpus_name: page.params.corpusName,
+      desc: desc.toString(),
       num_results: num_items.toString(),
       offset: offset.toString(),
     });
     if (match !== null) {
       searchParams.append("match", match);
     }
+    if (order_by !== null) {
+      searchParams.append("order_by", order_by);
+    }
 
     const res = await fetch("/api/documents?" + searchParams);
     return (await res.json()) as Paginated<Document>;
   }
+  const orderDocumentsOptions = [
+    { name: "Relevant queries", option: "relevant_queries" },
+    { name: "Length", option: "length" },
+  ] as OrderByOption[];
 
   // relevent queries list
   async function getQueriesPage(
     match: string | null,
+    order_by: string | null,
+    desc: boolean,
     num_items: number,
     offset: number,
   ) {
@@ -40,9 +58,13 @@
       document_id: data.document !== null ? data.document.id : "",
       num_results: num_items.toString(),
       offset: offset.toString(),
+      desc: desc.toString(),
     });
     if (match !== null) {
       searchParams.append("match", match);
+    }
+    if (order_by !== null) {
+      searchParams.append("order_by", order_by);
     }
 
     const res = await fetch("/api/relevant_queries?" + searchParams);
@@ -126,7 +148,8 @@
     getPage={getDocumentsPage}
     getTargetLink={(d: Document) =>
       `/browse/${page.params.corpusName}?document_id=${d.id}`}
-    itemsPerPage={10}>
+    itemsPerPage={10}
+    orderByOptions={orderDocumentsOptions}>
     {#snippet head()}
       <p class="flex flex-row items-center gap-2">
         <Fa icon={documentIcon} />Documents

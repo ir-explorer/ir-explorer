@@ -2,7 +2,12 @@
   import { page } from "$app/state";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import { documentIcon, queryIcon } from "$lib/icons";
-  import type { Paginated, Query, RelevantDocument } from "$lib/types";
+  import type {
+    OrderByOption,
+    Paginated,
+    Query,
+    RelevantDocument,
+  } from "$lib/types";
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
@@ -11,26 +16,38 @@
   // query list
   async function getQueriesPage(
     match: string | null,
+    order_by: string | null,
+    desc: boolean,
     num_items: number,
     offset: number,
   ) {
     const searchParams = new URLSearchParams({
       corpus_name: page.params.corpusName,
       dataset_name: page.params.datasetName,
+      desc: desc.toString(),
       num_results: num_items.toString(),
       offset: offset.toString(),
     });
     if (match !== null) {
       searchParams.append("match", match);
     }
+    if (order_by !== null) {
+      searchParams.append("order_by", order_by);
+    }
 
     const res = await fetch("/api/queries?" + searchParams);
     return (await res.json()) as Paginated<Query>;
   }
+  const orderQueriesOptions = [
+    { name: "Relevant documents", option: "relevant_documents" },
+    { name: "Length", option: "length" },
+  ] as OrderByOption[];
 
   // relevant document list
   async function getDocumentsPage(
     match: string | null,
+    order_by: string | null,
+    desc: boolean,
     num_items: number,
     offset: number,
   ) {
@@ -94,7 +111,8 @@
     getPage={getQueriesPage}
     getTargetLink={(q: Query) =>
       `/browse/${page.params.corpusName}/${page.params.datasetName}?${new URLSearchParams({ query_id: q.id })}`}
-    itemsPerPage={10}>
+    itemsPerPage={10}
+    orderByOptions={orderQueriesOptions}>
     {#snippet head()}
       <p class="flex flex-row items-center gap-2">
         <Fa icon={queryIcon} />Queries

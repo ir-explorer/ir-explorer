@@ -9,6 +9,8 @@ import {
   faFolderClosed,
   faInfo,
   faLightbulb,
+  faLongArrowDown,
+  faLongArrowUp,
   faMagnifyingGlass,
   faSliders,
 } from "@fortawesome/free-solid-svg-icons";
@@ -30,3 +32,6 @@ export const corpusIcon = faFolderClosed;
 export const documentIcon = faFileLines;
 export const datasetIcon = faDatabase;
 export const queryIcon = faLightbulb;
+
+export const orderDescIcon = faLongArrowDown;
+export const orderAscIcon = faLongArrowUp;

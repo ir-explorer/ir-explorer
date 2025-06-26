@@ -1,6 +1,6 @@
 <script lang="ts" generics="T">
-  import { filterIcon } from "$lib/icons";
-  import type { Paginated } from "$lib/types";
+  import { filterIcon, orderAscIcon, orderDescIcon } from "$lib/icons";
+  import type { OrderByOption, Paginated } from "$lib/types";
   import { onMount, type Snippet } from "svelte";
   import Fa from "svelte-fa";
   import List from "./List.svelte";
@@ -12,9 +12,12 @@
     getTargetLink,
     itemsPerPage,
     loadFirstPage = true,
+    orderByOptions = [],
   }: {
     getPage: (
       match: string | null,
+      order_by: string | null,
+      desc: boolean,
       num_items: number,
       offset: number,
     ) => Promise<Paginated<T>>;
@@ -23,6 +26,7 @@
     getTargetLink: (listItem: T) => string;
     itemsPerPage: number;
     loadFirstPage?: boolean;
+    orderByOptions?: OrderByOption[];
   } = $props();
 
   let listItems: T[] = $state([]);
@@ -35,6 +39,9 @@
 
   let promiseNextPage: Promise<Paginated<T>> | null = null;
   let abortToken = { abort: function () {} };
+
+  let orderByValue = $state(null);
+  let desc = $state(true);
 
   async function showNextPage(waitTime: number = 0) {
     working = true;
@@ -58,6 +65,8 @@
 
       const nextPage = await getPage(
         filterTrimmed.length > 0 ? filterTrimmed : null,
+        orderByValue,
+        desc,
         itemsPerPage,
         listItems.length,
       );
@@ -72,9 +81,10 @@
     });
   }
 
-  function reset() {
+  async function reset(waitTime: number = 0) {
     listItems = [];
     loaded = false;
+    await showNextPage(waitTime);
   }
 
   if (loadFirstPage) {
@@ -85,20 +95,75 @@
 <div class="relative mb-4">
   <List bind:listItems headBegin={head} {item} {getTargetLink}>
     {#snippet headEnd()}
-      <label class="input input-sm w-fit">
-        <span class="text-sm">
-          <Fa icon={filterIcon} />
-        </span>
-        <input
-          type="text"
-          class="w-12 transition-all focus:w-32"
-          placeholder="Filter..."
-          bind:value={filter}
-          oninput={async () => {
-            reset();
-            await showNextPage(1000);
-          }} />
-      </label>
+      <div class="flex flex-row gap-2">
+        <!-- filter -->
+        <label class="input input-sm w-fit">
+          <span class="text-sm">
+            <Fa icon={filterIcon} />
+          </span>
+          <input
+            type="text"
+            class="w-32 transition-all"
+            placeholder="Filter..."
+            bind:value={filter}
+            oninput={async () => {
+              await reset(1000);
+            }} />
+        </label>
+
+        <!-- order by -->
+        <div class="join">
+          {#if orderByOptions.length > 0}
+            <select
+              class="select join-item w-fit select-sm"
+              bind:value={orderByValue}
+              onchange={async () => {
+                await reset();
+              }}>
+              <option value={null} selected>Order by...</option>
+              {#each orderByOptions as orderByOption}
+                <option value={orderByOption.option}
+                  >{orderByOption.name}</option>
+              {/each}
+            </select>
+          {/if}
+
+          <!-- hide desc\asc selection if nothing is selected -->
+          {#if orderByValue != null}
+            <label
+              for="order-desc"
+              class="btn join-item gap-0 btn-sm has-checked:btn-primary">
+              <input
+                class="w-0"
+                type="radio"
+                id="order-desc"
+                name="radio-order"
+                value={true}
+                onclick={async () => {
+                  await reset();
+                }}
+                bind:group={desc}
+                checked />
+              <Fa icon={orderDescIcon} />
+            </label>
+            <label
+              for="order-asc"
+              class="btn join-item gap-0 btn-sm has-checked:btn-primary">
+              <input
+                class="w-0"
+                type="radio"
+                id="order-asc"
+                name="radio-order"
+                value={false}
+                onclick={async () => {
+                  await reset();
+                }}
+                bind:group={desc} />
+              <Fa icon={orderAscIcon} />
+            </label>
+          {/if}
+        </div>
+      </div>
     {/snippet}
   </List>
 
