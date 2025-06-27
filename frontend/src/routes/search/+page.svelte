@@ -11,6 +11,7 @@
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
+  let corpusNames = $derived(page.url.searchParams.getAll("corpus"));
 </script>
 
 {#if data.result.total_num_items == 0}
@@ -22,10 +23,15 @@
   </div>
 {:else}
   <ul class="list rounded-box bg-base-100 shadow-md">
-    <li class="p-4 text-xs">
-      Results {data.result.offset + 1} to {data.result.offset +
-        data.result.items.length} (total: {data.result.total_num_items}) for
-      query <i><b>{page.url.searchParams.get("q")}</b></i>.
+    <li class="list-row p-4 text-xs">
+      <p>
+        <span>
+          {data.result.total_num_items} results for query
+          <i><b>{page.url.searchParams.get("q")}</b></i>
+        </span>{#if corpusNames.length > 0}<span>
+            &nbsp;(corpora: {corpusNames.join(", ")})</span
+          >{/if}.
+      </p>
     </li>
 
     {#each data.result.items as hit, index}
