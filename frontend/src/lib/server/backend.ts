@@ -20,7 +20,11 @@ export async function getAvailableLanguages(): Promise<string[]> {
 
 export async function getSearchOptions(): Promise<SearchOptions> {
   const res = await fetch(`${BACKEND_REST_URL}/get_search_options`);
-  return (await res.json()) as SearchOptions;
+  const res_json = await res.json();
+  return {
+    queryLanguages: res_json["query_languages"],
+    corpusNames: res_json["corpus_names"],
+  } as SearchOptions;
 }
 
 export async function getCorpora(): Promise<Corpus[]> {
