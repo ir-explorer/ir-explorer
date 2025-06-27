@@ -23,16 +23,12 @@
         placeholder="Type a query..."
         value={searchInit ? searchInit : ""}
         name="q" />
-      <span class="label"
-        ><Fa icon={corpusIcon} />
-        {#if searchSettings.corpusNames.length == 0}
-          all corpora
-        {:else if searchSettings.corpusNames.length == 1}
-          {searchSettings.corpusNames[0]}
-        {:else}
-          {searchSettings.corpusNames.length} corpora
-        {/if}
-      </span>
+      {#if searchSettings.corpusNames.length > 0}
+        <span class="badge badge-ghost text-xs">
+          <Fa icon={corpusIcon} />
+          {searchSettings.corpusNames.length}
+        </span>
+      {/if}
       {#each searchSettings.corpusNames as corpusName}
         <input type="hidden" name="corpus" value={corpusName} />
       {/each}
