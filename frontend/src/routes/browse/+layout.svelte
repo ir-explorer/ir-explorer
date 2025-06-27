@@ -1,6 +1,7 @@
 <script lang="ts">
   import Header from "$lib/components/Header.svelte";
   import Logo from "$lib/components/Logo.svelte";
+  import MainMenu from "$lib/components/MainMenu.svelte";
   import {
     browseIcon,
     corpusIcon,
@@ -15,38 +16,46 @@
 
 <Header>
   {#snippet start()}
-    <div class="breadcrumbs text-sm">
-      <ul>
-        <li><a href="/"><Logo /></a></li>
-        <li><a href="/browse"><Fa icon={browseIcon} />Browse</a></li>
-        {#if data.corpusName}
-          <li>
-            <a href="/browse/{data.corpusName}"
-              ><Fa icon={corpusIcon} />{data.corpusName}
-            </a>
-          </li>
-        {/if}
+    <div class="flex flex-row items-center gap-4">
+      <div class="w-fit">
+        <MainMenu
+          searchOptions={data.searchOptions}
+          searchSettings={data.searchSettings} />
+      </div>
 
-        {#if data.datasetName}
-          <li>
-            <a href="/browse/{data.corpusName}/{data.datasetName}"
-              ><Fa icon={datasetIcon} />{data.datasetName}
-            </a>
-          </li>
-          {#if data.queryID}
+      <div class="breadcrumbs text-sm">
+        <ul>
+          <li><a href="/"><Logo /></a></li>
+          <li><a href="/browse"><Fa icon={browseIcon} />Browse</a></li>
+          {#if data.corpusName}
             <li>
-              <a
-                href="/browse/{data.corpusName}/{data.datasetName}?query_id={data.queryID}"
-                ><Fa icon={queryIcon} />{data.queryID}</a>
+              <a href="/browse/{data.corpusName}"
+                ><Fa icon={corpusIcon} />{data.corpusName}
+              </a>
             </li>
           {/if}
-        {:else if data.documentID}
-          <li>
-            <a href="/browse/{data.corpusName}?document_id={data.documentID}"
-              ><Fa icon={documentIcon} />{data.documentID}</a>
-          </li>
-        {/if}
-      </ul>
+
+          {#if data.datasetName}
+            <li>
+              <a href="/browse/{data.corpusName}/{data.datasetName}"
+                ><Fa icon={datasetIcon} />{data.datasetName}
+              </a>
+            </li>
+            {#if data.queryID}
+              <li>
+                <a
+                  href="/browse/{data.corpusName}/{data.datasetName}?query_id={data.queryID}"
+                  ><Fa icon={queryIcon} />{data.queryID}</a>
+              </li>
+            {/if}
+          {:else if data.documentID}
+            <li>
+              <a href="/browse/{data.corpusName}?document_id={data.documentID}"
+                ><Fa icon={documentIcon} />{data.documentID}</a>
+            </li>
+          {/if}
+        </ul>
+      </div>
     </div>
   {/snippet}
 </Header>

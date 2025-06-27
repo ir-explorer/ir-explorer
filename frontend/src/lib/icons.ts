@@ -2,21 +2,19 @@ import {
   faBars,
   faChevronLeft,
   faChevronRight,
+  faCircleQuestion,
   faDatabase,
   faEye,
   faFileLines,
   faFilter,
   faFolderClosed,
   faInfo,
-  faLightbulb,
   faLongArrowDown,
   faLongArrowUp,
   faMagnifyingGlass,
-  faSliders,
 } from "@fortawesome/free-solid-svg-icons";
 
 export const menuIcon = faBars;
-export const settingsIcon = faSliders;
 export const infoIcon = faInfo;
 
 export const searchIcon = faMagnifyingGlass;
@@ -31,7 +29,7 @@ export const filterIcon = faFilter;
 export const corpusIcon = faFolderClosed;
 export const documentIcon = faFileLines;
 export const datasetIcon = faDatabase;
-export const queryIcon = faLightbulb;
+export const queryIcon = faCircleQuestion;
 
 export const orderDescIcon = faLongArrowDown;
 export const orderAscIcon = faLongArrowUp;

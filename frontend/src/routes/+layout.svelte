@@ -13,7 +13,7 @@
 
 <NavProgress />
 <div
-  class="grid max-h-full min-h-screen w-screen max-w-full grid-rows-[1fr_auto] bg-linear-to-bl from-primary/10 to-secondary/10">
+  class="grid max-h-full min-h-screen w-screen max-w-full grid-rows-[1fr_auto] bg-linear-to-bl from-primary/20 to-accent/20">
   <div>
     {@render children()}
   </div>
