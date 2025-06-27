@@ -170,21 +170,27 @@
 
   <!-- number of items and "more" button -->
   <div
-    class="absolute right-0 -bottom-3 left-0 m-auto mx-auto join w-fit rounded bg-base-300">
+    class="absolute right-0 -bottom-3 left-0 m-auto mx-auto join w-fit rounded-box">
     {#if loaded}
       <p class="badge-soft join-item badge h-6 text-sm badge-primary">
         Showing {numItemsDisplayed.toLocaleString()} of {totalNumItems.toLocaleString()}
       </p>
     {/if}
-    {#if !loaded || numItemsDisplayed < totalNumItems}
+    {#if !working && numItemsDisplayed < totalNumItems}
       <button
         class="btn join-item h-6 w-12 btn-sm btn-primary"
         disabled={working}
         onclick={async () => {
           await showNextPage();
         }}
-        ><span class={[working && "loading loading-xs"]}>More</span>
+        >More
       </button>
+    {/if}
+    {#if working}
+      <div
+        class="join-item flex h-6 w-12 items-center justify-center bg-base-300">
+        <span class={[working && "loading loading-xs"]}></span>
+      </div>
     {/if}
   </div>
 </div>
