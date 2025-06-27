@@ -12,7 +12,8 @@
 </svelte:head>
 
 <NavProgress />
-<div class="grid h-screen max-h-full w-screen max-w-full grid-rows-[1fr_auto]">
+<div
+  class="grid max-h-full min-h-screen w-screen max-w-full grid-rows-[1fr_auto] bg-linear-to-bl from-primary/10 to-secondary/10">
   <div>
     {@render children()}
   </div>
