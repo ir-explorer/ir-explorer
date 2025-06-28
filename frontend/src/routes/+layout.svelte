@@ -13,13 +13,13 @@
 
 <NavProgress />
 <div
-  class="grid max-h-full min-h-screen w-screen max-w-full grid-rows-[1fr_auto] bg-linear-to-bl from-primary/20 to-accent/20">
+  class="grid max-h-full min-h-screen w-screen max-w-full grid-rows-[1fr_auto]">
   <div>
     {@render children()}
   </div>
 
   <footer
-    class="flex w-full flex-row items-center justify-between border-t border-base-300 bg-base-200/75 px-8 py-2 text-sm opacity-50">
+    class="flex w-full flex-row items-center justify-between border-t border-base-300 bg-base-200 px-8 py-2 text-sm">
     <p>
       © {data.currentYear}
     </p>
