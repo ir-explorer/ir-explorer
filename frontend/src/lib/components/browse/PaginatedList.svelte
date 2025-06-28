@@ -133,7 +133,7 @@
           {#if orderByValue != null}
             <label
               for="order-desc"
-              class="btn join-item gap-0 btn-sm has-checked:btn-primary">
+              class="btn join-item gap-0 border border-base-300 btn-sm has-checked:btn-primary">
               <input
                 class="w-0 opacity-0"
                 type="radio"
@@ -149,7 +149,7 @@
             </label>
             <label
               for="order-asc"
-              class="btn join-item gap-0 btn-sm has-checked:btn-primary">
+              class="btn join-item gap-0 border border-base-300 btn-sm has-checked:btn-primary">
               <input
                 class="w-0 opacity-0"
                 type="radio"
