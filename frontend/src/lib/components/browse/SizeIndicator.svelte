@@ -21,7 +21,7 @@
   ]}
   data-tip="estimated value">
   <div
-    class="radial-progress border-3 border-base-200 bg-base-200 text-primary"
+    class="radial-progress border-3 border-neutral bg-neutral text-primary"
     style="--size:4.5em; --value:{(value / total) * 100}; --thickness: 0.25em;">
     <span class="text-lg">{toHumanReadable(value)}</span>
   </div>
