@@ -7,7 +7,7 @@
 
 <div
   class="fixed top-0 z-1 navbar border-b border-base-300 bg-base-200/75 px-8 backdrop-blur-sm">
-  <div class="navbar-start">
+  <div class="navbar-start grow">
     {#if start}
       {@render start()}
     {:else}
@@ -16,10 +16,12 @@
       </a>
     {/if}
   </div>
-  <div class="navbar-center">
-    {@render center?.()}
-  </div>
-  <div class="navbar-end">
+  {#if center !== null}
+    <div class="navbar-center">
+      {@render center()}
+    </div>
+  {/if}
+  <div class="navbar-end w-fit">
     {#if end}
       {@render end()}
     {:else}
