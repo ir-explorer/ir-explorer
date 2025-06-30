@@ -14,9 +14,7 @@
 <Header>
   {#snippet start()}
     <div class="flex flex-row gap-4">
-      <div class="w-fit">
-        <MainMenu searchOptions={data.searchOptions} bind:searchSettings />
-      </div>
+      <MainMenu searchOptions={data.searchOptions} bind:searchSettings />
       <a href="/"><Logo /></a>
     </div>
   {/snippet}

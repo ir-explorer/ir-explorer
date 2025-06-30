@@ -16,16 +16,17 @@
 
 <Header>
   {#snippet start()}
+    <div class="flex flex-row gap-4">
+      <MainMenu
+        searchOptions={data.searchOptions}
+        searchSettings={data.searchSettings} />
+      <a href="/"><Logo /></a>
+    </div>
+  {/snippet}
+  {#snippet center()}
     <div class="flex flex-row items-center gap-4">
-      <div class="w-fit">
-        <MainMenu
-          searchOptions={data.searchOptions}
-          searchSettings={data.searchSettings} />
-      </div>
-
       <div class="breadcrumbs text-sm">
         <ul>
-          <li><a href="/"><Logo /></a></li>
           <li><a href="/browse"><Fa icon={browseIcon} />Browse</a></li>
           {#if data.corpusName}
             <li>
