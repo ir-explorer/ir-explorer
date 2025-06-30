@@ -20,43 +20,42 @@
       <MainMenu
         searchOptions={data.searchOptions}
         searchSettings={data.searchSettings} />
-      <a href="/"><Logo /></a>
+      <a class="hidden lg:block" href="/"><Logo /></a>
     </div>
   {/snippet}
   {#snippet center()}
-    <div class="flex flex-row items-center gap-4">
-      <div class="breadcrumbs text-sm">
-        <ul>
-          <li><a href="/browse"><Fa icon={browseIcon} />Browse</a></li>
-          {#if data.corpusName}
-            <li>
-              <a href="/browse/{data.corpusName}"
-                ><Fa icon={corpusIcon} />{data.corpusName}
-              </a>
-            </li>
-          {/if}
+    <div
+      class="breadcrumbs rounded-box border border-base-300 bg-neutral px-4 text-sm">
+      <ul>
+        <li><a href="/browse"><Fa icon={browseIcon} />Browse</a></li>
+        {#if data.corpusName}
+          <li>
+            <a href="/browse/{data.corpusName}"
+              ><Fa icon={corpusIcon} />{data.corpusName}
+            </a>
+          </li>
+        {/if}
 
-          {#if data.datasetName}
+        {#if data.datasetName}
+          <li>
+            <a href="/browse/{data.corpusName}/{data.datasetName}"
+              ><Fa icon={datasetIcon} />{data.datasetName}
+            </a>
+          </li>
+          {#if data.queryID}
             <li>
-              <a href="/browse/{data.corpusName}/{data.datasetName}"
-                ><Fa icon={datasetIcon} />{data.datasetName}
-              </a>
-            </li>
-            {#if data.queryID}
-              <li>
-                <a
-                  href="/browse/{data.corpusName}/{data.datasetName}?query_id={data.queryID}"
-                  ><Fa icon={queryIcon} />{data.queryID}</a>
-              </li>
-            {/if}
-          {:else if data.documentID}
-            <li>
-              <a href="/browse/{data.corpusName}?document_id={data.documentID}"
-                ><Fa icon={documentIcon} />{data.documentID}</a>
+              <a
+                href="/browse/{data.corpusName}/{data.datasetName}?query_id={data.queryID}"
+                ><Fa icon={queryIcon} />{data.queryID}</a>
             </li>
           {/if}
-        </ul>
-      </div>
+        {:else if data.documentID}
+          <li>
+            <a href="/browse/{data.corpusName}?document_id={data.documentID}"
+              ><Fa icon={documentIcon} />{data.documentID}</a>
+          </li>
+        {/if}
+      </ul>
     </div>
   {/snippet}
 </Header>
