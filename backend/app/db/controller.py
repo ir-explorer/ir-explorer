@@ -26,6 +26,7 @@ from models import (
 )
 from sqlalchemy import (
     VARCHAR,
+    Integer,
     SQLColumnExpression,
     and_,
     asc,
@@ -700,7 +701,12 @@ class DBController(Controller):
                 ORMDocument.id,
                 ORMDocument.corpus_pkey,
                 func.paradedb.score(ORMDocument.pkey).label("score"),
-                func.paradedb.snippet(ORMDocument.text, "<b>", "</b>", 500),
+                func.paradedb.snippet(
+                    ORMDocument.text,
+                    literal_column("'<b>'"),
+                    literal_column("'</b>'"),
+                    literal_column("500", Integer),
+                ),
             )
             .where(and_(*where_clause))
             .order_by(desc("score"))
