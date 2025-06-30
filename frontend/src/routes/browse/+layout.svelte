@@ -60,6 +60,8 @@
   {/snippet}
 </Header>
 
-<div class="mx-auto mt-20 mb-4 flex max-w-5xl flex-col gap-8">
-  {@render children()}
+<div class="mx-auto mt-20 mb-4 max-w-5xl">
+  <div class="mx-4 flex flex-col gap-4">
+    {@render children()}
+  </div>
 </div>
