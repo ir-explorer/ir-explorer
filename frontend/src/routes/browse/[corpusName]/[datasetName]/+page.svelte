@@ -98,7 +98,7 @@
         `/browse/${page.params.corpusName}?${new URLSearchParams({ document_id: d.id })}`}
       itemsPerPage={10}
       orderByOptions={orderRelevantDocumentsOptions}>
-      {#snippet head()}
+      {#snippet headTitle()}
         <p class="flex flex-row items-center gap-2">
           <Fa icon={documentIcon} />Relevant documents
         </p>
@@ -124,7 +124,7 @@
       `/browse/${page.params.corpusName}/${page.params.datasetName}?${new URLSearchParams({ query_id: q.id })}`}
     itemsPerPage={10}
     orderByOptions={orderQueriesOptions}>
-    {#snippet head()}
+    {#snippet headTitle()}
       <p class="flex flex-row items-center gap-2">
         <Fa icon={queryIcon} />Queries
       </p>

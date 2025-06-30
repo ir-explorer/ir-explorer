@@ -19,7 +19,7 @@
   </div>
 
   <footer
-    class="flex w-full flex-row items-center justify-between border-t border-base-300 bg-base-200 px-8 py-2 text-sm">
+    class="flex w-full flex-row items-center justify-between border-t border-base-300 bg-base-200 px-4 py-2 text-sm">
     <p>
       © {data.currentYear}
     </p>

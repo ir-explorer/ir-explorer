@@ -5,27 +5,27 @@
 
   let {
     listItems = $bindable(),
-    headBegin,
-    headEnd,
+    headTitle,
+    headItems,
     item,
     getTargetLink,
   }: {
     listItems: T[];
-    headBegin: Snippet | null;
-    headEnd: Snippet | null;
+    headTitle: Snippet | null;
+    headItems: Snippet | null;
     item: Snippet<[T]>;
     getTargetLink: (listItem: T) => string;
   } = $props();
 </script>
 
 <ul class="list rounded-box bg-base-100 shadow">
-  <li class="rounded-box bg-base-200 px-4 py-2">
-    <div class="flex flex-row justify-between">
-      {#if headBegin != null}
-        {@render headBegin()}
+  <li class="rounded-box bg-base-200 px-4 py-4 md:py-2">
+    <div class="flex flex-col gap-4 md:flex-row md:justify-between md:gap-2">
+      {#if headTitle != null}
+        {@render headTitle()}
       {/if}
-      {#if headEnd != null}
-        {@render headEnd()}
+      {#if headItems != null}
+        {@render headItems()}
       {/if}
     </div>
   </li>

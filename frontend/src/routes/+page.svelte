@@ -12,7 +12,7 @@
   let searchSettings = $state(data.searchSettings);
 </script>
 
-<div class="fixed top-0 z-1 navbar px-8">
+<div class="fixed top-0 z-1 navbar px-4">
   <div class="navbar-start flex flex-row gap-4">
     <div class="w-fit">
       <MainMenu searchOptions={data.searchOptions} bind:searchSettings />
@@ -28,10 +28,10 @@
 </div>
 
 <div class="flex h-full flex-col items-center justify-center">
-  <div class="mb-16 scale-250">
+  <div class="mb-8 scale-128 md:mb-12 md:scale-196 lg:mb-16 lg:scale-256">
     <Logo />
   </div>
-  <div class="w-1/3 min-w-160">
+  <div class="w-4/5 max-w-128">
     <SearchBar bind:searchSettings />
   </div>
 </div>

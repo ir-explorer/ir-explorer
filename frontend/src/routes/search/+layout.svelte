@@ -14,10 +14,8 @@
 <Header>
   {#snippet start()}
     <div class="flex flex-row gap-4">
-      <div class="w-fit">
-        <MainMenu searchOptions={data.searchOptions} bind:searchSettings />
-      </div>
-      <a href="/"><Logo /></a>
+      <MainMenu searchOptions={data.searchOptions} bind:searchSettings />
+      <a class="hidden lg:block" href="/"><Logo /></a>
     </div>
   {/snippet}
 
@@ -28,8 +26,8 @@
   {/snippet}
 </Header>
 
-<div class="mx-4 mt-20 mb-4 max-w-full">
-  <div class="mx-auto max-w-5xl">
+<div class="mx-auto mt-20 mb-4 max-w-5xl">
+  <div class="mx-4">
     {@render children()}
   </div>
 </div>

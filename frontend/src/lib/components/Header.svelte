@@ -1,27 +1,22 @@
 <script lang="ts">
   import BusyIndicator from "./BusyIndicator.svelte";
-  import Logo from "./Logo.svelte";
 
   const { start = null, center = null, end = null } = $props();
 </script>
 
 <div
-  class="fixed top-0 z-1 navbar border-b border-base-300 bg-base-200/75 px-8 backdrop-blur-sm">
-  <div class={["navbar-start", center === null && "grow"]}>
+  class="fixed top-0 z-1 navbar border-b border-base-300 bg-base-200/75 px-4 backdrop-blur-sm">
+  <div class="navbar-start w-1/6">
     {#if start}
       {@render start()}
-    {:else}
-      <a href="/">
-        <Logo />
-      </a>
     {/if}
   </div>
-  {#if center !== null}
-    <div class="navbar-center">
+  <div class="navbar-center flex max-w-2/3 min-w-0 grow justify-center">
+    {#if center !== null}
       {@render center()}
-    </div>
-  {/if}
-  <div class={["navbar-end", center === null && "w-fit"]}>
+    {/if}
+  </div>
+  <div class="navbar-end w-1/6">
     {#if end}
       {@render end()}
     {:else}

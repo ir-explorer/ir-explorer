@@ -7,7 +7,7 @@
 
   const {
     getPage,
-    head,
+    headTitle,
     item,
     getTargetLink,
     itemsPerPage,
@@ -21,7 +21,7 @@
       num_items: number,
       offset: number,
     ) => Promise<Paginated<T>>;
-    head: Snippet;
+    headTitle: Snippet;
     item: Snippet<[T]>;
     getTargetLink: (listItem: T) => string;
     itemsPerPage: number;
@@ -92,18 +92,18 @@
   }
 </script>
 
-<div class="relative mb-4">
-  <List bind:listItems headBegin={head} {item} {getTargetLink}>
-    {#snippet headEnd()}
-      <div class="flex flex-row gap-2">
+<div class="mb-2 flex flex-col justify-center">
+  <List bind:listItems {headTitle} {item} {getTargetLink}>
+    {#snippet headItems()}
+      <div class="flex flex-col gap-2 md:flex-row">
         <!-- filter -->
-        <label class="input input-sm w-fit">
+        <label class="input input-sm w-full md:w-fit">
           <span class="text-sm">
             <Fa icon={filterIcon} />
           </span>
           <input
             type="text"
-            class="w-32 transition-all"
+            class="w-full md:w-32"
             placeholder="Filter..."
             bind:value={filter}
             oninput={async () => {
@@ -112,11 +112,11 @@
         </label>
 
         <!-- order by -->
-        <div class="join">
+        <div class="join w-full md:w-fit">
           <!-- hide select if there are no options to order by -->
           {#if orderByOptions.length > 0}
             <select
-              class="select join-item w-fit select-sm"
+              class="select join-item w-full select-sm md:w-fit"
               bind:value={orderByValue}
               onchange={async () => {
                 await reset();
@@ -140,7 +140,7 @@
                 id="order-desc"
                 name="radio-order"
                 value={true}
-                onclick={async () => {
+                onchange={async () => {
                   await reset();
                 }}
                 bind:group={desc}
@@ -156,7 +156,7 @@
                 id="order-asc"
                 name="radio-order"
                 value={false}
-                onclick={async () => {
+                onchange={async () => {
                   await reset();
                 }}
                 bind:group={desc} />
@@ -169,16 +169,16 @@
   </List>
 
   <!-- number of items and "more" button -->
-  <div
-    class="absolute right-0 -bottom-3 left-0 m-auto mx-auto join w-fit rounded-box">
+  <div class="mx-auto join rounded-t-none">
     {#if loaded}
-      <p class="badge-soft join-item badge h-6 text-sm badge-primary">
+      <p
+        class="join-item flex h-6 items-center rounded-t-none bg-neutral px-2 text-sm text-neutral-content shadow">
         Showing {numItemsDisplayed.toLocaleString()} of {totalNumItems.toLocaleString()}
       </p>
     {/if}
     {#if !working && numItemsDisplayed < totalNumItems}
       <button
-        class="btn join-item h-6 w-12 btn-sm btn-primary"
+        class="btn join-item h-6 w-12 rounded-t-none shadow btn-sm btn-primary"
         disabled={working}
         onclick={async () => {
           await showNextPage();
@@ -188,7 +188,7 @@
     {/if}
     {#if working}
       <div
-        class="join-item flex h-6 w-12 items-center justify-center bg-base-300">
+        class="join-item flex h-6 w-12 items-center justify-center rounded-t-none bg-base-300 shadow">
         <span class={[working && "loading loading-xs"]}></span>
       </div>
     {/if}
