@@ -99,7 +99,7 @@
         `/browse/${page.params.corpusName}/${q.dataset_name}?query_id=${q.id}`}
       itemsPerPage={10}
       orderByOptions={orderRelevantQueriesOptions}>
-      {#snippet head()}
+      {#snippet headTitle()}
         <p class="flex flex-row items-center gap-2">
           <Fa icon={queryIcon} />Relevant queries
         </p>
@@ -157,7 +157,7 @@
       `/browse/${page.params.corpusName}?document_id=${d.id}`}
     itemsPerPage={10}
     orderByOptions={orderDocumentsOptions}>
-    {#snippet head()}
+    {#snippet headTitle()}
       <p class="flex flex-row items-center gap-2">
         <Fa icon={documentIcon} />Documents
       </p>

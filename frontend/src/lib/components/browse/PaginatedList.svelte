@@ -7,7 +7,7 @@
 
   const {
     getPage,
-    head,
+    headTitle,
     item,
     getTargetLink,
     itemsPerPage,
@@ -21,7 +21,7 @@
       num_items: number,
       offset: number,
     ) => Promise<Paginated<T>>;
-    head: Snippet;
+    headTitle: Snippet;
     item: Snippet<[T]>;
     getTargetLink: (listItem: T) => string;
     itemsPerPage: number;
@@ -93,17 +93,17 @@
 </script>
 
 <div class="relative mb-4">
-  <List bind:listItems headBegin={head} {item} {getTargetLink}>
-    {#snippet headEnd()}
-      <div class="flex flex-row gap-2">
+  <List bind:listItems {headTitle} {item} {getTargetLink}>
+    {#snippet headItems()}
+      <div class="flex flex-col gap-2 md:flex-row">
         <!-- filter -->
-        <label class="input input-sm w-fit">
+        <label class="input input-sm w-full md:w-fit">
           <span class="text-sm">
             <Fa icon={filterIcon} />
           </span>
           <input
             type="text"
-            class="w-32 transition-all"
+            class="w-full md:w-32"
             placeholder="Filter..."
             bind:value={filter}
             oninput={async () => {
@@ -112,11 +112,11 @@
         </label>
 
         <!-- order by -->
-        <div class="join">
+        <div class="join w-full md:w-fit">
           <!-- hide select if there are no options to order by -->
           {#if orderByOptions.length > 0}
             <select
-              class="select join-item w-fit select-sm"
+              class="select join-item w-full select-sm md:w-fit"
               bind:value={orderByValue}
               onchange={async () => {
                 await reset();
