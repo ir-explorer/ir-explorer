@@ -12,7 +12,7 @@
   } = $props();
 </script>
 
-<div class="grid grid-cols-3 gap-4">
+<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
   {#each gridItems as gridItem}
     <div class="card border border-base-300 shadow hover:bg-base-300">
       <a href={getTargetLink(gridItem)}>
