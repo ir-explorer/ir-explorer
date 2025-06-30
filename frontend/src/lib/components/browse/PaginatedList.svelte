@@ -140,7 +140,7 @@
                 id="order-desc"
                 name="radio-order"
                 value={true}
-                onclick={async () => {
+                onchange={async () => {
                   await reset();
                 }}
                 bind:group={desc}
@@ -156,7 +156,7 @@
                 id="order-asc"
                 name="radio-order"
                 value={false}
-                onclick={async () => {
+                onchange={async () => {
                   await reset();
                 }}
                 bind:group={desc} />
