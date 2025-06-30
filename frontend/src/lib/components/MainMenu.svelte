@@ -2,6 +2,7 @@
   import { menuIcon } from "$lib/icons";
   import type { SearchOptions, SearchSettings } from "$lib/types";
   import Fa from "svelte-fa";
+  import Logo from "./Logo.svelte";
 
   let {
     searchOptions,
@@ -24,7 +25,16 @@
   <div class="drawer-side z-99">
     <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"
     ></label>
-    <div class="menu min-h-full w-80 bg-base-200 p-4 text-base-content">
+    <div class="menu min-h-full w-80 gap-4 bg-base-200 p-4 text-base-content">
+      <div class="flex w-full gap-4">
+        <label for="my-drawer" class="drawer-button btn btn-ghost btn-sm">
+          <Fa icon={menuIcon} />
+        </label>
+        <a href="/">
+          <Logo />
+        </a>
+      </div>
+
       <fieldset class="fieldset gap-2">
         <legend class="fieldset-legend">Search settings</legend>
 
