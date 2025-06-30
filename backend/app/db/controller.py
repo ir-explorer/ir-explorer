@@ -1,3 +1,4 @@
+import re
 from typing import TYPE_CHECKING, Literal
 
 from litestar import Controller, delete, get, post
@@ -662,7 +663,13 @@ class DBController(Controller):
         :param offset: Offset for pagination.
         :return: Paginated list of results, ordered by score.
         """
-        where_clause: list[SQLColumnExpression] = [ORMDocument.text.bool_op("@@@")(q)]
+        # should catch all characters from
+        # https://docs.paradedb.com/documentation/full-text/overview#special-characters
+        q_escaped = re.escape(q)
+
+        where_clause: list[SQLColumnExpression] = [
+            ORMDocument.text.bool_op("@@@")(q_escaped)
+        ]
         if corpus_name is not None:
             corpus_cte = (
                 select(ORMCorpus.pkey).where(ORMCorpus.name.in_(corpus_name)).cte()
