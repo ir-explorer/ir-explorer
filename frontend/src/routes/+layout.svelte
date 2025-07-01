@@ -4,7 +4,7 @@
   import { Fa } from "svelte-fa";
   import "../app.css";
 
-  let { data, children } = $props();
+  let { children } = $props();
 </script>
 
 <svelte:head>
@@ -19,12 +19,18 @@
   </div>
 
   <footer
-    class="flex w-full flex-row items-center justify-between border-t border-base-300 bg-base-200 px-4 py-2 text-sm">
-    <p>
-      © {data.currentYear}
-    </p>
-    <a href="https://github.com/mrjleo/ir-explorer" class="hover:scale-125">
+    class="flex w-full flex-col justify-center gap-2 border-t border-base-300 bg-base-200 px-4 py-2 text-sm md:flex-row md:items-center">
+    <a
+      class="badge flex flex-row gap-2 badge-neutral text-neutral-content"
+      href="https://github.com/mrjleo/ir-explorer">
       <Fa icon={faGithub} />
+      <p class="font-mono text-xs">ir-explorer</p>
     </a>
+    <p class="hidden md:block">&bull;</p>
+    <p>
+      Made with <a class="link" href="https://www.paradedb.com/">ParadeDB</a>,
+      <a class="link" href="https://litestar.dev/">Litestar</a>, and
+      <a class="link" href="https://svelte.dev/">SvelteKit</a>.
+    </p>
   </footer>
 </div>

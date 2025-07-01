@@ -11,6 +11,5 @@ export const load: LayoutServerLoad = async () => {
   return {
     searchOptions: await getSearchOptions(),
     searchSettings: searchSettings,
-    currentYear: new Date().getFullYear(),
   };
 };
