@@ -24,38 +24,39 @@
     </div>
   {/snippet}
   {#snippet center()}
-    <div
-      class="breadcrumbs rounded-box border border-base-300 bg-neutral px-4 text-sm">
-      <ul>
-        <li><a href="/browse"><Fa icon={browseIcon} />Browse</a></li>
-        {#if data.corpusName}
-          <li>
-            <a href="/browse/{data.corpusName}"
-              ><Fa icon={corpusIcon} />{data.corpusName}
-            </a>
-          </li>
-        {/if}
-
-        {#if data.datasetName}
-          <li>
-            <a href="/browse/{data.corpusName}/{data.datasetName}"
-              ><Fa icon={datasetIcon} />{data.datasetName}
-            </a>
-          </li>
-          {#if data.queryID}
+    <div class="max-w-full rounded-box border border-base-300 bg-neutral px-4">
+      <div class="breadcrumbs text-sm">
+        <ul>
+          <li><a href="/browse"><Fa icon={browseIcon} />Browse</a></li>
+          {#if data.corpusName}
             <li>
-              <a
-                href="/browse/{data.corpusName}/{data.datasetName}?query_id={data.queryID}"
-                ><Fa icon={queryIcon} />{data.queryID}</a>
+              <a href="/browse/{data.corpusName}"
+                ><Fa icon={corpusIcon} />{data.corpusName}
+              </a>
             </li>
           {/if}
-        {:else if data.documentID}
-          <li>
-            <a href="/browse/{data.corpusName}?document_id={data.documentID}"
-              ><Fa icon={documentIcon} />{data.documentID}</a>
-          </li>
-        {/if}
-      </ul>
+
+          {#if data.datasetName}
+            <li>
+              <a href="/browse/{data.corpusName}/{data.datasetName}"
+                ><Fa icon={datasetIcon} />{data.datasetName}
+              </a>
+            </li>
+            {#if data.queryID}
+              <li>
+                <a
+                  href="/browse/{data.corpusName}/{data.datasetName}?query_id={data.queryID}"
+                  ><Fa icon={queryIcon} />{data.queryID}</a>
+              </li>
+            {/if}
+          {:else if data.documentID}
+            <li>
+              <a href="/browse/{data.corpusName}?document_id={data.documentID}"
+                ><Fa icon={documentIcon} />{data.documentID}</a>
+            </li>
+          {/if}
+        </ul>
+      </div>
     </div>
   {/snippet}
 </Header>
