@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { menuIcon } from "$lib/icons";
+  import { browseIcon, menuIcon, searchIcon } from "$lib/icons";
   import type { SearchOptions, SearchSettings } from "$lib/types";
   import Fa from "svelte-fa";
   import Logo from "./Logo.svelte";
@@ -25,15 +25,31 @@
   <div class="drawer-side z-99">
     <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"
     ></label>
-    <div class="menu min-h-full w-80 gap-4 bg-base-200 p-4 text-base-content">
+    <div class="menu min-h-full w-80 bg-base-200 p-4 text-base-content">
       <div class="flex w-full gap-4">
         <label for="my-drawer" class="drawer-button btn btn-ghost btn-sm">
           <Fa icon={menuIcon} />
         </label>
-        <a href="/">
-          <Logo />
-        </a>
+        <Logo />
       </div>
+
+      <div class="divider my-2"></div>
+
+      <ul class="menu w-full p-0">
+        <!-- Sidebar content here -->
+        <li>
+          <a class="px-0" href="/search">
+            <Fa icon={searchIcon} class="w-6" />Search
+          </a>
+        </li>
+        <li>
+          <a class="px-0" href="/browse">
+            <Fa icon={browseIcon} class="w-6" />Browse
+          </a>
+        </li>
+      </ul>
+
+      <div class="divider my-2"></div>
 
       <fieldset class="fieldset gap-2">
         <legend class="fieldset-legend">Search settings</legend>
