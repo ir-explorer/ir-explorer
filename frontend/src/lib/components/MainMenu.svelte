@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from "$app/state";
   import { browseIcon, menuIcon, searchIcon } from "$lib/icons";
   import type { SearchOptions, SearchSettings } from "$lib/types";
   import Fa from "svelte-fa";
@@ -13,6 +14,11 @@
   } = $props();
 
   const languageInit = "English";
+
+  let atSearch: boolean = $derived(
+    page.url.pathname.startsWith("/search") || page.url.pathname == "/",
+  );
+  let atBrowse: boolean = $derived(page.url.pathname.startsWith("/browse"));
 </script>
 
 <div class="drawer">
@@ -38,13 +44,17 @@
       <ul class="menu w-full p-0">
         <!-- Sidebar content here -->
         <li>
-          <a class="px-0" href="/search">
-            <Fa icon={searchIcon} class="w-6" />Search
+          <a
+            class={[atSearch && "menu-active pointer-events-none", "px-0"]}
+            href="/search">
+            <Fa icon={searchIcon} class="mx-2 w-4" />Search
           </a>
         </li>
         <li>
-          <a class="px-0" href="/browse">
-            <Fa icon={browseIcon} class="w-6" />Browse
+          <a
+            class={[atBrowse && "menu-active pointer-events-none", "px-0"]}
+            href="/browse">
+            <Fa icon={browseIcon} class="mx-2 w-4" />Browse
           </a>
         </li>
       </ul>
