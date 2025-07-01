@@ -12,9 +12,11 @@ import {
   faLongArrowDown,
   faLongArrowUp,
   faMagnifyingGlass,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
 export const menuIcon = faBars;
+export const closeMenuIcon = faXmark;
 export const infoIcon = faInfo;
 
 export const searchIcon = faMagnifyingGlass;

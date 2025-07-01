@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { browseIcon, menuIcon, searchIcon } from "$lib/icons";
+  import { browseIcon, closeMenuIcon, menuIcon, searchIcon } from "$lib/icons";
   import type { SearchOptions, SearchSettings } from "$lib/types";
   import Fa from "svelte-fa";
   import Logo from "./Logo.svelte";
@@ -34,7 +34,7 @@
     <div class="menu min-h-full w-80 bg-base-200 p-4 text-base-content">
       <div class="flex w-full gap-4">
         <label for="my-drawer" class="drawer-button btn btn-ghost btn-sm">
-          <Fa icon={menuIcon} />
+          <Fa icon={closeMenuIcon} />
         </label>
         <Logo />
       </div>
