@@ -21,7 +21,7 @@
   let atBrowse: boolean = $derived(page.url.pathname.startsWith("/browse"));
 </script>
 
-<div class="drawer">
+<div class="drawer w-auto">
   <input id="my-drawer" type="checkbox" class="drawer-toggle" />
   <div class="drawer-content">
     <label for="my-drawer" class="drawer-button btn btn-ghost btn-sm">
@@ -32,11 +32,11 @@
     <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"
     ></label>
     <div class="menu min-h-full w-80 bg-base-200 p-4 text-base-content">
-      <div class="flex w-full gap-4">
+      <div class="flex w-full items-center gap-4">
         <label for="my-drawer" class="drawer-button btn btn-ghost btn-sm">
           <Fa icon={closeMenuIcon} />
         </label>
-        <Logo />
+        <Logo small />
       </div>
 
       <div class="divider my-2"></div>
