@@ -13,9 +13,9 @@
 
 <Header>
   {#snippet start()}
-    <div class="flex flex-row gap-4">
+    <div class="flex flex-row items-center gap-4">
       <MainMenu searchOptions={data.searchOptions} bind:searchSettings />
-      <a class="hidden lg:block" href="/"><Logo /></a>
+      <a class="hidden md:block" href="/"><Logo small /></a>
     </div>
   {/snippet}
 

@@ -28,10 +28,12 @@
 </div>
 
 <div class="flex h-full flex-col items-center justify-center">
-  <div class="mb-8 scale-128 md:mb-12 md:scale-196 lg:mb-16 lg:scale-256">
-    <Logo />
-  </div>
   <div class="w-4/5 max-w-128">
-    <SearchBar bind:searchSettings />
+    <div class="mb-4">
+      <Logo />
+    </div>
+    <div class="w-full">
+      <SearchBar bind:searchSettings />
+    </div>
   </div>
 </div>
