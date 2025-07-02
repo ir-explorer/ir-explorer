@@ -48,6 +48,9 @@ services:
         - action: sync
           path: frontend/src
           target: /frontend/src
+        - action: sync
+          path: frontend/static
+          target: /frontend/static
         - action: rebuild
           path: frontend/package.json
     ports:
