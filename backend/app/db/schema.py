@@ -59,7 +59,7 @@ class ORMQuery(ORMBase):
     __table_args__ = (
         UniqueConstraint("id", "dataset_pkey"),
         Index(
-            None,
+            "ix_queries_search",
             pkey,
             text,
             description,
@@ -78,7 +78,7 @@ class ORMQuery(ORMBase):
                 }\'""",
             },
         ),
-        Index(None, dataset_pkey, func.length(text)),
+        Index("ix_queries_len", dataset_pkey, func.length(text)),
     )
 
 
@@ -98,7 +98,7 @@ class ORMDocument(ORMBase):
     __tablename__ = "documents"
     __table_args__ = (
         Index(
-            None,
+            "ix_documents_search",
             pkey,
             title,
             text,
@@ -117,7 +117,7 @@ class ORMDocument(ORMBase):
                 }\'""",
             },
         ),
-        Index(None, corpus_pkey, func.length(text)),
+        Index("ix_documents_len", corpus_pkey, func.length(text)),
     )
 
 
