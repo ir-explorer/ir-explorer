@@ -1,4 +1,3 @@
-import re
 from typing import TYPE_CHECKING, Literal
 
 from litestar import Controller, delete, get, post
@@ -43,6 +42,7 @@ from sqlalchemy.orm import joinedload
 
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
+from db.util import escape_search_query
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -668,12 +668,8 @@ class DBController(Controller):
         :param offset: Offset for pagination.
         :return: Paginated list of results, ordered by score.
         """
-        # should catch all characters from
-        # https://docs.paradedb.com/documentation/full-text/overview#special-characters
-        q_escaped = re.escape(q)
-
         where_clause: list[SQLColumnExpression] = [
-            ORMDocument.text.bool_op("@@@")(q_escaped)
+            ORMDocument.text.bool_op("@@@")(escape_search_query(q))
         ]
         if corpus_name is not None:
             corpus_cte = (
