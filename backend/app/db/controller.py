@@ -288,6 +288,10 @@ class DBController(Controller):
         sq_documents = (
             select(ORMDocument.corpus_pkey, func.count().label("count"))
             .group_by(ORMDocument.corpus_pkey)
+            # this where clause is a hack to have ParadeDB perform the count aggregation
+            # rather than postgres
+            # TODO: remove once no longer necessary
+            .where(ORMDocument.corpus_pkey.bool_op("@@@")(">0"))
             .subquery()
         )
         sq_datasets = (
