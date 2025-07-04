@@ -156,7 +156,9 @@
     getTargetLink={(d: Document) =>
       `/browse/${page.params.corpusName}?document_id=${d.id}`}
     itemsPerPage={10}
-    orderByOptions={orderDocumentsOptions}>
+    orderByOptions={orderDocumentsOptions}
+    goToTarget={`/browse/${page.params.corpusName}`}
+    goToName="document_id">
     {#snippet headTitle()}
       <p class="flex flex-row items-center gap-2">
         <Fa icon={documentIcon} />Documents

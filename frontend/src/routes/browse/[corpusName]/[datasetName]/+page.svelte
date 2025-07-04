@@ -123,7 +123,9 @@
     getTargetLink={(q: Query) =>
       `/browse/${page.params.corpusName}/${page.params.datasetName}?${new URLSearchParams({ query_id: q.id })}`}
     itemsPerPage={10}
-    orderByOptions={orderQueriesOptions}>
+    orderByOptions={orderQueriesOptions}
+    goToTarget={`/browse/${page.params.corpusName}/${page.params.datasetName}`}
+    goToName="query_id">
     {#snippet headTitle()}
       <p class="flex flex-row items-center gap-2">
         <Fa icon={queryIcon} />Queries

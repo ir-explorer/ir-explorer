@@ -26,6 +26,7 @@ export const prevPageIcon = faChevronLeft;
 export const listArrowIcon = faChevronRight;
 
 export const matchIcon = faMagnifyingGlass;
+export const goToIcon = faChevronRight;
 
 export const corpusIcon = faFolderClosed;
 export const documentIcon = faFileLines;

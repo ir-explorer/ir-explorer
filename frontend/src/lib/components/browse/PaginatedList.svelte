@@ -1,5 +1,5 @@
 <script lang="ts" generics="T">
-  import { matchIcon, orderAscIcon, orderDescIcon } from "$lib/icons";
+  import { goToIcon, matchIcon, orderAscIcon, orderDescIcon } from "$lib/icons";
   import type { OrderByOption, Paginated } from "$lib/types";
   import { onMount, type Snippet } from "svelte";
   import Fa from "svelte-fa";
@@ -13,6 +13,8 @@
     itemsPerPage,
     loadFirstPage = true,
     orderByOptions = [],
+    goToTarget = null,
+    goToName = null,
   }: {
     getPage: (
       match: string | null,
@@ -27,6 +29,8 @@
     itemsPerPage: number;
     loadFirstPage?: boolean;
     orderByOptions?: OrderByOption[];
+    goToTarget?: string | null;
+    goToName?: string | null;
   } = $props();
 
   let listItems: T[] = $state([]);
@@ -164,6 +168,19 @@
             </label>
           {/if}
         </div>
+
+        {#if goToTarget !== null && goToName !== null}
+          <!-- go to -->
+          <form class="join w-full md:w-fit" action={goToTarget}>
+            <input
+              type="text"
+              name={goToName}
+              class="input input-sm join-item w-full md:w-24"
+              placeholder="Go to ID..." />
+            <button class="btn join-item btn-sm btn-primary" type="submit"
+              ><Fa icon={goToIcon} /></button>
+          </form>
+        {/if}
       </div>
     {/snippet}
   </List>
