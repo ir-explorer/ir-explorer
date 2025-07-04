@@ -604,8 +604,8 @@ class DBController(Controller):
         if order_by == "relevant_queries":
             order_by_clause = [order_by_op(text("count"))]
         elif order_by == "length":
-            select_clause_sq.append(func.length(ORMDocument.text).label("length"))
-            order_by_clause = [order_by_op(text("length"))]
+            select_clause_sq.append(ORMDocument.text_length.label("text_length"))
+            order_by_clause = [order_by_op(text("text_length"))]
         elif order_by == "match_score":
             select_clause_sq.append(
                 func.paradedb.score(ORMDocument.pkey).label("score")
@@ -637,8 +637,8 @@ class DBController(Controller):
             sq_document_pkeys.c.count,
         ]
 
-        if "length" in sq_document_pkeys.c:
-            select_clause.append(sq_document_pkeys.c.length)
+        if "text_length" in sq_document_pkeys.c:
+            select_clause.append(sq_document_pkeys.c.text_length)
         if "score" in sq_document_pkeys.c:
             select_clause.append(sq_document_pkeys.c.score)
         sql = (
@@ -647,8 +647,6 @@ class DBController(Controller):
             .join(sq_all_docs, onclause=sq_document_pkeys.c.pkey == sq_all_docs.c.pkey)
             .order_by(*order_by_clause, sq_all_docs.c.pkey)
         )
-
-        print(sql.compile(compile_kwargs={"literal_binds": True}))
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         result = (await transaction.execute(sql)).all()
