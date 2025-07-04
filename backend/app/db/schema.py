@@ -1,6 +1,9 @@
 from sqlalchemy import (
+    Column,
+    Computed,
     ForeignKey,
     Index,
+    Integer,
     UniqueConstraint,
     func,
 )
@@ -78,7 +81,6 @@ class ORMQuery(ORMBase):
                 }\'""",
             },
         ),
-        Index("ix_queries_len", dataset_pkey, func.length(text)),
     )
 
 
@@ -91,6 +93,8 @@ class ORMDocument(ORMBase):
     corpus_pkey: Mapped[int] = mapped_column(ForeignKey("corpora.pkey"), index=True)
     title: Mapped[str] = mapped_column(nullable=True)
     text: Mapped[str] = mapped_column()
+
+    text_length = Column(Integer, Computed(func.length(text)), index=True)
 
     corpus: Mapped["ORMCorpus"] = relationship()
     qrels: Mapped[list["ORMQRel"]] = relationship(back_populates="document")
@@ -117,7 +121,7 @@ class ORMDocument(ORMBase):
                 }\'""",
             },
         ),
-        Index("ix_documents_len", corpus_pkey, func.length(text)),
+        Index("ix_documents_length", corpus_pkey, text_length),
     )
 
 
