@@ -579,58 +579,75 @@ class DBController(Controller):
         :param order_by_desc: Whether to order in a descending or ascending fashion.
         :return: Paginated list of documents.
         """
-        where_clause = [ORMCorpus.name == corpus_name]
+        # filtering by corpus pkey seems to be faster than filtering by name
+        sq_corpus_pkey = (
+            select(ORMCorpus.pkey)
+            .where(ORMCorpus.name == corpus_name)
+            .scalar_subquery()
+        )
+
+        where_clause = [ORMDocument.corpus_pkey == sq_corpus_pkey]
         if match is not None:
             where_clause.append(
-                ORMDocument.pkey.bool_op("@@@")(
-                    func.paradedb.fuzzy_term(literal_column("'text'"), match)
-                )
+                ORMDocument.text.bool_op("@@@")(escape_search_query(match))
             )
 
-        sql_count = (
-            select(func.count())
-            .select_from(ORMDocument)
-            .join(ORMCorpus)
-            .where(*where_clause)
-        )
+        # count all matching docoments
+        sql_count = select(func.count()).select_from(ORMDocument).where(*where_clause)
+
+        select_clause_sq = [
+            ORMDocument.pkey,
+            func.count()
+            .filter(ORMQRel.relevance >= ORMDataset.min_relevance)
+            .label("count"),
+        ]
 
         order_by_op = desc if order_by_desc else asc
         if order_by == "relevant_queries":
-            order_by_clause = (order_by_op(text("count")), ORMDocument.pkey)
+            order_by_clause = [order_by_op(text("count"))]
         elif order_by == "length":
-            order_by_clause = (
-                order_by_op(func.length(ORMDocument.text)),
-                ORMDocument.pkey,
-            )
+            select_clause_sq.append(func.length(ORMDocument.text).label("length"))
+            order_by_clause = [order_by_op(text("length"))]
         elif order_by == "match_score":
-            order_by_clause = (
-                order_by_op(func.paradedb.score(ORMDocument.pkey)),
-                ORMDocument.pkey,
+            select_clause_sq.append(
+                func.paradedb.score(ORMDocument.pkey).label("score")
             )
+            order_by_clause = [order_by_op(text("score"))]
         else:
-            order_by_clause = (ORMDocument.pkey,)
+            order_by_clause = []
 
-        sql = (
-            select(
-                ORMDocument.id,
-                ORMDocument.title,
-                ORMDocument.text,
-                func.count()
-                .filter(ORMQRel.relevance >= ORMDataset.min_relevance)
-                .label("count"),
-            )
-            .select_from(ORMDocument)
+        # select pkeys of matching documents in correct order
+        sq_document_pkeys = (
+            select(*select_clause_sq)
             .outerjoin(ORMQRel)
-            .outerjoin(ORMQuery)
-            .outerjoin(ORMDataset)
-            .join(ORMCorpus, onclause=ORMDocument.corpus_pkey == ORMCorpus.pkey)
+            .join(ORMQuery)
+            .join(ORMDataset)
             .where(*where_clause)
-            .group_by(
-                ORMDocument.pkey, ORMDocument.id, ORMDocument.title, ORMDocument.text
-            )
-            .order_by(*order_by_clause)
+            .group_by(ORMDocument.pkey)
+            .order_by(*order_by_clause, ORMDocument.pkey)
             .limit(num_results)
             .offset(offset)
+        ).subquery()
+
+        # join with full set of documents to get the other columns
+        sq_all_docs = select(ORMDocument).subquery()
+
+        select_clause = [
+            sq_all_docs.c.id,
+            sq_all_docs.c.title,
+            sq_all_docs.c.text,
+            sq_document_pkeys.c.count,
+        ]
+
+        if "length" in sq_document_pkeys.c:
+            select_clause.append(sq_document_pkeys.c.length)
+        if "score" in sq_document_pkeys.c:
+            select_clause.append(sq_document_pkeys.c.score)
+        sql = (
+            select(*select_clause)
+            .select_from(sq_document_pkeys)
+            .join(sq_all_docs, onclause=sq_document_pkeys.c.pkey == sq_all_docs.c.pkey)
+            .order_by(*order_by_clause, sq_all_docs.c.pkey)
         )
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
@@ -644,7 +661,7 @@ class DBController(Controller):
                     text=text,
                     num_relevant_queries=num_rel_queries,
                 )
-                for id, title, text, num_rel_queries in result
+                for id, title, text, num_rel_queries, *_ in result
             ],
             offset=offset,
             total_num_items=total_num_results,
