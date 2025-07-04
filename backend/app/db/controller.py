@@ -380,9 +380,7 @@ class DBController(Controller):
             where_clause.append(ORMDataset.name == dataset_name)
         if match is not None:
             where_clause.append(
-                ORMQuery.pkey.bool_op("@@@")(
-                    func.paradedb.fuzzy_term(literal_column("'text'"), match)
-                )
+                ORMQuery.text.bool_op("@@@")(escape_search_query(match))
             )
 
         order_by_op = desc if order_by_desc else asc
