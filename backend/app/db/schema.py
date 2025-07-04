@@ -1,7 +1,11 @@
 from sqlalchemy import (
+    Column,
+    Computed,
     ForeignKey,
     Index,
+    Integer,
     UniqueConstraint,
+    func,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
@@ -16,7 +20,6 @@ ORMBase = declarative_base()
 class ORMCorpus(ORMBase):
     """ORM class representing a corpus."""
 
-    __tablename__ = "corpora"
     pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     name: Mapped[str] = mapped_column(unique=True)
@@ -24,12 +27,12 @@ class ORMCorpus(ORMBase):
 
     datasets: Mapped[list["ORMDataset"]] = relationship(back_populates="corpus")
 
+    __tablename__ = "corpora"
+
 
 class ORMDataset(ORMBase):
     """ORM class representing a dataset."""
 
-    __tablename__ = "datasets"
-    __table_args__ = (UniqueConstraint("name", "corpus_pkey"),)
     pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     name: Mapped[str] = mapped_column()
@@ -38,34 +41,13 @@ class ORMDataset(ORMBase):
 
     corpus: Mapped[ORMCorpus] = relationship(back_populates="datasets")
 
+    __tablename__ = "datasets"
+    __table_args__ = (UniqueConstraint("name", "corpus_pkey"),)
+
 
 class ORMQuery(ORMBase):
     """ORM class representing a query."""
 
-    __tablename__ = "queries"
-    __table_args__ = (
-        UniqueConstraint("id", "dataset_pkey"),
-        Index(
-            None,
-            "pkey",
-            "text",
-            "description",
-            "dataset_pkey",
-            postgresql_using="bm25",
-            postgresql_with={
-                "key_field": "pkey",
-                "text_fields": """\'{
-                    "text": {
-                        "tokenizer": {
-                            "type": "default",
-                            "stemmer": "English",
-                            "stopwords_language": "English"
-                        }
-                    }
-                }\'""",
-            },
-        ),
-    )
     pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     id: Mapped[str] = mapped_column(index=True)
@@ -76,18 +58,15 @@ class ORMQuery(ORMBase):
     dataset: Mapped["ORMDataset"] = relationship()
     qrels: Mapped[list["ORMQRel"]] = relationship(back_populates="query")
 
-
-class ORMDocument(ORMBase):
-    """ORM class representing a document."""
-
-    __tablename__ = "documents"
+    __tablename__ = "queries"
     __table_args__ = (
+        UniqueConstraint("id", "dataset_pkey"),
         Index(
-            None,
-            "pkey",
-            "title",
-            "text",
-            "corpus_pkey",
+            "ix_queries_search",
+            pkey,
+            text,
+            description,
+            dataset_pkey,
             postgresql_using="bm25",
             postgresql_with={
                 "key_field": "pkey",
@@ -103,6 +82,11 @@ class ORMDocument(ORMBase):
             },
         ),
     )
+
+
+class ORMDocument(ORMBase):
+    """ORM class representing a document."""
+
     pkey: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     id: Mapped[str] = mapped_column(index=True)
@@ -110,14 +94,39 @@ class ORMDocument(ORMBase):
     title: Mapped[str] = mapped_column(nullable=True)
     text: Mapped[str] = mapped_column()
 
+    text_length = Column(Integer, Computed(func.length(text)), index=True)
+
     corpus: Mapped["ORMCorpus"] = relationship()
     qrels: Mapped[list["ORMQRel"]] = relationship(back_populates="document")
+
+    __tablename__ = "documents"
+    __table_args__ = (
+        Index(
+            "ix_documents_search",
+            pkey,
+            title,
+            text,
+            corpus_pkey,
+            postgresql_using="bm25",
+            postgresql_with={
+                "key_field": "pkey",
+                "text_fields": """\'{
+                    "text": {
+                        "tokenizer": {
+                            "type": "default",
+                            "stemmer": "English",
+                            "stopwords_language": "English"
+                        }
+                    }
+                }\'""",
+            },
+        ),
+        Index("ix_documents_length", corpus_pkey, text_length),
+    )
 
 
 class ORMQRel(ORMBase):
     """ORM class representing a query relevance judgment (QRel)."""
-
-    __tablename__ = "qrels"
 
     query_pkey: Mapped[str] = mapped_column(
         ForeignKey("queries.pkey"), primary_key=True, index=True
@@ -129,3 +138,5 @@ class ORMQRel(ORMBase):
 
     query: Mapped["ORMQuery"] = relationship(back_populates="qrels")
     document: Mapped["ORMDocument"] = relationship(back_populates="qrels")
+
+    __tablename__ = "qrels"

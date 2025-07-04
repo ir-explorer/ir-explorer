@@ -1,5 +1,5 @@
 <script lang="ts" generics="T">
-  import { filterIcon, orderAscIcon, orderDescIcon } from "$lib/icons";
+  import { matchIcon, orderAscIcon, orderDescIcon } from "$lib/icons";
   import type { OrderByOption, Paginated } from "$lib/types";
   import { onMount, type Snippet } from "svelte";
   import Fa from "svelte-fa";
@@ -34,8 +34,8 @@
   let numItemsDisplayed = $derived(listItems.length);
   let totalNumItems = $state(0);
   let loaded = $state(false);
-  let filter = $state("");
-  let filterTrimmed = $derived(filter.trim());
+  let match = $state("");
+  let matchTrimmed = $derived(match.trim());
 
   let promiseNextPage: Promise<Paginated<T>> | null = null;
   let abortToken = { abort: function () {} };
@@ -64,7 +64,7 @@
       }
 
       const nextPage = await getPage(
-        filterTrimmed.length > 0 ? filterTrimmed : null,
+        matchTrimmed.length > 0 ? matchTrimmed : null,
         orderByValue,
         desc,
         itemsPerPage,
@@ -96,16 +96,16 @@
   <List bind:listItems {headTitle} {item} {getTargetLink}>
     {#snippet headItems()}
       <div class="flex flex-col gap-2 md:flex-row">
-        <!-- filter -->
+        <!-- match -->
         <label class="input input-sm w-full md:w-fit">
           <span class="text-sm">
-            <Fa icon={filterIcon} />
+            <Fa icon={matchIcon} />
           </span>
           <input
             type="text"
             class="w-full md:w-32"
-            placeholder="Filter..."
-            bind:value={filter}
+            placeholder="Match..."
+            bind:value={match}
             oninput={async () => {
               await reset(1000);
             }} />

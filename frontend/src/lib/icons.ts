@@ -6,7 +6,6 @@ import {
   faDatabase,
   faEye,
   faFileLines,
-  faFilter,
   faFolderClosed,
   faInfo,
   faLongArrowDown,
@@ -26,7 +25,7 @@ export const nextPageIcon = faChevronRight;
 export const prevPageIcon = faChevronLeft;
 export const listArrowIcon = faChevronRight;
 
-export const filterIcon = faFilter;
+export const matchIcon = faMagnifyingGlass;
 
 export const corpusIcon = faFolderClosed;
 export const documentIcon = faFileLines;
