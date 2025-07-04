@@ -618,8 +618,8 @@ class DBController(Controller):
         sq_document_pkeys = (
             select(*select_clause_sq)
             .outerjoin(ORMQRel)
-            .join(ORMQuery)
-            .join(ORMDataset)
+            .outerjoin(ORMQuery)
+            .outerjoin(ORMDataset)
             .where(*where_clause)
             .group_by(ORMDocument.pkey)
             .order_by(*order_by_clause, ORMDocument.pkey)
@@ -647,6 +647,8 @@ class DBController(Controller):
             .join(sq_all_docs, onclause=sq_document_pkeys.c.pkey == sq_all_docs.c.pkey)
             .order_by(*order_by_clause, sq_all_docs.c.pkey)
         )
+
+        print(sql.compile(compile_kwargs={"literal_binds": True}))
 
         total_num_results = (await transaction.execute(sql_count)).scalar_one()
         result = (await transaction.execute(sql)).all()
