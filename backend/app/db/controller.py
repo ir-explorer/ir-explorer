@@ -798,15 +798,11 @@ class DBController(Controller):
             where_clause.append(ORMQuery.id == query_id)
         if match_query is not None:
             where_clause.append(
-                ORMQuery.pkey.bool_op("@@@")(
-                    func.paradedb.fuzzy_term(literal_column("'text'"), match_query)
-                )
+                ORMQuery.text.bool_op("@@@")(escape_search_query(match_query))
             )
         if match_document is not None:
             where_clause.append(
-                ORMDocument.pkey.bool_op("@@@")(
-                    func.paradedb.fuzzy_term(literal_column("'text'"), match_document)
-                )
+                ORMDocument.text.bool_op("@@@")(escape_search_query(match_document))
             )
 
         sql_count = (
