@@ -22,8 +22,8 @@
     <span>No results found.</span>
   </div>
 {:else}
-  <ul class="list rounded-box bg-base-100 shadow-md">
-    <li class="list-row p-4 text-xs">
+  <ul class="list">
+    <li class="list-row p-2 text-xs">
       <p>
         <span>
           {data.result.total_num_items} results for query
@@ -62,28 +62,26 @@
         </div>
       </li>
     {/each}
-  </ul>
 
-  {#if data.totalPages > 1}
-    <div class="mt-4 join flex w-full justify-center">
-      {#if data.prevPageLink != null}
-        <a
-          href={data.prevPageLink}
-          class="btn join-item btn-soft btn-sm btn-primary"
-          ><Fa icon={prevPageIcon} /></a>
-      {/if}
-      <div
-        class="join-item flex items-center border border-base-300 bg-base-200 px-4">
-        <p class="text-sm">
-          Page {data.pageNum} of {data.totalPages}
-        </p>
-      </div>
-      {#if data.nextPageLink != null}
-        <a
-          href={data.nextPageLink}
-          class="btn join-item btn-soft btn-sm btn-primary"
-          ><Fa icon={nextPageIcon} /></a>
-      {/if}
-    </div>
-  {/if}
+    {#if data.totalPages > 1}
+      <li class="list-row flex w-full justify-center">
+        <div class="join">
+          {#if data.prevPageLink != null}
+            <a href={data.prevPageLink} class="btn join-item btn-sm btn-primary"
+              ><Fa icon={prevPageIcon} /></a>
+          {/if}
+          <div
+            class="join-item flex items-center border border-base-300 bg-base-200 px-4">
+            <p class="text-sm">
+              Page {data.pageNum} of {data.totalPages}
+            </p>
+          </div>
+          {#if data.nextPageLink != null}
+            <a href={data.nextPageLink} class="btn join-item btn-sm btn-primary"
+              ><Fa icon={nextPageIcon} /></a>
+          {/if}
+        </div>
+      </li>
+    {/if}
+  </ul>
 {/if}
