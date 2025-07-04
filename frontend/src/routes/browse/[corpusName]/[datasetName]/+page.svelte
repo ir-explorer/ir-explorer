@@ -41,7 +41,7 @@
   const orderQueriesOptions = [
     { name: "Relevant documents", option: "relevant_documents" },
     { name: "Length", option: "length" },
-    { name: "Filter", option: "match_score" },
+    { name: "Match", option: "match_score" },
   ] as OrderByOption[];
 
   // relevant document list
@@ -73,7 +73,7 @@
   const orderRelevantDocumentsOptions = [
     { name: "Relevance", option: "relevance" },
     { name: "Length", option: "document_length" },
-    { name: "Filter", option: "document_match_score" },
+    { name: "Match", option: "document_match_score" },
   ] as OrderByOption[];
 </script>
 
