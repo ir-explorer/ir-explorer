@@ -6,9 +6,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
   // if a query ID is specified, return that query
   let query: Query | null = null;
 
-  const queryID = url.searchParams.get("query_id");
-  if (queryID !== null) {
-    query = await getQuery(params.corpusName, params.datasetName, queryID);
+  const queryId = url.searchParams.get("queryId");
+  if (queryId !== null) {
+    query = await getQuery(params.corpusName, params.datasetName, queryId);
   }
 
   return { datasetName: params.datasetName, query: query };

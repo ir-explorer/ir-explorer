@@ -18,9 +18,9 @@
   }: {
     getPage: (
       match: string | null,
-      order_by: string | null,
+      orderBy: string | null,
       desc: boolean,
-      num_items: number,
+      numItems: number,
       offset: number,
     ) => Promise<Paginated<T>>;
     headTitle: Snippet;
@@ -79,7 +79,7 @@
 
     promiseNextPage.then((nextPage) => {
       listItems = [...listItems, ...nextPage.items];
-      totalNumItems = nextPage.total_num_items;
+      totalNumItems = nextPage.totalNumItems;
       working = false;
       loaded = true;
     });

@@ -16,23 +16,23 @@
   // query list
   async function getQueriesPage(
     match: string | null,
-    order_by: string | null,
+    orderBy: string | null,
     desc: boolean,
-    num_items: number,
+    numItems: number,
     offset: number,
   ) {
     const searchParams = new URLSearchParams({
-      corpus_name: page.params.corpusName,
-      dataset_name: page.params.datasetName,
+      corpusName: page.params.corpusName,
+      datasetName: page.params.datasetName,
       desc: desc.toString(),
-      num_results: num_items.toString(),
+      numResults: numItems.toString(),
       offset: offset.toString(),
     });
     if (match !== null) {
       searchParams.append("match", match);
     }
-    if (order_by !== null) {
-      searchParams.append("order_by", order_by);
+    if (orderBy !== null) {
+      searchParams.append("orderBy", orderBy);
     }
 
     const res = await fetch("/api/queries?" + searchParams);
@@ -47,27 +47,27 @@
   // relevant document list
   async function getDocumentsPage(
     match: string | null,
-    order_by: string | null,
+    orderBy: string | null,
     desc: boolean,
-    num_items: number,
+    numItems: number,
     offset: number,
   ) {
     const searchParams = new URLSearchParams({
-      query_id: data.query !== null ? data.query.id : "",
-      dataset_name: page.params.datasetName,
-      corpus_name: page.params.corpusName,
-      num_results: num_items.toString(),
+      queryId: data.query !== null ? data.query.id : "",
+      datasetName: page.params.datasetName,
+      corpusName: page.params.corpusName,
+      numResults: numItems.toString(),
       offset: offset.toString(),
       desc: desc.toString(),
     });
     if (match !== null) {
       searchParams.append("match", match);
     }
-    if (order_by !== null) {
-      searchParams.append("order_by", order_by);
+    if (orderBy !== null) {
+      searchParams.append("orderBy", orderBy);
     }
 
-    const res = await fetch("/api/relevant_documents?" + searchParams);
+    const res = await fetch("/api/relevantDocuments?" + searchParams);
     return (await res.json()) as Paginated<RelevantDocument>;
   }
   const orderRelevantDocumentsOptions = [
@@ -90,12 +90,12 @@
     </div>
   </div>
 
-  {#if data.query.num_relevant_documents > 0}
+  {#if data.query.numRelevantDocuments > 0}
     <!-- display relevant documents for selected query -->
     <PaginatedList
       getPage={getDocumentsPage}
       getTargetLink={(d: RelevantDocument) =>
-        `/browse/${page.params.corpusName}?${new URLSearchParams({ document_id: d.id })}`}
+        `/browse/${page.params.corpusName}?${new URLSearchParams({ documentId: d.id })}`}
       itemsPerPage={10}
       orderByOptions={orderRelevantDocumentsOptions}>
       {#snippet headTitle()}
@@ -121,11 +121,11 @@
   <PaginatedList
     getPage={getQueriesPage}
     getTargetLink={(q: Query) =>
-      `/browse/${page.params.corpusName}/${page.params.datasetName}?${new URLSearchParams({ query_id: q.id })}`}
+      `/browse/${page.params.corpusName}/${page.params.datasetName}?${new URLSearchParams({ queryId: q.id })}`}
     itemsPerPage={10}
     orderByOptions={orderQueriesOptions}
     goToTarget={`/browse/${page.params.corpusName}/${page.params.datasetName}`}
-    goToName="query_id">
+    goToName="queryId">
     {#snippet headTitle()}
       <p class="flex flex-row items-center gap-2">
         <Fa icon={queryIcon} />Queries
@@ -136,10 +136,10 @@
         <p>{q.text}</p>
         <div class="flex gap-2 font-bold">
           <p class="badge badge-sm badge-primary">ID: {q.id}</p>
-          {#if q.num_relevant_documents > 0}
+          {#if q.numRelevantDocuments > 0}
             <p class="badge badge-sm badge-secondary">
-              {q.num_relevant_documents}
-              {q.num_relevant_documents == 1 ? "document" : "documents"}
+              {q.numRelevantDocuments}
+              {q.numRelevantDocuments == 1 ? "document" : "documents"}
             </p>
           {/if}
         </div>
