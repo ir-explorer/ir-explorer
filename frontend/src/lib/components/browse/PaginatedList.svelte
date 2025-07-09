@@ -1,6 +1,7 @@
 <script lang="ts" generics="T">
   import { goToIcon, matchIcon, orderAscIcon, orderDescIcon } from "$lib/icons";
   import type { OrderByOption, Paginated } from "$lib/types";
+  import { toHumanReadable } from "$lib/util";
   import { onMount, type Snippet } from "svelte";
   import Fa from "svelte-fa";
   import List from "./List.svelte";
@@ -190,7 +191,9 @@
     {#if loaded}
       <p
         class="join-item flex h-6 items-center rounded-t-none bg-neutral px-2 text-sm text-neutral-content shadow">
-        Showing {numItemsDisplayed.toLocaleString()} of {totalNumItems.toLocaleString()}
+        Showing {toHumanReadable(numItemsDisplayed)} of {toHumanReadable(
+          totalNumItems,
+        )}
       </p>
     {/if}
     {#if !working && numItemsDisplayed < totalNumItems}

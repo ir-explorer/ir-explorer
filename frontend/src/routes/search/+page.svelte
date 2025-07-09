@@ -7,6 +7,7 @@
     nextPageIcon,
     prevPageIcon,
   } from "$lib/icons";
+  import { toHumanReadable } from "$lib/util";
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
@@ -26,7 +27,7 @@
     <li class="list-row p-2 text-xs">
       <p>
         <span>
-          {data.result.totalNumItems} results for query
+          {toHumanReadable(data.result.totalNumItems)} results for query
           <i><b>{page.url.searchParams.get("q")}</b></i>
         </span>{#if corpusNames.length > 0}<span>
             &nbsp;(corpora: {corpusNames.join(", ")})</span
@@ -73,7 +74,7 @@
           <div
             class="join-item flex items-center border border-base-300 bg-base-200 px-4">
             <p class="text-sm">
-              Page {data.pageNum} of {data.totalPages}
+              Page {data.pageNum} of {toHumanReadable(data.totalPages)}
             </p>
           </div>
           {#if data.nextPageLink != null}
