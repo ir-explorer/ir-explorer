@@ -13,11 +13,21 @@ import type {
 
 const BACKEND_REST_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}`;
 
+/**
+ * Return a list of natural languages supported by the backend.
+ *
+ * @returns The supported languages.
+ */
 export async function getAvailableLanguages(): Promise<string[]> {
   const res = await fetch(`${BACKEND_REST_URL}/get_available_languages`);
   return (await res.json()) as string[];
 }
 
+/**
+ * Return search options to be set by the frontend.
+ *
+ * @returns All search options.
+ */
 export async function getSearchOptions(): Promise<SearchOptions> {
   const res = await fetch(`${BACKEND_REST_URL}/get_search_options`);
   const resJson = await res.json();
@@ -27,6 +37,11 @@ export async function getSearchOptions(): Promise<SearchOptions> {
   } as SearchOptions;
 }
 
+/**
+ * Return a list of available corpora.
+ *
+ * @returns The corpora.
+ */
 export async function getCorpora(): Promise<Corpus[]> {
   const res = await fetch(`${BACKEND_REST_URL}/get_corpora`);
   const resJson = await res.json();
@@ -43,6 +58,13 @@ export async function getCorpora(): Promise<Corpus[]> {
   return corpora;
 }
 
+/**
+ * Return a list of available datasets for a corpus.
+ *
+ * @param corpusName - The name of the corpus.
+ *
+ * @returns The datasets corresponding to the corpus.
+ */
 export async function getDatasets(corpusName: string): Promise<Dataset[]> {
   const params = new URLSearchParams({ corpus_name: corpusName });
   const res = await fetch(`${BACKEND_REST_URL}/get_datasets?${params}`);
@@ -60,6 +82,15 @@ export async function getDatasets(corpusName: string): Promise<Dataset[]> {
   return datasets;
 }
 
+/**
+ * Return a single query.
+ *
+ * @param corpusName - The name of the corpus.
+ * @param datasetName - The name of the dataset.
+ * @param queryId - The ID of the query.
+ *
+ * @returns The query.
+ */
 export async function getQuery(
   corpusName: string,
   datasetName: string,
@@ -83,6 +114,19 @@ export async function getQuery(
   } as Query;
 }
 
+/**
+ * Return a list of queries according to certain criteria.
+ *
+ * @param corpusName - The name of the corpus.
+ * @param datasetName - The name of the dataset.
+ * @param match - Return only queries matching this string.
+ * @param orderBy - In what way to order the results.
+ * @param desc - Whether to order in a descending fashion.
+ * @param numResults - How many results to return.
+ * @param offset - How many results to skip.
+ *
+ * @returns The list of queries.
+ */
 export async function getQueries(
   corpusName: string,
   datasetName: string | null = null,
@@ -129,6 +173,14 @@ export async function getQueries(
   } as Paginated<Query>;
 }
 
+/**
+ * Return a single document.
+ *
+ * @param corpusName - The name of the corpus.
+ * @param documentId - The ID of the document.
+ *
+ * @returns The document.
+ */
 export async function getDocument(
   corpusName: string,
   documentId: string,
@@ -149,6 +201,18 @@ export async function getDocument(
   } as Document;
 }
 
+/**
+ * Return a list of documents according to certain criteria.
+ *
+ * @param corpusName - The name of the corpus.
+ * @param match - Return only documents matching this string.
+ * @param orderBy - In what way to order the results.
+ * @param desc - Whether to order in a descending fashion.
+ * @param numResults - How many results to return.
+ * @param offset - How many results to skip.
+ *
+ * @returns The list of documents.
+ */
 export async function getDocuments(
   corpusName: string,
   match: string | null = null,
@@ -190,6 +254,19 @@ export async function getDocuments(
   } as Paginated<Document>;
 }
 
+/**
+ * Search documents in one or more corpora.
+ *
+ * Results are ordered by scores (descending).
+ *
+ * @param q - The search query.
+ * @param language - The search query language.
+ * @param numResults - How many results to return.
+ * @param page - Return results for this search page.
+ * @param corpusNames - Search only in these corpora.
+ *
+ * @returns The list of hits.
+ */
 export async function searchDocuments(
   q: string,
   language: string | null,
@@ -233,6 +310,75 @@ export async function searchDocuments(
   } as Paginated<DocumentSearchHit>;
 }
 
+/**
+ * Return a list of relevant queries for a document.
+ *
+ * @param documentId - The ID of the document.
+ * @param corpusName - The name of the corpus.
+ * @param match - Return only queries matching this string.
+ * @param orderBy - In what way to order the results.
+ * @param desc - Whether to order in a descending fashion.
+ * @param numResults - How many results to return.
+ * @param offset - How many results to skip.
+ *
+ * @returns The list of queries.
+ */
+export async function getRelevantQueries(
+  documentId: string,
+  corpusName: string,
+  match: string | null = null,
+  orderBy: string | null = null,
+  desc: boolean = true,
+  numResults: number,
+  offset: number,
+): Promise<Paginated<RelevantQuery>> {
+  const searchParams = new URLSearchParams({
+    document_id: documentId,
+    corpus_name: corpusName,
+    num_results: numResults.toString(),
+    offset: offset.toString(),
+    order_by_desc: desc.toString(),
+  });
+  if (match !== null) {
+    searchParams.append("match_query", match);
+  }
+  if (orderBy !== null) {
+    searchParams.append("order_by", orderBy);
+  }
+
+  const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);
+  const resJson = await res.json();
+  let queries: RelevantQuery[] = [];
+  for (const item of resJson["items"]) {
+    queries.push({
+      id: item["query_info"]["id"],
+      snippet: item["query_info"]["text"],
+      corpusName: item["corpus_name"],
+      datasetName: item["dataset_name"],
+      relevance: item["relevance"],
+    } as RelevantQuery);
+  }
+  return {
+    totalNumItems: resJson["total_num_items"],
+    offset: resJson["offset"],
+    items: queries,
+  } as Paginated<RelevantQuery>;
+}
+
+/**
+ * Return a list of relevant documents for a query.
+ *
+ * @param queryId - The ID of the query.
+ * @param datasetName - The name of the dataset.
+ * @param corpusName - The name of the corpus.
+ * @param match - Return only documents matching this string.
+ * @param orderBy - In what way to order the results.
+ * @param desc - Whether to order in a descending fashion.
+ * @param numResults - How many results to return.
+ * @param offset - How many results to skip.
+ *
+ * @returns The list of documents.
+ */
 export async function getRelevantDocuments(
   queryId: string,
   datasetName: string,
@@ -274,46 +420,4 @@ export async function getRelevantDocuments(
     offset: resJson["offset"],
     items: documents,
   } as Paginated<RelevantDocument>;
-}
-
-export async function getRelevantQueries(
-  documentId: string,
-  corpusName: string,
-  match: string | null = null,
-  orderBy: string | null = null,
-  desc: boolean = true,
-  numResults: number,
-  offset: number,
-): Promise<Paginated<RelevantQuery>> {
-  const searchParams = new URLSearchParams({
-    document_id: documentId,
-    corpus_name: corpusName,
-    num_results: numResults.toString(),
-    offset: offset.toString(),
-    order_by_desc: desc.toString(),
-  });
-  if (match !== null) {
-    searchParams.append("match_query", match);
-  }
-  if (orderBy !== null) {
-    searchParams.append("order_by", orderBy);
-  }
-
-  const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);
-  const resJson = await res.json();
-  let queries: RelevantQuery[] = [];
-  for (const item of resJson["items"]) {
-    queries.push({
-      id: item["query_info"]["id"],
-      snippet: item["query_info"]["text"],
-      corpusName: item["corpus_name"],
-      datasetName: item["dataset_name"],
-      relevance: item["relevance"],
-    } as RelevantQuery);
-  }
-  return {
-    totalNumItems: resJson["total_num_items"],
-    offset: resJson["offset"],
-    items: queries,
-  } as Paginated<RelevantQuery>;
 }
