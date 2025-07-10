@@ -1,19 +1,24 @@
 <script lang="ts">
   import { toHumanReadable } from "$lib/util";
 
-  const {
-    value,
-    total,
-    desc,
-    isEstimate = false,
-  }: {
+  interface Props {
+    /** The value to display (fraction of the total). */
     value: number;
+    /** The total amount. */
     total: number;
+    /** A description. */
     desc: string;
+    /** Display a tooltip stating that the value is an estimate. */
     isEstimate?: boolean;
-  } = $props();
+  }
+
+  const { value, total, desc, isEstimate = false }: Props = $props();
 </script>
 
+<!--
+@component
+A visual indicator of a fraction in relation to the total.
+-->
 <div
   class={[
     "flex flex-col gap-1.5 text-center",

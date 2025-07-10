@@ -7,9 +7,9 @@ export const load: PageServerLoad = async ({ params, url }) => {
   let datasetList: Dataset[] | null = null;
 
   // if a document ID is specified, return that document
-  const documentID = url.searchParams.get("document_id");
-  if (documentID !== null) {
-    document = await getDocument(params.corpusName, documentID);
+  const documentId = url.searchParams.get("documentId");
+  if (documentId !== null) {
+    document = await getDocument(params.corpusName, documentId);
   } else {
     datasetList = await getDatasets(params.corpusName);
   }

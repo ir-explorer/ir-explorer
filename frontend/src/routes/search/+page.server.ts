@@ -30,7 +30,7 @@ export const load: PageServerLoad = async ({ url }) => {
     pageNum,
     corpusNames,
   );
-  const totalPages = Math.ceil(result.total_num_items / resultsPerPage);
+  const totalPages = Math.ceil(result.totalNumItems / resultsPerPage);
 
   if (totalPages == 0) {
     return {

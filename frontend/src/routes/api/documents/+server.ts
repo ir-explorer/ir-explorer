@@ -2,11 +2,11 @@ import { getDocuments } from "$lib/server/backend";
 import { error, json } from "@sveltejs/kit";
 
 export async function GET({ url }) {
-  const corpusName = url.searchParams.get("corpus_name");
+  const corpusName = url.searchParams.get("corpusName");
   const match = url.searchParams.get("match");
-  const orderBy = url.searchParams.get("order_by");
+  const orderBy = url.searchParams.get("orderBy");
   const desc = url.searchParams.get("desc");
-  const numResults = url.searchParams.get("num_results");
+  const numResults = url.searchParams.get("numResults");
   const offset = url.searchParams.get("offset");
 
   if (corpusName === null) {

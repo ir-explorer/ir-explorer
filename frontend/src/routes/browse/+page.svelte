@@ -8,13 +8,13 @@
 
   const { data }: PageProps = $props();
   const totalNumDocs = data.corpusList.reduce(
-    (acc, corpus) => acc + corpus.num_documents,
+    (acc, corpus) => acc + corpus.numDocuments,
     0,
   );
 </script>
 
 <CardGrid
-  gridItems={data.corpusList.sort((a, b) => b.num_documents - a.num_documents)}
+  gridItems={data.corpusList.sort((a, b) => b.numDocuments - a.numDocuments)}
   getTargetLink={(c: Corpus) => `/browse/${c.name}`}>
   {#snippet item(c: Corpus)}
     <div class="flex items-center justify-between gap-4">
@@ -24,12 +24,12 @@
           {c.name}
         </p>
         <p>
-          <span class="text-xl">{c.num_datasets}</span>
-          {c.num_datasets == 1 ? "dataset" : "datasets"}
+          <span class="text-xl">{c.numDatasets}</span>
+          {c.numDatasets == 1 ? "dataset" : "datasets"}
         </p>
       </div>
       <SizeIndicator
-        value={c.num_documents}
+        value={c.numDocuments}
         total={totalNumDocs}
         desc={"documents"} />
     </div>

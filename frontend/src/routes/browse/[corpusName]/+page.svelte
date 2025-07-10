@@ -19,22 +19,22 @@
   // document list
   async function getDocumentsPage(
     match: string | null,
-    order_by: string | null,
+    orderBy: string | null,
     desc: boolean,
-    num_items: number,
+    numItems: number,
     offset: number,
   ) {
     const searchParams = new URLSearchParams({
-      corpus_name: page.params.corpusName,
+      corpusName: page.params.corpusName,
       desc: desc.toString(),
-      num_results: num_items.toString(),
+      numResults: numItems.toString(),
       offset: offset.toString(),
     });
     if (match !== null) {
       searchParams.append("match", match);
     }
-    if (order_by !== null) {
-      searchParams.append("order_by", order_by);
+    if (orderBy !== null) {
+      searchParams.append("orderBy", orderBy);
     }
 
     const res = await fetch("/api/documents?" + searchParams);
@@ -49,26 +49,26 @@
   // relevent queries list
   async function getQueriesPage(
     match: string | null,
-    order_by: string | null,
+    orderBy: string | null,
     desc: boolean,
-    num_items: number,
+    numItems: number,
     offset: number,
   ) {
     const searchParams = new URLSearchParams({
-      corpus_name: page.params.corpusName,
-      document_id: data.document !== null ? data.document.id : "",
-      num_results: num_items.toString(),
+      corpusName: page.params.corpusName,
+      documentId: data.document !== null ? data.document.id : "",
+      numResults: numItems.toString(),
       offset: offset.toString(),
       desc: desc.toString(),
     });
     if (match !== null) {
       searchParams.append("match", match);
     }
-    if (order_by !== null) {
-      searchParams.append("order_by", order_by);
+    if (orderBy !== null) {
+      searchParams.append("orderBy", orderBy);
     }
 
-    const res = await fetch("/api/relevant_queries?" + searchParams);
+    const res = await fetch("/api/relevantQueries?" + searchParams);
     return (await res.json()) as Paginated<RelevantQuery>;
   }
   const orderRelevantQueriesOptions = [
@@ -91,12 +91,12 @@
     </div>
   </div>
 
-  {#if data.document.num_relevant_queries > 0}
+  {#if data.document.numRelevantQueries > 0}
     <!-- display relevant queries for selected document -->
     <PaginatedList
       getPage={getQueriesPage}
       getTargetLink={(q: RelevantQuery) =>
-        `/browse/${page.params.corpusName}/${q.dataset_name}?query_id=${q.id}`}
+        `/browse/${page.params.corpusName}/${q.datasetName}?queryId=${q.id}`}
       itemsPerPage={10}
       orderByOptions={orderRelevantQueriesOptions}>
       {#snippet headTitle()}
@@ -121,20 +121,19 @@
   <!-- display datasets -->
   {#if data.datasetList !== null}
     {@const totalNumQueries = data.datasetList.reduce(
-      (acc, dataset) => acc + dataset.num_queries,
+      (acc, dataset) => acc + dataset.numQueries,
       0,
     )}
     <CardGrid
-      gridItems={data.datasetList.sort((a, b) => b.num_queries - a.num_queries)}
+      gridItems={data.datasetList.sort((a, b) => b.numQueries - a.numQueries)}
       getTargetLink={(d: Dataset) =>
         `/browse/${page.params.corpusName}/${d.name}`}>
       {#snippet item(d: Dataset)}
-        {@const fraction = d.num_queries / totalNumQueries}
         <div class="flex items-center justify-between gap-4">
           <div class="flex flex-col gap-2">
             <p class="flex items-center gap-2 text-sm font-thin">
               <Fa icon={corpusIcon} />
-              {d.corpus_name}
+              {d.corpusName}
             </p>
             <p class="flex items-center gap-2 text-lg">
               <Fa icon={datasetIcon} />
@@ -142,7 +141,7 @@
             </p>
           </div>
           <SizeIndicator
-            value={d.num_queries}
+            value={d.numQueries}
             total={totalNumQueries}
             desc={"queries"} />
         </div>
@@ -154,11 +153,11 @@
   <PaginatedList
     getPage={getDocumentsPage}
     getTargetLink={(d: Document) =>
-      `/browse/${page.params.corpusName}?document_id=${d.id}`}
+      `/browse/${page.params.corpusName}?documentId=${d.id}`}
     itemsPerPage={10}
     orderByOptions={orderDocumentsOptions}
     goToTarget={`/browse/${page.params.corpusName}`}
-    goToName="document_id">
+    goToName="documentId">
     {#snippet headTitle()}
       <p class="flex flex-row items-center gap-2">
         <Fa icon={documentIcon} />Documents
@@ -177,10 +176,10 @@
         {/if}
         <div class="flex gap-2 font-bold">
           <p class="badge badge-sm badge-primary">ID: {d.id}</p>
-          {#if d.num_relevant_queries > 0}
+          {#if d.numRelevantQueries > 0}
             <p class="badge badge-sm badge-secondary">
-              {d.num_relevant_queries}
-              {d.num_relevant_queries == 1 ? "query" : "queries"}
+              {d.numRelevantQueries}
+              {d.numRelevantQueries == 1 ? "query" : "queries"}
             </p>
           {/if}
         </div>

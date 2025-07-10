@@ -7,6 +7,7 @@
     nextPageIcon,
     prevPageIcon,
   } from "$lib/icons";
+  import { toHumanReadable } from "$lib/util";
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
@@ -14,7 +15,7 @@
   let corpusNames = $derived(page.url.searchParams.getAll("corpus"));
 </script>
 
-{#if data.result.total_num_items == 0}
+{#if data.result.totalNumItems == 0}
   <div class="alert-soft mx-auto alert w-fit">
     <span class="text-primary">
       <Fa icon={infoIcon} />
@@ -26,7 +27,7 @@
     <li class="list-row p-2 text-xs">
       <p>
         <span>
-          {data.result.total_num_items} results for query
+          {toHumanReadable(data.result.totalNumItems)} results for query
           <i><b>{page.url.searchParams.get("q")}</b></i>
         </span>{#if corpusNames.length > 0}<span>
             &nbsp;(corpora: {corpusNames.join(", ")})</span
@@ -47,15 +48,15 @@
             </p>
             <a
               class="badge-soft badge hover:text-primary"
-              href="/browse/{hit.corpus_name}?document_id={hit.id}">
+              href="/browse/{hit.corpusName}?documentId={hit.id}">
               <Fa icon={documentIcon} />
               {hit.id}
             </a>
             <a
               class="badge-soft badge hover:text-primary"
-              href="/browse/{hit.corpus_name}">
+              href="/browse/{hit.corpusName}">
               <Fa icon={corpusIcon} />
-              {hit.corpus_name}
+              {hit.corpusName}
             </a>
           </div>
           <p class="my-2">{@html hit.snippet}</p>
@@ -73,7 +74,7 @@
           <div
             class="join-item flex items-center border border-base-300 bg-base-200 px-4">
             <p class="text-sm">
-              Page {data.pageNum} of {data.totalPages}
+              Page {data.pageNum} of {toHumanReadable(data.totalPages)}
             </p>
           </div>
           {#if data.nextPageLink != null}

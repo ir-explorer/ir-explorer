@@ -3,15 +3,20 @@
   import type { SearchSettings } from "$lib/types";
   import { Fa } from "svelte-fa";
 
-  let {
-    searchSettings = $bindable(),
-    searchInit = null,
-  }: {
+  interface Props {
+    /** Bindable search settings. */
     searchSettings: SearchSettings;
+    /** Initial value for the search query field. */
     searchInit?: string | null;
-  } = $props();
+  }
+
+  let { searchSettings = $bindable(), searchInit = null }: Props = $props();
 </script>
 
+<!--
+@component
+A search bar.
+-->
 <form
   class="flex w-full flex-row items-center gap-2"
   action="/search"
