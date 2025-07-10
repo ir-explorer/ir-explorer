@@ -6,6 +6,43 @@
   import Fa from "svelte-fa";
   import List from "./List.svelte";
 
+  interface Props {
+    /**
+     * Return the items for a single page.
+     *
+     * @param match - The content of the 'match' text field.
+     * @param orderBy - The selected 'order by' option.
+     * @param desc - Whether to order in a descending fashion.
+     * @param numItems - How many items to return.
+     * @param offset - How many items to skip.
+     *
+     * @returns The items.
+     */
+    getPage: (
+      match: string | null,
+      orderBy: string | null,
+      desc: boolean,
+      numItems: number,
+      offset: number,
+    ) => Promise<Paginated<T>>;
+    /** Render the title in the list head. */
+    headTitle: Snippet;
+    /** Render a single list item. */
+    item: Snippet<[T]>;
+    /** Return the target for a specific item. */
+    getTargetLink: (listItem: T) => string;
+    /** The number of items to show per page. */
+    itemsPerPage: number;
+    /** Whether to load the first page on mount. */
+    loadFirstPage?: boolean;
+    /** A list of options the items can be ordered by. */
+    orderByOptions?: OrderByOption[];
+    /** Target for the 'go to' form. */
+    goToTarget?: string | null;
+    /** Name for the 'go to' form. */
+    goToName?: string | null;
+  }
+
   const {
     getPage,
     headTitle,
@@ -16,23 +53,7 @@
     orderByOptions = [],
     goToTarget = null,
     goToName = null,
-  }: {
-    getPage: (
-      match: string | null,
-      orderBy: string | null,
-      desc: boolean,
-      numItems: number,
-      offset: number,
-    ) => Promise<Paginated<T>>;
-    headTitle: Snippet;
-    item: Snippet<[T]>;
-    getTargetLink: (listItem: T) => string;
-    itemsPerPage: number;
-    loadFirstPage?: boolean;
-    orderByOptions?: OrderByOption[];
-    goToTarget?: string | null;
-    goToName?: string | null;
-  } = $props();
+  }: Props = $props();
 
   let listItems: T[] = $state([]);
   let working = $state(false);
@@ -97,6 +118,10 @@
   }
 </script>
 
+<!--
+@component
+Render items as a list with pagination.
+-->
 <div class="mb-2 flex flex-col justify-center">
   <List bind:listItems {headTitle} {item} {getTargetLink}>
     {#snippet headItems()}

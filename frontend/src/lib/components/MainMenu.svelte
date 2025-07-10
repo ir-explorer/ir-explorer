@@ -5,13 +5,14 @@
   import Fa from "svelte-fa";
   import Logo from "./Logo.svelte";
 
-  let {
-    searchOptions,
-    searchSettings = $bindable(),
-  }: {
+  interface Props {
+    /** The search options (available options for each). */
     searchOptions: SearchOptions;
+    /** The bindable chosen search settings. */
     searchSettings: SearchSettings;
-  } = $props();
+  }
+
+  let { searchOptions, searchSettings = $bindable() }: Props = $props();
 
   const languageInit = "English";
 
@@ -21,6 +22,10 @@
   let atBrowse: boolean = $derived(page.url.pathname.startsWith("/browse"));
 </script>
 
+<!--
+@component
+The main menu drawer.
+-->
 <div class="drawer w-auto">
   <input id="my-drawer" type="checkbox" class="drawer-toggle" />
   <div class="drawer-content">

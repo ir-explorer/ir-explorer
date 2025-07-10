@@ -1,7 +1,15 @@
 <script lang="ts">
-  const { small = false } = $props();
+  interface Props {
+    /** Whether to render the small variant of the logo. */
+    small: boolean;
+  }
+  const { small = false }: Props = $props();
 </script>
 
+<!--
+@component
+Render the logo.
+-->
 {#if small}
   <img
     src="/logo-sm.svg"

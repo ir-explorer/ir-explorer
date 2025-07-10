@@ -15,3 +15,10 @@
     NProgress.done();
   });
 </script>
+
+<!--
+@component
+A progress indicator displayed when the app navigates.
+
+Only shown if navigation takes more than 200ms.
+-->
