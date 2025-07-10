@@ -6,7 +6,7 @@ import {
   faDatabase,
   faEye,
   faFileLines,
-  faFolderClosed,
+  faFolderOpen,
   faInfo,
   faLongArrowDown,
   faLongArrowUp,
@@ -28,7 +28,7 @@ export const listArrowIcon = faChevronRight;
 export const matchIcon = faMagnifyingGlass;
 export const goToIcon = faChevronRight;
 
-export const corpusIcon = faFolderClosed;
+export const corpusIcon = faFolderOpen;
 export const documentIcon = faFileLines;
 export const datasetIcon = faDatabase;
 export const queryIcon = faCircleQuestion;
