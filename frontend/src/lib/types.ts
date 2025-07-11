@@ -1,8 +1,8 @@
-export interface SearchOptions {
+export interface AvailableOptions {
   queryLanguages: string[];
   corpusNames: string[];
 }
-export interface SearchSettings {
+export interface SelectedOptions {
   queryLanguage: string | null;
   corpusNames: string[];
 }

@@ -7,21 +7,21 @@
   import type { LayoutProps } from "./$types";
 
   let { data, children }: LayoutProps = $props();
-  let searchSettings = $state(data.searchSettings);
+  let selectedOptions = $state(data.selectedOptions);
   let searchInit = page.url.searchParams.get("q");
 </script>
 
 <Header>
   {#snippet start()}
     <div class="flex flex-row items-center gap-4">
-      <MainMenu searchOptions={data.searchOptions} bind:searchSettings />
+      <MainMenu availableOptions={data.availableOptions} bind:selectedOptions />
       <a class="hidden md:block" href="/"><Logo small /></a>
     </div>
   {/snippet}
 
   {#snippet center()}
     <div class="w-160">
-      <SearchBar bind:searchSettings {searchInit} />
+      <SearchBar bind:selectedOptions {searchInit} />
     </div>
   {/snippet}
 </Header>

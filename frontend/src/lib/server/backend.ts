@@ -1,5 +1,6 @@
 import { BACKEND_HOST, BACKEND_PORT } from "$env/static/private";
 import type {
+  AvailableOptions,
   Corpus,
   Dataset,
   Document,
@@ -8,7 +9,6 @@ import type {
   Query,
   RelevantDocument,
   RelevantQuery,
-  SearchOptions,
 } from "$lib/types";
 
 const BACKEND_REST_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}`;
@@ -24,17 +24,20 @@ export async function getAvailableLanguages(): Promise<string[]> {
 }
 
 /**
- * Return search options to be set by the frontend.
+ * Return available options to be set.
  *
- * @returns All search options.
+ * Includes backend (search) options and frontend display options.
+ *
+ * @returns All available options.
  */
-export async function getSearchOptions(): Promise<SearchOptions> {
+export async function getAvailableOptions(): Promise<AvailableOptions> {
   const res = await fetch(`${BACKEND_REST_URL}/get_search_options`);
   const resJson = await res.json();
+
   return {
     queryLanguages: resJson["query_languages"],
     corpusNames: resJson["corpus_names"],
-  } as SearchOptions;
+  } as AvailableOptions;
 }
 
 /**

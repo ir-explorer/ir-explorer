@@ -1,18 +1,18 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { browseIcon, closeMenuIcon, menuIcon, searchIcon } from "$lib/icons";
-  import type { SearchOptions, SearchSettings } from "$lib/types";
+  import type { AvailableOptions, SelectedOptions } from "$lib/types";
   import Fa from "svelte-fa";
   import Logo from "./Logo.svelte";
 
   interface Props {
-    /** The search options (available options for each). */
-    searchOptions: SearchOptions;
-    /** The bindable chosen search settings. */
-    searchSettings: SearchSettings;
+    /** All available options. */
+    availableOptions: AvailableOptions;
+    /** The bindable selected options. */
+    selectedOptions: SelectedOptions;
   }
 
-  let { searchOptions, searchSettings = $bindable() }: Props = $props();
+  let { availableOptions, selectedOptions = $bindable() }: Props = $props();
 
   const languageInit = "English";
 
@@ -75,7 +75,7 @@ The main menu drawer.
             class="select w-full select-sm"
             name="language"
             value={languageInit}>
-            {#each searchOptions.queryLanguages as language}
+            {#each availableOptions.queryLanguages as language}
               <option value={language}>{language}</option>
             {/each}
           </select>
@@ -89,13 +89,13 @@ The main menu drawer.
         <div
           id="filter-corpora"
           class="menu w-full gap-2 rounded-box border border-base-300 bg-base-100 text-sm">
-          {#each searchOptions.corpusNames as corpusName}
+          {#each availableOptions.corpusNames as corpusName}
             <label>
               <input
                 type="checkbox"
                 class="toggle mr-2 toggle-sm"
                 value={corpusName}
-                bind:group={searchSettings.corpusNames}
+                bind:group={selectedOptions.corpusNames}
                 name="corpus" />
               {corpusName}
             </label>

@@ -1,15 +1,15 @@
-import { getSearchOptions } from "$lib/server/backend";
-import type { SearchSettings } from "$lib/types";
+import { getAvailableOptions } from "$lib/server/backend";
+import type { SelectedOptions } from "$lib/types";
 import type { LayoutServerLoad } from "./$types";
 
-const searchSettings = {
+const selectedOptions = {
   queryLanguage: "English",
   corpusNames: [],
-} as SearchSettings;
+} as SelectedOptions;
 
 export const load: LayoutServerLoad = async () => {
   return {
-    searchOptions: await getSearchOptions(),
-    searchSettings: searchSettings,
+    availableOptions: await getAvailableOptions(),
+    selectedOptions: selectedOptions,
   };
 };

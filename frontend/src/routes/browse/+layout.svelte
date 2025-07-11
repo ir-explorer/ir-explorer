@@ -18,8 +18,8 @@
   {#snippet start()}
     <div class="flex flex-row items-center gap-4">
       <MainMenu
-        searchOptions={data.searchOptions}
-        searchSettings={data.searchSettings} />
+        availableOptions={data.availableOptions}
+        selectedOptions={data.selectedOptions} />
       <a class="hidden md:block" href="/"><Logo small /></a>
     </div>
   {/snippet}
