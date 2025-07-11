@@ -226,7 +226,7 @@ export async function getDocuments(
 ): Promise<Paginated<Document>> {
   let searchParams = new URLSearchParams({
     corpus_name: corpusName,
-    numResults: numResults.toString(),
+    num_results: numResults.toString(),
     offset: offset.toString(),
     order_by_desc: desc.toString(),
   });
