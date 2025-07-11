@@ -106,7 +106,7 @@
       {/snippet}
       {#snippet item(d: RelevantDocument)}
         <div class="flex flex-col gap-2">
-          <p>{truncate(d.snippet, selectedOptions.snippetLength)}</p>
+          <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
           <div class="flex gap-2 font-bold">
             <p class="badge badge-sm badge-primary">ID: {d.id}</p>
             <p class="badge badge-sm badge-secondary">

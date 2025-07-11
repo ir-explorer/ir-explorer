@@ -355,7 +355,7 @@ export async function getRelevantQueries(
   for (const item of resJson["items"]) {
     queries.push({
       id: item["query_info"]["id"],
-      snippet: item["query_info"]["text"],
+      text: item["query_info"]["text"],
       corpusName: item["corpus_name"],
       datasetName: item["dataset_name"],
       relevance: item["relevance"],
@@ -413,7 +413,7 @@ export async function getRelevantDocuments(
   for (const item of resJson["items"]) {
     documents.push({
       id: item["document_info"]["id"],
-      snippet: item["document_info"]["text"],
+      text: item["document_info"]["text"],
       corpusName: item["corpus_name"],
       relevance: item["relevance"],
     } as RelevantDocument);

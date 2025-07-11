@@ -32,7 +32,7 @@ export interface Query {
 }
 export interface RelevantQuery {
   id: string;
-  snippet: string;
+  text: string;
   corpusName: string;
   datasetName: string;
   relevance: number;
@@ -47,7 +47,7 @@ export interface Document {
 }
 export interface RelevantDocument {
   id: string;
-  snippet: string;
+  text: string;
   corpusName: string;
   relevance: number;
 }

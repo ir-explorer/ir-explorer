@@ -107,7 +107,7 @@
       {/snippet}
       {#snippet item(q: RelevantQuery)}
         <div class="flex flex-col gap-2">
-          <p>{truncate(q.snippet, selectedOptions.snippetLength)}</p>
+          <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
           <div class="flex gap-2 font-bold">
             <p class="badge badge-sm badge-primary">ID: {q.id}</p>
             <p class="badge badge-sm badge-secondary">
