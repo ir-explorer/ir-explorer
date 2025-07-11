@@ -1,7 +1,7 @@
 <script lang="ts">
   interface Props {
     /** Whether to render the small variant of the logo. */
-    small: boolean;
+    small?: boolean;
   }
   const { small = false }: Props = $props();
 </script>

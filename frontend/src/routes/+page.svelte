@@ -8,14 +8,12 @@
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
-
-  let selectedOptions = $state(data.selectedOptions);
 </script>
 
 <div class="fixed top-0 z-1 navbar px-4">
   <div class="navbar-start flex flex-row gap-4">
     <div class="w-fit">
-      <MainMenu availableOptions={data.availableOptions} bind:selectedOptions />
+      <MainMenu availableOptions={data.availableOptions} />
     </div>
 
     <a href="/browse" class="flex items-center gap-2 text-sm link-hover">
@@ -33,7 +31,7 @@
       <Logo />
     </div>
     <div class="w-full">
-      <SearchBar bind:selectedOptions />
+      <SearchBar />
     </div>
   </div>
 </div>
