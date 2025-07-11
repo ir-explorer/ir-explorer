@@ -2,12 +2,14 @@
   import { page } from "$app/state";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import { documentIcon, queryIcon } from "$lib/icons";
+  import { selectedOptions } from "$lib/options.svelte";
   import type {
     OrderByOption,
     Paginated,
     Query,
     RelevantDocument,
   } from "$lib/types";
+  import { truncate } from "$lib/util";
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
@@ -96,7 +98,6 @@
       getPage={getDocumentsPage}
       getTargetLink={(d: RelevantDocument) =>
         `/browse/${page.params.corpusName}?${new URLSearchParams({ documentId: d.id })}`}
-      itemsPerPage={10}
       orderByOptions={orderRelevantDocumentsOptions}>
       {#snippet headTitle()}
         <p class="flex flex-row items-center gap-2">
@@ -105,7 +106,7 @@
       {/snippet}
       {#snippet item(d: RelevantDocument)}
         <div class="flex flex-col gap-2">
-          <p>{d.snippet}</p>
+          <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
           <div class="flex gap-2 font-bold">
             <p class="badge badge-sm badge-primary">ID: {d.id}</p>
             <p class="badge badge-sm badge-secondary">
@@ -122,7 +123,6 @@
     getPage={getQueriesPage}
     getTargetLink={(q: Query) =>
       `/browse/${page.params.corpusName}/${page.params.datasetName}?${new URLSearchParams({ queryId: q.id })}`}
-    itemsPerPage={10}
     orderByOptions={orderQueriesOptions}
     goToTarget={`/browse/${page.params.corpusName}/${page.params.datasetName}`}
     goToName="queryId">
@@ -133,7 +133,7 @@
     {/snippet}
     {#snippet item(q: Query)}
       <div class="flex flex-col gap-2">
-        <p>{q.text}</p>
+        <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
         <div class="flex gap-2 font-bold">
           <p class="badge badge-sm badge-primary">ID: {q.id}</p>
           {#if q.numRelevantDocuments > 0}

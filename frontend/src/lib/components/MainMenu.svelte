@@ -1,20 +1,16 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { browseIcon, closeMenuIcon, menuIcon, searchIcon } from "$lib/icons";
-  import type { SearchOptions, SearchSettings } from "$lib/types";
+  import { selectedOptions } from "$lib/options.svelte";
+  import type { AvailableOptions } from "$lib/types";
   import Fa from "svelte-fa";
   import Logo from "./Logo.svelte";
 
   interface Props {
-    /** The search options (available options for each). */
-    searchOptions: SearchOptions;
-    /** The bindable chosen search settings. */
-    searchSettings: SearchSettings;
+    /** All available options. */
+    availableOptions: AvailableOptions;
   }
-
-  let { searchOptions, searchSettings = $bindable() }: Props = $props();
-
-  const languageInit = "English";
+  let { availableOptions }: Props = $props();
 
   let atSearch: boolean = $derived(
     page.url.pathname.startsWith("/search") || page.url.pathname == "/",
@@ -46,8 +42,8 @@ The main menu drawer.
 
       <div class="divider my-2"></div>
 
+      <!-- navigation -->
       <ul class="menu w-full p-0">
-        <!-- Sidebar content here -->
         <li>
           <a
             class={[atSearch && "menu-active pointer-events-none", "px-0"]}
@@ -66,7 +62,8 @@ The main menu drawer.
 
       <div class="divider my-2"></div>
 
-      <fieldset class="fieldset gap-2">
+      <!-- search settings -->
+      <fieldset class="fieldset gap-4">
         <legend class="fieldset-legend">Search settings</legend>
 
         <label class="fieldset-label flex flex-col items-start">
@@ -74,33 +71,66 @@ The main menu drawer.
           <select
             class="select w-full select-sm"
             name="language"
-            value={languageInit}>
-            {#each searchOptions.queryLanguages as language}
+            bind:value={selectedOptions.queryLanguage}>
+            {#each availableOptions.queryLanguages as language}
               <option value={language}>{language}</option>
             {/each}
           </select>
         </label>
 
-        <label
-          for="filter-corpora"
-          class="fieldset-label flex flex-col items-start">
+        <label class="fieldset-label flex flex-col items-start">
           Search only in
+          <div
+            id="filter-corpora"
+            class="menu w-full gap-2 rounded-box border border-base-300 bg-base-100 text-sm">
+            {#each availableOptions.corpusNames as corpusName}
+              <label>
+                <input
+                  type="checkbox"
+                  class="toggle mr-2 toggle-sm"
+                  value={corpusName}
+                  bind:group={selectedOptions.corpusNames}
+                  name="corpus" />
+                {corpusName}
+              </label>
+            {/each}
+          </div>
         </label>
-        <div
-          id="filter-corpora"
-          class="menu w-full gap-2 rounded-box border border-base-300 bg-base-100 text-sm">
-          {#each searchOptions.corpusNames as corpusName}
-            <label>
-              <input
-                type="checkbox"
-                class="toggle mr-2 toggle-sm"
-                value={corpusName}
-                bind:group={searchSettings.corpusNames}
-                name="corpus" />
-              {corpusName}
-            </label>
-          {/each}
-        </div>
+      </fieldset>
+
+      <div class="my-2"></div>
+
+      <!-- browse settings -->
+      <fieldset class="fieldset gap-4">
+        <legend class="fieldset-legend">Browse settings</legend>
+
+        <label class="fieldset-label flex flex-col items-start">
+          <div class="flex w-full flex-row justify-between">
+            <span>Items per page</span>
+            <span class="pr-2">{selectedOptions.itemsPerPage}</span>
+          </div>
+          <input
+            type="range"
+            min="5"
+            max="100"
+            bind:value={selectedOptions.itemsPerPage}
+            class="range range-sm"
+            step="5" />
+        </label>
+
+        <label class="fieldset-label flex flex-col items-start">
+          <div class="flex w-full flex-row justify-between">
+            <span>Snippet length</span>
+            <span class="pr-2">{selectedOptions.snippetLength}</span>
+          </div>
+          <input
+            type="range"
+            min="50"
+            max="1000"
+            bind:value={selectedOptions.snippetLength}
+            class="range range-sm"
+            step="10" />
+        </label>
       </fieldset>
     </div>
   </div>

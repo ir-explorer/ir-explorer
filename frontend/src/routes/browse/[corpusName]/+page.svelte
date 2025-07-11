@@ -4,6 +4,7 @@
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
   import { corpusIcon, datasetIcon, documentIcon, queryIcon } from "$lib/icons";
+  import { selectedOptions } from "$lib/options.svelte";
   import type {
     Dataset,
     Document,
@@ -11,6 +12,7 @@
     Paginated,
     RelevantQuery,
   } from "$lib/types";
+  import { truncate } from "$lib/util";
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
@@ -97,7 +99,6 @@
       getPage={getQueriesPage}
       getTargetLink={(q: RelevantQuery) =>
         `/browse/${page.params.corpusName}/${q.datasetName}?queryId=${q.id}`}
-      itemsPerPage={10}
       orderByOptions={orderRelevantQueriesOptions}>
       {#snippet headTitle()}
         <p class="flex flex-row items-center gap-2">
@@ -106,7 +107,7 @@
       {/snippet}
       {#snippet item(q: RelevantQuery)}
         <div class="flex flex-col gap-2">
-          <p>{q.snippet}</p>
+          <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
           <div class="flex gap-2 font-bold">
             <p class="badge badge-sm badge-primary">ID: {q.id}</p>
             <p class="badge badge-sm badge-secondary">
@@ -154,7 +155,6 @@
     getPage={getDocumentsPage}
     getTargetLink={(d: Document) =>
       `/browse/${page.params.corpusName}?documentId=${d.id}`}
-    itemsPerPage={10}
     orderByOptions={orderDocumentsOptions}
     goToTarget={`/browse/${page.params.corpusName}`}
     goToName="documentId">
@@ -167,13 +167,11 @@
     {#snippet item(d: Document)}
       <div class="flex flex-col gap-2">
         {#if d.title !== null}
-          <p class="font-bold">{d.title}</p>
+          <p class="font-bold">
+            {truncate(d.title, selectedOptions.snippetLength)}
+          </p>
         {/if}
-        {#if d.text.length > 500}
-          <p>{d.text.substring(0, 500)}...</p>
-        {:else}
-          <p>{d.text}</p>
-        {/if}
+        <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
         <div class="flex gap-2 font-bold">
           <p class="badge badge-sm badge-primary">ID: {d.id}</p>
           {#if d.numRelevantQueries > 0}

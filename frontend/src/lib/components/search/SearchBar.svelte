@@ -1,16 +1,14 @@
 <script lang="ts">
   import { corpusIcon, searchIcon } from "$lib/icons";
-  import type { SearchSettings } from "$lib/types";
+  import { selectedOptions } from "$lib/options.svelte";
   import { Fa } from "svelte-fa";
 
   interface Props {
-    /** Bindable search settings. */
-    searchSettings: SearchSettings;
     /** Initial value for the search query field. */
     searchInit?: string | null;
   }
 
-  let { searchSettings = $bindable(), searchInit = null }: Props = $props();
+  let { searchInit = null }: Props = $props();
 </script>
 
 <!--
@@ -28,13 +26,13 @@ A search bar.
         placeholder="Type a query..."
         value={searchInit ? searchInit : ""}
         name="q" />
-      {#if searchSettings.corpusNames.length > 0}
+      {#if selectedOptions.corpusNames.length > 0}
         <span class="badge badge-ghost text-xs">
           <Fa icon={corpusIcon} />
-          {searchSettings.corpusNames.length}
+          {selectedOptions.corpusNames.length}
         </span>
       {/if}
-      {#each searchSettings.corpusNames as corpusName}
+      {#each selectedOptions.corpusNames as corpusName}
         <input type="hidden" name="corpus" value={corpusName} />
       {/each}
     </label>

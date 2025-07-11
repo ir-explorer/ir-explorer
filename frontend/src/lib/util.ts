@@ -16,3 +16,17 @@ export function toHumanReadable(n: number): string {
   const i = Math.floor(Math.log(n) / Math.log(1000));
   return Math.round(n / Math.pow(1000, i)) + suffixes[i];
 }
+
+/**
+ * Truncate a piece of text if it exceeds a maximum length.
+ *
+ * If the text is truncated, 3 dots are appended.
+ *
+ * @param text - The text to truncate.
+ * @param maxLen - The length up to which no truncation happens.
+ * @returns The (truncated) text.
+ */
+export function truncate(text: string, maxLen: number): string {
+  if (text.length > maxLen) return text.substring(0, maxLen - 3) + "...";
+  return text;
+}

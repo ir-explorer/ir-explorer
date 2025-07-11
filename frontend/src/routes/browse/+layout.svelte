@@ -17,9 +17,7 @@
 <Header>
   {#snippet start()}
     <div class="flex flex-row items-center gap-4">
-      <MainMenu
-        searchOptions={data.searchOptions}
-        searchSettings={data.searchSettings} />
+      <MainMenu availableOptions={data.availableOptions} />
       <a class="hidden md:block" href="/"><Logo small /></a>
     </div>
   {/snippet}
