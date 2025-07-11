@@ -10,10 +10,7 @@
     /** All available options. */
     availableOptions: AvailableOptions;
   }
-
   let { availableOptions }: Props = $props();
-
-  const languageInit = "English";
 
   let atSearch: boolean = $derived(
     page.url.pathname.startsWith("/search") || page.url.pathname == "/",
@@ -73,7 +70,7 @@ The main menu drawer.
           <select
             class="select w-full select-sm"
             name="language"
-            value={languageInit}>
+            bind:value={selectedOptions.queryLanguage}>
             {#each availableOptions.queryLanguages as language}
               <option value={language}>{language}</option>
             {/each}
