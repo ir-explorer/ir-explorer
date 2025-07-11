@@ -117,6 +117,20 @@ The main menu drawer.
             class="range range-sm"
             step="5" />
         </label>
+
+        <label class="fieldset-label flex flex-col items-start">
+          <div class="flex w-full flex-row justify-between">
+            <span>Snippet length</span>
+            <span class="pr-2">{selectedOptions.snippetLength}</span>
+          </div>
+          <input
+            type="range"
+            min="50"
+            max="1000"
+            bind:value={selectedOptions.snippetLength}
+            class="range range-sm"
+            step="10" />
+        </label>
       </fieldset>
     </div>
   </div>

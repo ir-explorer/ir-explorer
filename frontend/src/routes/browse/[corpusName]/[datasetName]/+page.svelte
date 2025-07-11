@@ -2,12 +2,14 @@
   import { page } from "$app/state";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import { documentIcon, queryIcon } from "$lib/icons";
+  import { selectedOptions } from "$lib/options.svelte";
   import type {
     OrderByOption,
     Paginated,
     Query,
     RelevantDocument,
   } from "$lib/types";
+  import { truncate } from "$lib/util";
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
@@ -104,7 +106,7 @@
       {/snippet}
       {#snippet item(d: RelevantDocument)}
         <div class="flex flex-col gap-2">
-          <p>{d.snippet}</p>
+          <p>{truncate(d.snippet, selectedOptions.snippetLength)}</p>
           <div class="flex gap-2 font-bold">
             <p class="badge badge-sm badge-primary">ID: {d.id}</p>
             <p class="badge badge-sm badge-secondary">
@@ -131,7 +133,7 @@
     {/snippet}
     {#snippet item(q: Query)}
       <div class="flex flex-col gap-2">
-        <p>{q.text}</p>
+        <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
         <div class="flex gap-2 font-bold">
           <p class="badge badge-sm badge-primary">ID: {q.id}</p>
           {#if q.numRelevantDocuments > 0}

@@ -6,6 +6,7 @@ export interface SelectedOptions {
   queryLanguage: string | null;
   corpusNames: string[];
   itemsPerPage: number;
+  snippetLength: number;
 }
 
 export interface Corpus {
