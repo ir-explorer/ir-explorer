@@ -1,18 +1,17 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { browseIcon, closeMenuIcon, menuIcon, searchIcon } from "$lib/icons";
-  import type { AvailableOptions, SelectedOptions } from "$lib/types";
+  import { selectedOptions } from "$lib/options.svelte";
+  import type { AvailableOptions } from "$lib/types";
   import Fa from "svelte-fa";
   import Logo from "./Logo.svelte";
 
   interface Props {
     /** All available options. */
     availableOptions: AvailableOptions;
-    /** The bindable selected options. */
-    selectedOptions: SelectedOptions;
   }
 
-  let { availableOptions, selectedOptions = $bindable() }: Props = $props();
+  let { availableOptions }: Props = $props();
 
   const languageInit = "English";
 

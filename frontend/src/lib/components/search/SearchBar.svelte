@@ -1,16 +1,14 @@
 <script lang="ts">
   import { corpusIcon, searchIcon } from "$lib/icons";
-  import type { SelectedOptions } from "$lib/types";
+  import { selectedOptions } from "$lib/options.svelte";
   import { Fa } from "svelte-fa";
 
   interface Props {
-    /** The bindable selected options. */
-    selectedOptions: SelectedOptions;
     /** Initial value for the search query field. */
     searchInit?: string | null;
   }
 
-  let { selectedOptions = $bindable(), searchInit = null }: Props = $props();
+  let { searchInit = null }: Props = $props();
 </script>
 
 <!--
