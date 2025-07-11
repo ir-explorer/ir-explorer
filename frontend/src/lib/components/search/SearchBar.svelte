@@ -27,10 +27,14 @@ A search bar.
         value={searchInit ? searchInit : ""}
         name="q" />
       {#if selectedOptions.corpusNames.length > 0}
-        <span class="badge badge-ghost text-xs">
-          <Fa icon={corpusIcon} />
-          {selectedOptions.corpusNames.length}
-        </span>
+        <div
+          class="tooltip tooltip-left"
+          data-tip={selectedOptions.corpusNames.join(", ")}>
+          <span class="badge text-xs badge-neutral">
+            <Fa icon={corpusIcon} />
+            {selectedOptions.corpusNames.length}
+          </span>
+        </div>
       {/if}
       {#each selectedOptions.corpusNames as corpusName}
         <input type="hidden" name="corpus" value={corpusName} />
