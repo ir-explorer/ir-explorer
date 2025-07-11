@@ -97,7 +97,6 @@
       getPage={getQueriesPage}
       getTargetLink={(q: RelevantQuery) =>
         `/browse/${page.params.corpusName}/${q.datasetName}?queryId=${q.id}`}
-      itemsPerPage={10}
       orderByOptions={orderRelevantQueriesOptions}>
       {#snippet headTitle()}
         <p class="flex flex-row items-center gap-2">
@@ -154,7 +153,6 @@
     getPage={getDocumentsPage}
     getTargetLink={(d: Document) =>
       `/browse/${page.params.corpusName}?documentId=${d.id}`}
-    itemsPerPage={10}
     orderByOptions={orderDocumentsOptions}
     goToTarget={`/browse/${page.params.corpusName}`}
     goToName="documentId">

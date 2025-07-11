@@ -1,5 +1,6 @@
 <script lang="ts" generics="T">
   import { goToIcon, matchIcon, orderAscIcon, orderDescIcon } from "$lib/icons";
+  import { selectedOptions } from "$lib/options.svelte";
   import type { OrderByOption, Paginated } from "$lib/types";
   import { toHumanReadable } from "$lib/util";
   import { onMount, type Snippet } from "svelte";
@@ -31,8 +32,6 @@
     item: Snippet<[T]>;
     /** Return the target for a specific item. */
     getTargetLink: (listItem: T) => string;
-    /** The number of items to show per page. */
-    itemsPerPage: number;
     /** Whether to load the first page on mount. */
     loadFirstPage?: boolean;
     /** A list of options the items can be ordered by. */
@@ -48,7 +47,6 @@
     headTitle,
     item,
     getTargetLink,
-    itemsPerPage,
     loadFirstPage = true,
     orderByOptions = [],
     goToTarget = null,
@@ -93,7 +91,7 @@
         matchTrimmed.length > 0 ? matchTrimmed : null,
         orderByValue,
         desc,
-        itemsPerPage,
+        selectedOptions.itemsPerPage,
         listItems.length,
       );
       resolve(nextPage);

@@ -5,6 +5,7 @@ export interface AvailableOptions {
 export interface SelectedOptions {
   queryLanguage: string | null;
   corpusNames: string[];
+  itemsPerPage: number;
 }
 
 export interface Corpus {
