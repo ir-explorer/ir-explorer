@@ -100,19 +100,20 @@
         `/browse/${page.params.corpusName}?${new URLSearchParams({ documentId: d.id })}`}
       orderByOptions={orderRelevantDocumentsOptions}>
       {#snippet headTitle()}
-        <p class="flex flex-row items-center gap-2">
-          <Fa icon={documentIcon} />Relevant documents
-        </p>
+        <p class="my-auto">Relevant documents</p>
       {/snippet}
       {#snippet item(d: RelevantDocument)}
         <div class="flex flex-col gap-2">
-          <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
-          <div class="flex gap-2 font-bold">
-            <p class="badge badge-sm badge-primary">ID: {d.id}</p>
+          <div class="flex flex-row items-center justify-between">
+            <p class="badge font-thin">
+              <Fa icon={documentIcon} />
+              {d.id}
+            </p>
             <p class="badge badge-sm badge-secondary">
-              relevance: {d.relevance}
+              Relevance: {d.relevance}
             </p>
           </div>
+          <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
         </div>
       {/snippet}
     </PaginatedList>
@@ -127,22 +128,20 @@
     goToTarget={`/browse/${page.params.corpusName}/${page.params.datasetName}`}
     goToName="queryId">
     {#snippet headTitle()}
-      <p class="flex flex-row items-center gap-2">
-        <Fa icon={queryIcon} />Queries
-      </p>
+      <p class="my-auto">Queries</p>
     {/snippet}
     {#snippet item(q: Query)}
       <div class="flex flex-col gap-2">
-        <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
-        <div class="flex gap-2 font-bold">
-          <p class="badge badge-sm badge-primary">ID: {q.id}</p>
+        <div class="flex flex-row items-center justify-between">
+          <p class="badge font-thin"><Fa icon={queryIcon} /> {q.id}</p>
           {#if q.numRelevantDocuments > 0}
             <p class="badge badge-sm badge-secondary">
-              {q.numRelevantDocuments}
+              {q.numRelevantDocuments} relevant
               {q.numRelevantDocuments == 1 ? "document" : "documents"}
             </p>
           {/if}
         </div>
+        <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
       </div>
     {/snippet}
   </PaginatedList>

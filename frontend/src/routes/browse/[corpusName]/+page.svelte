@@ -101,19 +101,26 @@
         `/browse/${page.params.corpusName}/${q.datasetName}?queryId=${q.id}`}
       orderByOptions={orderRelevantQueriesOptions}>
       {#snippet headTitle()}
-        <p class="flex flex-row items-center gap-2">
-          <Fa icon={queryIcon} />Relevant queries
-        </p>
+        <p class="my-auto">Relevant queries</p>
       {/snippet}
       {#snippet item(q: RelevantQuery)}
         <div class="flex flex-col gap-2">
-          <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
-          <div class="flex gap-2 font-bold">
-            <p class="badge badge-sm badge-primary">ID: {q.id}</p>
+          <div class="flex flex-row items-center justify-between">
+            <div class="join">
+              <p class="join-item badge font-thin">
+                <Fa icon={datasetIcon} />
+                {q.datasetName}
+              </p>
+              <p class="join-item badge font-thin">
+                <Fa icon={queryIcon} />
+                {q.id}
+              </p>
+            </div>
             <p class="badge badge-sm badge-secondary">
-              relevance: {q.relevance}
+              Relevance: {q.relevance}
             </p>
           </div>
+          <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
         </div>
       {/snippet}
     </PaginatedList>
@@ -159,28 +166,26 @@
     goToTarget={`/browse/${page.params.corpusName}`}
     goToName="documentId">
     {#snippet headTitle()}
-      <p class="flex flex-row items-center gap-2">
-        <Fa icon={documentIcon} />Documents
-      </p>
+      <p class="my-auto">Documents</p>
     {/snippet}
 
     {#snippet item(d: Document)}
       <div class="flex flex-col gap-2">
+        <div class="flex flex-row items-center justify-between">
+          <p class="badge font-thin"><Fa icon={documentIcon} /> {d.id}</p>
+          {#if d.numRelevantQueries > 0}
+            <p class="badge badge-sm badge-secondary">
+              Relevant for {d.numRelevantQueries}
+              {d.numRelevantQueries == 1 ? "query" : "queries"}
+            </p>
+          {/if}
+        </div>
         {#if d.title !== null}
           <p class="font-bold">
             {truncate(d.title, selectedOptions.snippetLength)}
           </p>
         {/if}
         <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
-        <div class="flex gap-2 font-bold">
-          <p class="badge badge-sm badge-primary">ID: {d.id}</p>
-          {#if d.numRelevantQueries > 0}
-            <p class="badge badge-sm badge-secondary">
-              {d.numRelevantQueries}
-              {d.numRelevantQueries == 1 ? "query" : "queries"}
-            </p>
-          {/if}
-        </div>
       </div>
     {/snippet}
   </PaginatedList>
