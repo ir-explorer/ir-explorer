@@ -38,25 +38,26 @@
     {#each data.result.items as hit, index}
       <li class="list-row">
         <div>
-          <div class="flex flex-row flex-wrap gap-2">
+          <div class="flex flex-col gap-2 md:flex-row">
             <p
-              class="badge-soft tooltip badge badge-primary tooltip-info"
+              class="badge-soft tooltip badge badge-secondary tooltip-secondary"
               data-tip="Score: {hit.score}">
               #<span class="-ml-1 font-bold">
                 {data.result.offset + index + 1}
               </span>
             </p>
-            <a
-              class="badge-soft badge hover:text-primary"
-              href="/browse/{hit.corpusName}?documentId={hit.id}">
-              <Fa icon={documentIcon} />
-              {hit.id}
-            </a>
-            <a
-              class="badge-soft badge hover:text-primary"
-              href="/browse/{hit.corpusName}">
-              <Fa icon={corpusIcon} />
-              {hit.corpusName}
+            <a href="/browse/{hit.corpusName}?documentId={hit.id}">
+              <div class="join-vertical join font-thin md:join-horizontal">
+                <div class="join-item badge w-full md:w-fit">
+                  <Fa icon={corpusIcon} />
+                  <p class="mr-auto w-fit">{hit.corpusName}</p>
+                </div>
+                <div
+                  class="join-item badge flex w-full flex-row text-left md:w-fit">
+                  <Fa icon={documentIcon} />
+                  <p class="mr-auto w-fit">{hit.id}</p>
+                </div>
+              </div>
             </a>
           </div>
           <p class="my-2">{@html hit.snippet}</p>
