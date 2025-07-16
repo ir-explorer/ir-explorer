@@ -15,7 +15,7 @@
 @component
 A collapsible item.
 -->
-<div class="collapse-arrow collapse border border-base-300 shadow">
+<div class="collapse-arrow collapse z-0 border border-base-300 shadow">
   <input type="checkbox" checked />
   <div
     class="collapse-title flex flex-col justify-center rounded-box bg-base-200">
