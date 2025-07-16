@@ -93,6 +93,9 @@ export async function getDatasets(corpusName: string): Promise<Dataset[]> {
  * @param queryId - The ID of the query.
  *
  * @returns The query.
+ *
+ * @throws {@link Error}
+ * When the query was not found.
  */
 export async function getQuery(
   corpusName: string,
@@ -105,6 +108,7 @@ export async function getQuery(
     query_id: queryId,
   });
   const res = await fetch(`${BACKEND_REST_URL}/get_query?${searchParams}`);
+  if (res.status == 404) throw new Error("Query not found.");
   const resJson = await res.json();
 
   return {
@@ -183,6 +187,9 @@ export async function getQueries(
  * @param documentId - The ID of the document.
  *
  * @returns The document.
+ *
+ * @throws {@link Error}
+ * When the document was not found.
  */
 export async function getDocument(
   corpusName: string,
@@ -193,6 +200,7 @@ export async function getDocument(
     document_id: documentId,
   });
   const res = await fetch(`${BACKEND_REST_URL}/get_document?${searchParams}`);
+  if (res.status == 404) throw new Error("Document not found.");
   const resJson = await res.json();
 
   return {
