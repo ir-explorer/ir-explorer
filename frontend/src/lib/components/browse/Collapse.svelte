@@ -3,12 +3,12 @@
 
   interface Props {
     /** Render the head. */
-    head: Snippet | null;
+    head?: Snippet | null;
     /** Render the collapsible item. */
     item: Snippet;
   }
 
-  let { head, item }: Props = $props();
+  let { head = null, item }: Props = $props();
 </script>
 
 <!--
