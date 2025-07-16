@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import Collapse from "$lib/components/browse/Collapse.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import { documentIcon, queryIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
@@ -81,16 +82,15 @@
 
 {#if data.query !== null}
   <!-- display selected query -->
-  <div class="collapse border border-base-300 bg-base-200">
-    <input type="checkbox" checked />
-    <div class="collapse-title flex flex-row items-center gap-2">
-      <Fa icon={queryIcon} />
-      {data.query.id}
-    </div>
-    <div class="collapse-content text-sm">
-      {data.query.text}
-    </div>
-  </div>
+  {@const queryText = data.query.text}
+  <Collapse>
+    {#snippet head()}
+      Query text
+    {/snippet}
+    {#snippet item()}
+      {queryText}
+    {/snippet}
+  </Collapse>
 
   {#if data.query.numRelevantDocuments > 0}
     <!-- display relevant documents for selected query -->

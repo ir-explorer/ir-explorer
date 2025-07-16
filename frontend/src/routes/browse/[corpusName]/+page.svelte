@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import CardGrid from "$lib/components/browse/CardGrid.svelte";
+  import Collapse from "$lib/components/browse/Collapse.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
   import { corpusIcon, datasetIcon, documentIcon, queryIcon } from "$lib/icons";
@@ -82,16 +83,15 @@
 
 {#if data.document !== null}
   <!-- display selected document -->
-  <div class="collapse border border-base-300 bg-base-200">
-    <input type="checkbox" checked />
-    <div class="collapse-title flex flex-row items-center gap-2">
-      <Fa icon={documentIcon} />
-      {data.document.id}
-    </div>
-    <div class="collapse-content text-sm">
-      {data.document.text}
-    </div>
-  </div>
+  {@const documentText = data.document.text}
+  <Collapse>
+    {#snippet head()}
+      Document text
+    {/snippet}
+    {#snippet item()}
+      {documentText}
+    {/snippet}
+  </Collapse>
 
   {#if data.document.numRelevantQueries > 0}
     <!-- display relevant queries for selected document -->
