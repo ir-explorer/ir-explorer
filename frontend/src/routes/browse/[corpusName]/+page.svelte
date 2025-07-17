@@ -87,7 +87,6 @@
   <Alert text={"Document not found."} />
 {:else if data.document !== null}
   <!-- display selected document -->
-
   <MetaDisplay
     items={new Map([
       ["ID", data.document.id],
