@@ -123,7 +123,7 @@ Render items as a list with pagination.
 <div class="mb-2 flex flex-col justify-center">
   <List bind:listItems {headTitle} {item} {getTargetLink}>
     {#snippet headItems()}
-      <div class="flex flex-col gap-2 md:flex-row">
+      <div class="z-0 flex flex-col gap-2 md:flex-row">
         <!-- match -->
         <label class="input input-sm w-full md:w-fit">
           <span class="text-sm">

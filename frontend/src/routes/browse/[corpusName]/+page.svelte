@@ -1,8 +1,11 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import Alert from "$lib/components/Alert.svelte";
   import CardGrid from "$lib/components/browse/CardGrid.svelte";
+  import MetaDisplay from "$lib/components/browse/MetaDisplay.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
+  import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import { corpusIcon, datasetIcon, documentIcon, queryIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
@@ -80,18 +83,20 @@
   ] as OrderByOption[];
 </script>
 
-{#if data.document !== null}
+{#if page.url.searchParams.get("documentId") !== null && data.document === null}
+  <Alert text={"Document not found."} />
+{:else if data.document !== null}
   <!-- display selected document -->
-  <div class="collapse border border-base-300 bg-base-200">
-    <input type="checkbox" checked />
-    <div class="collapse-title flex flex-row items-center gap-2">
-      <Fa icon={documentIcon} />
-      {data.document.id}
-    </div>
-    <div class="collapse-content text-sm">
-      {data.document.text}
-    </div>
-  </div>
+  <MetaDisplay
+    items={new Map([
+      ["ID", data.document.id],
+      ["Title", data.document.title],
+      [
+        "Number of relevant queries",
+        data.document.numRelevantQueries.toString(),
+      ],
+    ])} />
+  <TextDisplay text={data.document.text} />
 
   {#if data.document.numRelevantQueries > 0}
     <!-- display relevant queries for selected document -->
@@ -101,19 +106,26 @@
         `/browse/${page.params.corpusName}/${q.datasetName}?queryId=${q.id}`}
       orderByOptions={orderRelevantQueriesOptions}>
       {#snippet headTitle()}
-        <p class="flex flex-row items-center gap-2">
-          <Fa icon={queryIcon} />Relevant queries
-        </p>
+        <p class="my-auto">Relevant queries</p>
       {/snippet}
       {#snippet item(q: RelevantQuery)}
         <div class="flex flex-col gap-2">
-          <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
-          <div class="flex gap-2 font-bold">
-            <p class="badge badge-sm badge-primary">ID: {q.id}</p>
+          <div class="flex flex-row items-center justify-between">
+            <div class="join">
+              <p class="join-item badge font-thin">
+                <Fa icon={datasetIcon} />
+                {q.datasetName}
+              </p>
+              <p class="join-item badge font-thin">
+                <Fa icon={queryIcon} />
+                {q.id}
+              </p>
+            </div>
             <p class="badge badge-sm badge-secondary">
-              relevance: {q.relevance}
+              Relevance: {q.relevance}
             </p>
           </div>
+          <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
         </div>
       {/snippet}
     </PaginatedList>
@@ -159,28 +171,26 @@
     goToTarget={`/browse/${page.params.corpusName}`}
     goToName="documentId">
     {#snippet headTitle()}
-      <p class="flex flex-row items-center gap-2">
-        <Fa icon={documentIcon} />Documents
-      </p>
+      <p class="my-auto">Documents</p>
     {/snippet}
 
     {#snippet item(d: Document)}
       <div class="flex flex-col gap-2">
+        <div class="flex flex-row items-center justify-between">
+          <p class="badge font-thin"><Fa icon={documentIcon} /> {d.id}</p>
+          {#if d.numRelevantQueries > 0}
+            <p class="badge badge-sm badge-secondary">
+              Relevant for {d.numRelevantQueries}
+              {d.numRelevantQueries == 1 ? "query" : "queries"}
+            </p>
+          {/if}
+        </div>
         {#if d.title !== null}
           <p class="font-bold">
             {truncate(d.title, selectedOptions.snippetLength)}
           </p>
         {/if}
         <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
-        <div class="flex gap-2 font-bold">
-          <p class="badge badge-sm badge-primary">ID: {d.id}</p>
-          {#if d.numRelevantQueries > 0}
-            <p class="badge badge-sm badge-secondary">
-              {d.numRelevantQueries}
-              {d.numRelevantQueries == 1 ? "query" : "queries"}
-            </p>
-          {/if}
-        </div>
       </div>
     {/snippet}
   </PaginatedList>

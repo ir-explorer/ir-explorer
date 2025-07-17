@@ -1,6 +1,9 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import Alert from "$lib/components/Alert.svelte";
+  import MetaDisplay from "$lib/components/browse/MetaDisplay.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
+  import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import { documentIcon, queryIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
@@ -79,18 +82,20 @@
   ] as OrderByOption[];
 </script>
 
-{#if data.query !== null}
+{#if page.url.searchParams.get("queryId") !== null && data.query === null}
+  <Alert text={"Query not found."} />
+{:else if data.query !== null}
   <!-- display selected query -->
-  <div class="collapse border border-base-300 bg-base-200">
-    <input type="checkbox" checked />
-    <div class="collapse-title flex flex-row items-center gap-2">
-      <Fa icon={queryIcon} />
-      {data.query.id}
-    </div>
-    <div class="collapse-content text-sm">
-      {data.query.text}
-    </div>
-  </div>
+  <MetaDisplay
+    items={new Map([
+      ["ID", data.query.id],
+      ["Description", data.query.description],
+      [
+        "Number of relevant documents",
+        data.query.numRelevantDocuments.toString(),
+      ],
+    ])} />
+  <TextDisplay text={data.query.text} />
 
   {#if data.query.numRelevantDocuments > 0}
     <!-- display relevant documents for selected query -->
@@ -100,19 +105,20 @@
         `/browse/${page.params.corpusName}?${new URLSearchParams({ documentId: d.id })}`}
       orderByOptions={orderRelevantDocumentsOptions}>
       {#snippet headTitle()}
-        <p class="flex flex-row items-center gap-2">
-          <Fa icon={documentIcon} />Relevant documents
-        </p>
+        <p class="my-auto">Relevant documents</p>
       {/snippet}
       {#snippet item(d: RelevantDocument)}
         <div class="flex flex-col gap-2">
-          <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
-          <div class="flex gap-2 font-bold">
-            <p class="badge badge-sm badge-primary">ID: {d.id}</p>
+          <div class="flex flex-row items-center justify-between">
+            <p class="badge font-thin">
+              <Fa icon={documentIcon} />
+              {d.id}
+            </p>
             <p class="badge badge-sm badge-secondary">
-              relevance: {d.relevance}
+              Relevance: {d.relevance}
             </p>
           </div>
+          <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
         </div>
       {/snippet}
     </PaginatedList>
@@ -127,22 +133,20 @@
     goToTarget={`/browse/${page.params.corpusName}/${page.params.datasetName}`}
     goToName="queryId">
     {#snippet headTitle()}
-      <p class="flex flex-row items-center gap-2">
-        <Fa icon={queryIcon} />Queries
-      </p>
+      <p class="my-auto">Queries</p>
     {/snippet}
     {#snippet item(q: Query)}
       <div class="flex flex-col gap-2">
-        <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
-        <div class="flex gap-2 font-bold">
-          <p class="badge badge-sm badge-primary">ID: {q.id}</p>
+        <div class="flex flex-row items-center justify-between">
+          <p class="badge font-thin"><Fa icon={queryIcon} /> {q.id}</p>
           {#if q.numRelevantDocuments > 0}
             <p class="badge badge-sm badge-secondary">
-              {q.numRelevantDocuments}
+              {q.numRelevantDocuments} relevant
               {q.numRelevantDocuments == 1 ? "document" : "documents"}
             </p>
           {/if}
         </div>
+        <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
       </div>
     {/snippet}
   </PaginatedList>

@@ -21,7 +21,7 @@
   <footer
     class="flex w-full flex-col justify-center gap-2 border-t border-base-300 bg-base-200 px-4 py-2 text-sm md:flex-row md:items-center">
     <a
-      class="badge flex flex-row gap-2 badge-neutral text-neutral-content"
+      class="badge flex flex-row gap-2 text-neutral-content badge-neutral"
       href="https://github.com/mrjleo/ir-explorer">
       <Fa icon={faGithub} />
       <p class="font-mono text-xs">ir-explorer</p>

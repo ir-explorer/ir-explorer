@@ -9,8 +9,15 @@ export const load: PageServerLoad = async ({ params, url }) => {
   // if a document ID is specified, return that document
   const documentId = url.searchParams.get("documentId");
   if (documentId !== null) {
-    document = await getDocument(params.corpusName, documentId);
-  } else {
+    try {
+      document = await getDocument(params.corpusName, documentId);
+    } catch {
+      document = null;
+    }
+  }
+
+  // if there is no document to display, we need the dataset list
+  if (document === null) {
     datasetList = await getDatasets(params.corpusName);
   }
 
