@@ -86,7 +86,7 @@
 {:else if data.query !== null}
   <!-- display selected query -->
   {@const queryText = data.query.text}
-  <TextDisplay title={"Query text"} text={queryText} />
+  <TextDisplay text={queryText} />
 
   {#if data.query.numRelevantDocuments > 0}
     <!-- display relevant documents for selected query -->

@@ -1,12 +1,12 @@
 <script lang="ts">
   interface Props {
     /** The title to render. */
-    title: string;
+    title?: string;
     /** The text to render. */
     text: string;
   }
 
-  let { title, text }: Props = $props();
+  let { title = "Text", text }: Props = $props();
 </script>
 
 <!--

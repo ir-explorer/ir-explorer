@@ -87,7 +87,7 @@
 {:else if data.document !== null}
   <!-- display selected document -->
   {@const documentText = data.document.text}
-  <TextDisplay title={"Document text"} text={documentText} />
+  <TextDisplay text={documentText} />
 
   {#if data.document.numRelevantQueries > 0}
     <!-- display relevant queries for selected document -->
