@@ -1,8 +1,8 @@
 <script lang="ts">
   import { page } from "$app/state";
   import Alert from "$lib/components/Alert.svelte";
-  import Collapse from "$lib/components/browse/Collapse.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
+  import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import { documentIcon, queryIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
@@ -86,14 +86,7 @@
 {:else if data.query !== null}
   <!-- display selected query -->
   {@const queryText = data.query.text}
-  <Collapse>
-    {#snippet head()}
-      Query text
-    {/snippet}
-    {#snippet item()}
-      {queryText}
-    {/snippet}
-  </Collapse>
+  <TextDisplay title={"Query text"} text={queryText} />
 
   {#if data.query.numRelevantDocuments > 0}
     <!-- display relevant documents for selected query -->

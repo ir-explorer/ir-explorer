@@ -2,9 +2,9 @@
   import { page } from "$app/state";
   import Alert from "$lib/components/Alert.svelte";
   import CardGrid from "$lib/components/browse/CardGrid.svelte";
-  import Collapse from "$lib/components/browse/Collapse.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
+  import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import { corpusIcon, datasetIcon, documentIcon, queryIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
@@ -87,14 +87,7 @@
 {:else if data.document !== null}
   <!-- display selected document -->
   {@const documentText = data.document.text}
-  <Collapse>
-    {#snippet head()}
-      Document text
-    {/snippet}
-    {#snippet item()}
-      {documentText}
-    {/snippet}
-  </Collapse>
+  <TextDisplay title={"Document text"} text={documentText} />
 
   {#if data.document.numRelevantQueries > 0}
     <!-- display relevant queries for selected document -->
