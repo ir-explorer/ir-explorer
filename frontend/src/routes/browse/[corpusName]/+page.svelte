@@ -2,6 +2,7 @@
   import { page } from "$app/state";
   import Alert from "$lib/components/Alert.svelte";
   import CardGrid from "$lib/components/browse/CardGrid.svelte";
+  import MetaDisplay from "$lib/components/browse/MetaDisplay.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
@@ -86,8 +87,17 @@
   <Alert text={"Document not found."} />
 {:else if data.document !== null}
   <!-- display selected document -->
-  {@const documentText = data.document.text}
-  <TextDisplay text={documentText} />
+
+  <MetaDisplay
+    items={new Map([
+      ["ID", data.document.id],
+      ["Title", data.document.title],
+      [
+        "Number of relevant queries",
+        data.document.numRelevantQueries.toString(),
+      ],
+    ])} />
+  <TextDisplay text={data.document.text} />
 
   {#if data.document.numRelevantQueries > 0}
     <!-- display relevant queries for selected document -->

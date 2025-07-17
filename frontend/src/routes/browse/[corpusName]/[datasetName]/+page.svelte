@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import Alert from "$lib/components/Alert.svelte";
+  import MetaDisplay from "$lib/components/browse/MetaDisplay.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import { documentIcon, queryIcon } from "$lib/icons";
@@ -85,8 +86,16 @@
   <Alert text={"Query not found."} />
 {:else if data.query !== null}
   <!-- display selected query -->
-  {@const queryText = data.query.text}
-  <TextDisplay text={queryText} />
+  <MetaDisplay
+    items={new Map([
+      ["ID", data.query.id],
+      ["Description", data.query.description],
+      [
+        "Number of relevant documents",
+        data.query.numRelevantDocuments.toString(),
+      ],
+    ])} />
+  <TextDisplay text={data.query.text} />
 
   {#if data.query.numRelevantDocuments > 0}
     <!-- display relevant documents for selected query -->
