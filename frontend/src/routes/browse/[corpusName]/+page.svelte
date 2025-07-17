@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import Alert from "$lib/components/Alert.svelte";
   import CardGrid from "$lib/components/browse/CardGrid.svelte";
   import Collapse from "$lib/components/browse/Collapse.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
@@ -81,7 +82,9 @@
   ] as OrderByOption[];
 </script>
 
-{#if data.document !== null}
+{#if page.url.searchParams.get("documentId") !== null && data.document === null}
+  <Alert text={"Document not found."} />
+{:else if data.document !== null}
   <!-- display selected document -->
   {@const documentText = data.document.text}
   <Collapse>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import Alert from "$lib/components/Alert.svelte";
   import Collapse from "$lib/components/browse/Collapse.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import { documentIcon, queryIcon } from "$lib/icons";
@@ -80,7 +81,9 @@
   ] as OrderByOption[];
 </script>
 
-{#if data.query !== null}
+{#if page.url.searchParams.get("queryId") !== null && data.query === null}
+  <Alert text={"Query not found."} />
+{:else if data.query !== null}
   <!-- display selected query -->
   {@const queryText = data.query.text}
   <Collapse>
