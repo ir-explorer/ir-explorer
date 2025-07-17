@@ -1,4 +1,4 @@
-FROM node:23-alpine
+FROM node:24-alpine
 COPY . /frontend
 WORKDIR /frontend
 RUN npm install
