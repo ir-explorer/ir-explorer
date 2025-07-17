@@ -1,9 +1,9 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import Alert from "$lib/components/Alert.svelte";
   import {
     corpusIcon,
     documentIcon,
-    infoIcon,
     nextPageIcon,
     prevPageIcon,
   } from "$lib/icons";
@@ -16,12 +16,7 @@
 </script>
 
 {#if data.result.totalNumItems == 0}
-  <div class="alert-soft mx-auto alert w-fit">
-    <span class="text-primary">
-      <Fa icon={infoIcon} />
-    </span>
-    <span>No results found.</span>
-  </div>
+  <Alert text={"No results found."} />
 {:else}
   <ul class="list">
     <li class="list-row p-2 text-xs">
@@ -40,7 +35,7 @@
         <div>
           <div class="flex flex-col gap-2 md:flex-row">
             <p
-              class="badge-soft tooltip badge badge-secondary tooltip-secondary"
+              class="tooltip badge badge-soft tooltip-secondary badge-secondary"
               data-tip="Score: {hit.score}">
               #<span class="-ml-1 font-bold">
                 {data.result.offset + index + 1}
