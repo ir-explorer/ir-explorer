@@ -55,7 +55,7 @@ class DBController(Controller):
 
     dependencies = {"transaction": Provide(provide_transaction)}
 
-    @get(path="/get_available_languages")
+    @get(path="/get_available_languages", cache=True)
     def get_available_languages(self) -> list[str]:
         """List all corpus languages supported by the DB engine (for full-text search).
 
