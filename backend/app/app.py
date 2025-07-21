@@ -49,11 +49,11 @@ async def after_response(request: Request) -> None:
 
     now = datetime.now()
     if datetime.now() - request.app.state.get(
-        "cache_last_delete_expired", now
+        "cache_last_delete_expired", datetime.min
     ) > timedelta(seconds=CACHE_DELETE_EXPIRED_INTERVAL):
         request.logger.info("clearing expired items from cache")
         await CACHE_STORE.delete_expired()
-    request.app.state["cache_last_delete_expired"] = now
+        request.app.state["cache_last_delete_expired"] = now
 
 
 app = Litestar(
