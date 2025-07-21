@@ -66,7 +66,7 @@ class DBController(Controller):
         # https://github.com/paradedb/paradedb/issues/1793
         return ["English"]
 
-    @get(path="/get_search_options")
+    @get(path="/get_search_options", cache=True)
     async def get_search_options(self, transaction: "AsyncSession") -> SearchOptions:
         """Get available options for all search settings.
 
@@ -278,7 +278,7 @@ class DBController(Controller):
                 extra={"error_code": e.code},
             )
 
-    @get(path="/get_corpora")
+    @get(path="/get_corpora", cache=True)
     async def get_corpora(self, transaction: "AsyncSession") -> list[Corpus]:
         """List all corpora including statistics about datasets and documents.
 
@@ -317,7 +317,7 @@ class DBController(Controller):
             for corpus, num_documents, num_datasets in result
         ]
 
-    @get(path="/get_datasets")
+    @get(path="/get_datasets", cache=True)
     async def get_datasets(
         self, transaction: "AsyncSession", corpus_name: str
     ) -> list[Dataset]:
@@ -351,7 +351,7 @@ class DBController(Controller):
             for dataset, num_queries in result
         ]
 
-    @get(path="/get_queries")
+    @get(path="/get_queries", cache=True)
     async def get_queries(
         self,
         transaction: "AsyncSession",
@@ -452,7 +452,7 @@ class DBController(Controller):
             total_num_items=total_num_results,
         )
 
-    @get(path="/get_query")
+    @get(path="/get_query", cache=True)
     async def get_query(
         self,
         transaction: "AsyncSession",
@@ -510,7 +510,7 @@ class DBController(Controller):
             num_relevant_documents=num_rel_docs,
         )
 
-    @get(path="/get_document")
+    @get(path="/get_document", cache=True)
     async def get_document(
         self, transaction: "AsyncSession", corpus_name: str, document_id: str
     ) -> Document:
@@ -555,7 +555,7 @@ class DBController(Controller):
             num_relevant_queries=num_rel_queries,
         )
 
-    @get(path="/get_documents")
+    @get(path="/get_documents", cache=True)
     async def get_documents(
         self,
         transaction: "AsyncSession",
@@ -665,7 +665,7 @@ class DBController(Controller):
             total_num_items=total_num_results,
         )
 
-    @get(path="/search_documents")
+    @get(path="/search_documents", cache=True)
     async def search_documents(
         self,
         transaction: "AsyncSession",
@@ -749,7 +749,7 @@ class DBController(Controller):
             total_num_items=total_num_results,
         )
 
-    @get(path="/get_qrels")
+    @get(path="/get_qrels", cache=True)
     async def get_qrels(
         self,
         transaction: "AsyncSession",
