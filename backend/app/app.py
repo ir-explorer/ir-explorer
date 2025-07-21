@@ -9,7 +9,9 @@ from litestar.contrib.sqlalchemy.plugins import SQLAlchemyInitPlugin
 from litestar.stores.memory import MemoryStore
 
 CACHE_STORE = MemoryStore()
-CACHE_DEFAULT_EXPIRATION = int(os.environ.get("CACHE_DEFAULT_EXPIRATION", None) or 120)
+CACHE_EXPIRATION_DURATION = int(
+    os.environ.get("CACHE_EXPIRATION_DURATION", None) or 120
+)
 CACHE_DELETE_EXPIRED_INTERVAL = int(
     os.environ.get("CACHE_DELETE_EXPIRED_INTERVAL", None) or 600
 )
@@ -60,7 +62,7 @@ app = Litestar(
     stores={"cache": CACHE_STORE},
     # configure caching for successful responses
     response_cache_config=ResponseCacheConfig(
-        default_expiration=CACHE_DEFAULT_EXPIRATION,
+        default_expiration=CACHE_EXPIRATION_DURATION,
         cache_response_filter=lambda _, status_code: 200 <= status_code < 300,
         store="cache",
     ),
