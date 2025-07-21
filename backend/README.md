@@ -14,3 +14,8 @@ For database connectivity, the app reads the following environment variables:
 - `POSTGRES_HOST`
 - `POSTGRES_PORT`
 - `POSTGRES_DB`
+
+Caching can be configured using:
+
+- `CACHE_EXPIRATION_DURATION`: The number of seconds backend responses are cached.
+- `CACHE_DELETE_EXPIRED_INTERVAL`: The interval in seconds to delete expired items from the cache.
