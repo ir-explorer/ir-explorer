@@ -20,11 +20,15 @@ CACHE_DELETE_EXPIRED_INTERVAL = int(
 async def before_request(request: Request) -> None:
     """Before-request hook.
 
-    Delete all items from the cache if it has been invalidated
+    Delete all items from the cache if it has been invalidated and the request reqires
+    it.
 
     :param request: The request.
     """
-    if request.app.state.get("cache_invalid", False):
+    route_name = str(request.route_handler).split(".")[-1]
+    if (
+        route_name.startswith("get") or route_name.startswith("search")
+    ) and request.app.state.get("cache_invalid", False):
         request.logger.info("clearing all items from cache")
         await CACHE_STORE.delete_all()
         request.app.state["cache_invalid"] = False
