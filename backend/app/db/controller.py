@@ -301,9 +301,13 @@ class DBController(Controller):
         )
 
         sql = (
-            select(ORMCorpus, sq_documents.c.count, sq_datasets.c.count)
-            .join(sq_documents)
-            .join(sq_datasets)
+            select(
+                ORMCorpus,
+                func.coalesce(sq_documents.c.count, 0),
+                func.coalesce(sq_datasets.c.count, 0),
+            )
+            .outerjoin(sq_documents)
+            .outerjoin(sq_datasets)
         )
 
         result = (await transaction.execute(sql)).all()
@@ -334,8 +338,8 @@ class DBController(Controller):
         )
 
         sql = (
-            select(ORMDataset, sq_queries.c.count)
-            .join(sq_queries)
+            select(ORMDataset, func.coalesce(sq_queries.c.count, 0))
+            .outerjoin(sq_queries)
             .join(ORMCorpus)
             .where(ORMCorpus.name == corpus_name)
         )
