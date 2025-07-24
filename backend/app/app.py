@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from db import CONFIG
 from db.controller import DBController
-from litestar import Litestar, Request
+from litestar import Litestar, Request, get
 from litestar.config.response_cache import ResponseCacheConfig
 from litestar.contrib.sqlalchemy.plugins import SQLAlchemyInitPlugin
 from litestar.stores.memory import MemoryStore
@@ -60,8 +60,17 @@ async def after_response(request: Request) -> None:
         request.app.state["cache_last_delete_expired"] = now
 
 
+@get(path="/ready")
+def ready() -> bool:
+    """Perform a simple health check.
+
+    :return: True once the app is ready.
+    """
+    return True
+
+
 app = Litestar(
-    route_handlers=[DBController],
+    route_handlers=[DBController, ready],
     plugins=[SQLAlchemyInitPlugin(CONFIG)],
     stores={"cache": CACHE_STORE},
     # configure caching for successful responses
