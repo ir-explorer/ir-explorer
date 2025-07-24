@@ -2,7 +2,15 @@ services:
   db:
     image: paradedb/paradedb
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER?}", "-d", "${POSTGRES_DB?}" ]
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "${POSTGRES_USER?}",
+          "-d",
+          "${POSTGRES_DB?}",
+        ]
       interval: 1s
       timeout: 5s
       retries: 10

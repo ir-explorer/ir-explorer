@@ -1,0 +1,8 @@
+name: ir-explorer-test
+
+services:
+  backend:
+    ports:
+      - "8103:8000"
+
+  frontend: !reset null
