@@ -19,4 +19,4 @@ source = "vcs"
 root = ".."
 
 [tool.hatch.build.targets.wheel]
-packages = ["."]
+packages = ["src"]
