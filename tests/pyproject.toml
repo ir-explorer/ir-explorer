@@ -1,0 +1,22 @@
+[project]
+name = "ir-explorer-tests"
+dynamic = ["version"]
+requires-python = ">=3.13"
+dependencies = [
+    "pytest>=8.4.1, <9",
+    "requests>=2.32.4, <3",
+    "testcontainers>=4.12.0, <5",
+]
+
+[build-system]
+requires = ["hatchling>=1.14.1, <2", "hatch-vcs>=0.5.0, <0.6"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+root = ".."
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
