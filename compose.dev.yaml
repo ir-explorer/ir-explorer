@@ -22,7 +22,7 @@ services:
     environment:
       - CACHE_EXPIRATION_DURATION=120
       - CACHE_DELETE_EXPIRED_INTERVAL=600
-    command: ["litestar", "--app-dir", "app", "run", "-H", "0.0.0.0"]
+    command: [ "litestar", "--app-dir", "app", "run", "-H", "0.0.0.0", "-d" ]
 
   frontend:
     restart: always
@@ -38,7 +38,7 @@ services:
           path: frontend/package.json
     ports:
       - "8104:5173"
-    command: ["dev"]
+    command: [ "dev" ]
 
 volumes:
   pgdata:
