@@ -1,0 +1,44 @@
+name: ir-explorer-dev
+
+services:
+  db:
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "8102:5432"
+
+  backend:
+    restart: always
+    develop:
+      watch:
+        - action: sync+restart
+          path: backend/app
+          target: /backend/app
+        - action: rebuild
+          path: backend/pyproject.toml
+    ports:
+      - "8103:8000"
+    environment:
+      - CACHE_EXPIRATION_DURATION=120
+      - CACHE_DELETE_EXPIRED_INTERVAL=600
+    command: [ "litestar", "--app-dir", "app", "run", "-H", "0.0.0.0" ]
+
+  frontend:
+    restart: always
+    develop:
+      watch:
+        - action: sync
+          path: frontend/src
+          target: /frontend/src
+        - action: sync
+          path: frontend/static
+          target: /frontend/static
+        - action: rebuild
+          path: frontend/package.json
+    ports:
+      - "8104:5173"
+    command: [ "dev" ]
+
+volumes:
+  pgdata:
