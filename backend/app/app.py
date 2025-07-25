@@ -17,23 +17,6 @@ CACHE_DELETE_EXPIRED_INTERVAL = int(
 )
 
 
-async def before_request(request: Request) -> None:
-    """Before-request hook.
-
-    Delete all items from the cache if it has been invalidated and the request reqires
-    it.
-
-    :param request: The request.
-    """
-    route_name = str(request.route_handler).split(".")[-1]
-    if (
-        route_name.startswith("get") or route_name.startswith("search")
-    ) and request.app.state.get("cache_invalid", False):
-        request.logger.info("clearing all items from cache")
-        await CACHE_STORE.delete_all()
-        request.app.state["cache_invalid"] = False
-
-
 async def after_response(request: Request) -> None:
     """After-response hook.
 
@@ -48,8 +31,9 @@ async def after_response(request: Request) -> None:
         or route_name.startswith("add")
         or route_name.startswith("remove")
     ):
-        request.logger.info("invalidating cache")
-        request.app.state["cache_invalid"] = True
+        request.logger.info("clearing all items from cache")
+        await CACHE_STORE.delete_all()
+        return
 
     now = datetime.now()
     if datetime.now() - request.app.state.get(
@@ -79,6 +63,5 @@ app = Litestar(
         cache_response_filter=lambda _, status_code: 200 <= status_code < 300,
         store="cache",
     ),
-    before_request=before_request,
     after_response=after_response,
 )
