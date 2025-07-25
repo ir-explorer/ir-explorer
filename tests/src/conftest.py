@@ -3,7 +3,7 @@ from testcontainers.compose import DockerCompose
 
 
 @pytest.fixture(scope="module", autouse=True)
-def setup(request):
+def setup_stack(request):
     stack = DockerCompose(
         "..", ["compose.yaml", "compose.test.yaml"], build=True, wait=True
     )
