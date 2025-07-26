@@ -176,7 +176,7 @@ def test_get_query(api):
         "num_relevant_documents": 0,
     }
 
-    # document does not exist, should fail
+    # query does not exist, should fail
     assert (
         requests.get(
             f"{api}/get_query",
@@ -199,4 +199,73 @@ def test_get_qrels(api):
 
 
 def test_search_documents(api):
-    pass
+    results_all_corpora = requests.get(
+        f"{api}/search_documents",
+        params={
+            "q": "abc def",
+            "num_results": 4,
+        },
+    ).json()
+
+    # first 2 hits should have the same score
+    assert (
+        results_all_corpora["items"][0]["score"]
+        == results_all_corpora["items"][1]["score"]
+    )
+    assert list_of_dicts_equal(
+        results_all_corpora["items"][:2],
+        [
+            {
+                "id": "c1-d1",
+                "corpus_name": "c1",
+            },
+            {
+                "id": "c2-d1",
+                "corpus_name": "c2",
+            },
+        ],
+        ignore_keys={"score", "snippet"},
+    )
+
+    # second 2 hits should have the same score as well
+    assert (
+        results_all_corpora["items"][2]["score"]
+        == results_all_corpora["items"][3]["score"]
+    )
+    assert list_of_dicts_equal(
+        results_all_corpora["items"][2:],
+        [
+            {
+                "id": "c1-d2",
+                "corpus_name": "c1",
+            },
+            {
+                "id": "c2-d2",
+                "corpus_name": "c2",
+            },
+        ],
+        ignore_keys={"score", "snippet"},
+    )
+
+    results_single_corpus = requests.get(
+        f"{api}/search_documents",
+        params={
+            "q": "abc def",
+            "corpus_name": ["c1"],
+            "num_results": 2,
+        },
+    ).json()
+    assert list_of_dicts_equal(
+        results_single_corpus["items"],
+        [
+            {
+                "id": "c1-d1",
+                "corpus_name": "c1",
+            },
+            {
+                "id": "c1-d2",
+                "corpus_name": "c1",
+            },
+        ],
+        ignore_keys={"score", "snippet"},
+    )
