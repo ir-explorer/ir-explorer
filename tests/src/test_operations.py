@@ -112,6 +112,14 @@ def setup_data(api):
             {"id": "c2-ds1-q2", "text": "c2 ds1 def ghi", "description": "desc 2"},
         ],
     )
+    requests.post(
+        f"{api}/add_qrels",
+        params={"corpus_name": "c2", "dataset_name": "c2-ds1"},
+        json=[
+            {"query_id": "c2-ds1-q1", "document_id": "c2-d1", "relevance": 2},
+            {"query_id": "c2-ds1-q2", "document_id": "c2-d2", "relevance": 2},
+        ],
+    )
 
 
 def test_get_corpora(api):
@@ -370,7 +378,195 @@ def test_get_queries(api):
 
 
 def test_get_qrels(api):
-    pass
+    assert (
+        requests.get(
+            f"{api}/get_qrels",
+            params={"corpus_name": "c1", "document_id": "c1-d1", "num_results": 1},
+        ).json()["items"]
+        == []
+    )
+
+    _dinfo = {"id": "c1-d4", "title": "title 4", "text": "c1 jkl mno"}
+    assert list_of_dicts_equal(
+        requests.get(
+            f"{api}/get_qrels",
+            params={"corpus_name": "c1", "document_id": "c1-d4", "num_results": 5},
+        ).json()["items"],
+        [
+            {
+                "query_info": {
+                    "id": "c1-ds1-q1",
+                    "text": "c1 ds1 abc def",
+                    "description": "desc 1",
+                },
+                "document_info": _dinfo,
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "relevance": 3,
+            },
+            {
+                "query_info": {
+                    "id": "c1-ds1-q2",
+                    "text": "c1 ds1 def ghi",
+                    "description": "desc 2",
+                },
+                "document_info": _dinfo,
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "relevance": 3,
+            },
+            {
+                "query_info": {
+                    "id": "c1-ds2-q1",
+                    "text": "c1 ds2 abc def",
+                    "description": "desc 1",
+                },
+                "document_info": _dinfo,
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds2",
+                "relevance": 3,
+            },
+            {
+                "query_info": {
+                    "id": "c1-ds2-q2",
+                    "text": "c1 ds2 def ghi",
+                    "description": "desc 2",
+                },
+                "document_info": _dinfo,
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds2",
+                "relevance": 3,
+            },
+        ],
+    )
+
+    _qinfo = {
+        "id": "c1-ds1-q2",
+        "text": "c1 ds1 def ghi",
+        "description": "desc 2",
+    }
+    assert list_of_dicts_equal(
+        requests.get(
+            f"{api}/get_qrels",
+            params={
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "query_id": "c1-ds1-q2",
+                "num_results": 3,
+            },
+        ).json()["items"],
+        [
+            {
+                "query_info": _qinfo,
+                "document_info": {
+                    "id": "c1-d2",
+                    "title": "title 2",
+                    "text": "c1 def ghi",
+                },
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "relevance": 1,
+            },
+            {
+                "query_info": _qinfo,
+                "document_info": {
+                    "id": "c1-d4",
+                    "title": "title 4",
+                    "text": "c1 jkl mno",
+                },
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "relevance": 3,
+            },
+        ],
+    )
+
+    assert list_of_dicts_equal(
+        requests.get(
+            f"{api}/get_qrels",
+            params={"corpus_name": "c2", "num_results": 3},
+        ).json()["items"],
+        [
+            {
+                "query_info": {
+                    "id": "c2-ds1-q1",
+                    "text": "c2 ds1 abc def",
+                    "description": "desc 1",
+                },
+                "document_info": {
+                    "id": "c2-d1",
+                    "title": "title 1",
+                    "text": "c2 abc def",
+                },
+                "corpus_name": "c2",
+                "dataset_name": "c2-ds1",
+                "relevance": 2,
+            },
+            {
+                "query_info": {
+                    "id": "c2-ds1-q2",
+                    "text": "c2 ds1 def ghi",
+                    "description": "desc 2",
+                },
+                "document_info": {
+                    "id": "c2-d2",
+                    "title": "title 2",
+                    "text": "c2 def ghi",
+                },
+                "corpus_name": "c2",
+                "dataset_name": "c2-ds1",
+                "relevance": 2,
+            },
+        ],
+    )
+
+    assert list_of_dicts_equal(
+        requests.get(
+            f"{api}/get_qrels",
+            params={"corpus_name": "c2", "match_query": "abc", "num_results": 2},
+        ).json()["items"],
+        [
+            {
+                "query_info": {
+                    "id": "c2-ds1-q1",
+                    "text": "c2 ds1 abc def",
+                    "description": "desc 1",
+                },
+                "document_info": {
+                    "id": "c2-d1",
+                    "title": "title 1",
+                    "text": "c2 abc def",
+                },
+                "corpus_name": "c2",
+                "dataset_name": "c2-ds1",
+                "relevance": 2,
+            }
+        ],
+    )
+
+    assert list_of_dicts_equal(
+        requests.get(
+            f"{api}/get_qrels",
+            params={"corpus_name": "c2", "match_document": "ghi", "num_results": 2},
+        ).json()["items"],
+        [
+            {
+                "query_info": {
+                    "id": "c2-ds1-q2",
+                    "text": "c2 ds1 def ghi",
+                    "description": "desc 2",
+                },
+                "document_info": {
+                    "id": "c2-d2",
+                    "title": "title 2",
+                    "text": "c2 def ghi",
+                },
+                "corpus_name": "c2",
+                "dataset_name": "c2-ds1",
+                "relevance": 2,
+            },
+        ],
+    )
 
 
 def test_search_documents(api):
