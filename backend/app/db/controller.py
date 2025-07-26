@@ -360,7 +360,7 @@ class DBController(Controller):
         self,
         transaction: "AsyncSession",
         corpus_name: str,
-        dataset_name: str | None = None,
+        dataset_name: str,
         match: str | None = None,
         num_results: int = 10,
         offset: int = 0,
