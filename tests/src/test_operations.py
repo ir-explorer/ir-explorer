@@ -27,6 +27,7 @@ def setup_data(api):
         json={
             "name": "c1-ds1",
             "corpus_name": "c1",
+            "min_relevance": 1,
         },
     )
     requests.post(
@@ -39,6 +40,19 @@ def setup_data(api):
             {"id": "c1-ds1-q4", "text": "c1 ds1 jkl mno", "description": "desc 4"},
         ],
     )
+    requests.post(
+        f"{api}/add_qrels",
+        params={"corpus_name": "c1", "dataset_name": "c1-ds1"},
+        json=[
+            {"query_id": "c1-ds1-q1", "document_id": "c1-d1", "relevance": 0},
+            {"query_id": "c1-ds1-q1", "document_id": "c1-d2", "relevance": 1},
+            {"query_id": "c1-ds1-q1", "document_id": "c1-d3", "relevance": 2},
+            {"query_id": "c1-ds1-q1", "document_id": "c1-d4", "relevance": 3},
+            {"query_id": "c1-ds1-q2", "document_id": "c1-d2", "relevance": 1},
+            {"query_id": "c1-ds1-q2", "document_id": "c1-d4", "relevance": 3},
+        ],
+    )
+
     requests.post(
         f"{api}/create_dataset",
         json={
@@ -55,6 +69,18 @@ def setup_data(api):
             {"id": "c1-ds2-q2", "text": "c1 ds2 def ghi", "description": "desc 2"},
             {"id": "c1-ds2-q3", "text": "c1 ds2 ghi jkl", "description": "desc 3"},
             {"id": "c1-ds2-q4", "text": "c1 ds2 jkl mno", "description": "desc 4"},
+        ],
+    )
+    requests.post(
+        f"{api}/add_qrels",
+        params={"corpus_name": "c1", "dataset_name": "c1-ds2"},
+        json=[
+            {"query_id": "c1-ds2-q1", "document_id": "c1-d1", "relevance": 0},
+            {"query_id": "c1-ds2-q1", "document_id": "c1-d2", "relevance": 1},
+            {"query_id": "c1-ds2-q1", "document_id": "c1-d3", "relevance": 2},
+            {"query_id": "c1-ds2-q1", "document_id": "c1-d4", "relevance": 3},
+            {"query_id": "c1-ds2-q2", "document_id": "c1-d2", "relevance": 1},
+            {"query_id": "c1-ds2-q2", "document_id": "c1-d4", "relevance": 3},
         ],
     )
 
@@ -75,6 +101,7 @@ def setup_data(api):
         json={
             "name": "c2-ds1",
             "corpus_name": "c2",
+            "min_relevance": 1,
         },
     )
     requests.post(
@@ -150,6 +177,16 @@ def test_get_document(api):
         "num_relevant_queries": 0,
     }
 
+    assert requests.get(
+        f"{api}/get_document", params={"corpus_name": "c1", "document_id": "c1-d4"}
+    ).json() == {
+        "id": "c1-d4",
+        "title": "title 4",
+        "text": "c1 jkl mno",
+        "corpus_name": "c1",
+        "num_relevant_queries": 4,
+    }
+
     # document does not exist, should fail
     assert (
         requests.get(
@@ -177,21 +214,21 @@ def test_get_documents(api):
                 "title": "title 2",
                 "text": "c1 def ghi",
                 "corpus_name": "c1",
-                "num_relevant_queries": 0,
+                "num_relevant_queries": 2,
             },
             {
                 "id": "c1-d3",
                 "title": "title 3",
                 "text": "c1 ghi jkl",
                 "corpus_name": "c1",
-                "num_relevant_queries": 0,
+                "num_relevant_queries": 1,
             },
             {
                 "id": "c1-d4",
                 "title": "title 4",
                 "text": "c1 jkl mno",
                 "corpus_name": "c1",
-                "num_relevant_queries": 0,
+                "num_relevant_queries": 4,
             },
         ],
     )
@@ -214,7 +251,7 @@ def test_get_documents(api):
                 "title": "title 2",
                 "text": "c1 def ghi",
                 "corpus_name": "c1",
-                "num_relevant_queries": 0,
+                "num_relevant_queries": 2,
             },
         ],
     )
@@ -228,6 +265,18 @@ def test_get_query(api):
         "id": "c1-ds1-q1",
         "text": "c1 ds1 abc def",
         "description": "desc 1",
+        "corpus_name": "c1",
+        "dataset_name": "c1-ds1",
+        "num_relevant_documents": 3,
+    }
+
+    assert requests.get(
+        f"{api}/get_query",
+        params={"corpus_name": "c1", "dataset_name": "c1-ds1", "query_id": "c1-ds1-q4"},
+    ).json() == {
+        "id": "c1-ds1-q4",
+        "text": "c1 ds1 jkl mno",
+        "description": "desc 4",
         "corpus_name": "c1",
         "dataset_name": "c1-ds1",
         "num_relevant_documents": 0,
@@ -260,7 +309,7 @@ def test_get_queries(api):
                 "description": "desc 1",
                 "corpus_name": "c1",
                 "dataset_name": "c1-ds1",
-                "num_relevant_documents": 0,
+                "num_relevant_documents": 3,
             },
             {
                 "id": "c1-ds1-q2",
@@ -268,7 +317,7 @@ def test_get_queries(api):
                 "description": "desc 2",
                 "corpus_name": "c1",
                 "dataset_name": "c1-ds1",
-                "num_relevant_documents": 0,
+                "num_relevant_documents": 2,
             },
             {
                 "id": "c1-ds1-q3",
@@ -306,7 +355,7 @@ def test_get_queries(api):
                 "description": "desc 1",
                 "corpus_name": "c1",
                 "dataset_name": "c1-ds1",
-                "num_relevant_documents": 0,
+                "num_relevant_documents": 3,
             },
             {
                 "id": "c1-ds1-q2",
@@ -314,7 +363,7 @@ def test_get_queries(api):
                 "description": "desc 2",
                 "corpus_name": "c1",
                 "dataset_name": "c1-ds1",
-                "num_relevant_documents": 0,
+                "num_relevant_documents": 2,
             },
         ],
     )

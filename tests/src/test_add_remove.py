@@ -87,6 +87,7 @@ def test_datasets(api):
             json={
                 "name": "test_dataset",
                 "corpus_name": "test_corpus_datasets",
+                "min_relevance": 1,
             },
         ).status_code
         == 409
@@ -99,6 +100,7 @@ def test_datasets(api):
             json={
                 "name": "test_dataset",
                 "corpus_name": "invalid_corpus",
+                "min_relevance": 1,
             },
         ).status_code
         == 409
@@ -132,6 +134,7 @@ def test_queries_documents(api):
         json={
             "name": "test_dataset",
             "corpus_name": "test_corpus_queries_documents",
+            "min_relevance": 1,
         },
     )
     requests.post(
