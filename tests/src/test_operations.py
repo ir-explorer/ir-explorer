@@ -1,4 +1,4 @@
-"""Integration tests for miscellaneous functionality."""
+"""Integration tests for backend operations."""
 
 import pytest
 import requests
