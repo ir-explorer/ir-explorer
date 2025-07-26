@@ -145,6 +145,14 @@ def test_queries_documents(api):
             {"id": "d2", "title": "title 2", "text": "text 2"},
         ],
     )
+
+    # document exists, should fail
+    requests.post(
+        f"{api}/add_documents",
+        params={"corpus_name": "test_corpus_queries_documents"},
+        json=[{"id": "d1", "title": "title 1", "text": "text 1"}],
+    )
+
     requests.post(
         f"{api}/add_queries",
         params={
@@ -156,6 +164,17 @@ def test_queries_documents(api):
             {"id": "q2", "text": "text 2", "description": "description 2"},
         ],
     )
+
+    # query exists, should fail
+    requests.post(
+        f"{api}/add_queries",
+        params={
+            "corpus_name": "test_corpus_queries_documents",
+            "dataset_name": "test_dataset",
+        },
+        json=[{"id": "q1", "text": "text 1", "description": "description 1"}],
+    )
+
     requests.post(
         f"{api}/add_qrels",
         params={

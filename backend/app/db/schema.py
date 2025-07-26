@@ -60,7 +60,7 @@ class ORMQuery(ORMBase):
 
     __tablename__ = "queries"
     __table_args__ = (
-        UniqueConstraint("id", "dataset_pkey"),
+        UniqueConstraint(id, dataset_pkey),
         Index(
             "ix_queries_search",
             pkey,
@@ -101,6 +101,7 @@ class ORMDocument(ORMBase):
 
     __tablename__ = "documents"
     __table_args__ = (
+        UniqueConstraint(id, corpus_pkey),
         Index(
             "ix_documents_search",
             pkey,
