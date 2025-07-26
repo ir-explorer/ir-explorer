@@ -360,7 +360,7 @@ class DBController(Controller):
         self,
         transaction: "AsyncSession",
         corpus_name: str,
-        dataset_name: str | None = None,
+        dataset_name: str,
         match: str | None = None,
         num_results: int = 10,
         offset: int = 0,
@@ -534,8 +534,9 @@ class DBController(Controller):
                 ),
             )
             .join(ORMCorpus)
-            .outerjoin(ORMDataset)
             .outerjoin(ORMQRel)
+            .join(ORMQuery)
+            .join(ORMDataset)
             .where(ORMCorpus.name == corpus_name, ORMDocument.id == document_id)
         ).group_by(ORMDocument.pkey)
 

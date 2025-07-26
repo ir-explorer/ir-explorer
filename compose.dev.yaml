@@ -1,27 +1,14 @@
+name: ir-explorer-dev
+
 services:
   db:
-    image: paradedb/paradedb
     restart: always
     volumes:
       - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER?}", "-d", "${POSTGRES_DB?}" ]
-      interval: 1s
-      timeout: 5s
-      retries: 10
     ports:
       - "8102:5432"
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER?}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
-      - POSTGRES_DB=${POSTGRES_DB?}
 
   backend:
-    build:
-      context: backend
-    depends_on:
-      db:
-        condition: service_healthy
     restart: always
     develop:
       watch:
@@ -33,17 +20,11 @@ services:
     ports:
       - "8103:8000"
     environment:
-      - POSTGRES_USER=${POSTGRES_USER?}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
-      - POSTGRES_DB=${POSTGRES_DB?}
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
       - CACHE_EXPIRATION_DURATION=120
       - CACHE_DELETE_EXPIRED_INTERVAL=600
+    command: [ "litestar", "--app-dir", "app", "run", "-H", "0.0.0.0", "-d" ]
 
   frontend:
-    build:
-      context: frontend
     restart: always
     develop:
       watch:
@@ -57,9 +38,7 @@ services:
           path: frontend/package.json
     ports:
       - "8104:5173"
-    environment:
-      - BACKEND_HOST=backend
-      - BACKEND_PORT=8000
+    command: [ "dev" ]
 
 volumes:
   pgdata:

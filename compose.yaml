@@ -1,0 +1,36 @@
+services:
+  db:
+    image: paradedb/paradedb
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER?}", "-d", "${POSTGRES_DB?}" ]
+      start_period: 5s
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER?}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
+      - POSTGRES_DB=${POSTGRES_DB?}
+
+  backend:
+    build:
+      context: backend
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready').read()" ]
+      start_period: 5s
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER?}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
+      - POSTGRES_DB=${POSTGRES_DB?}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+
+  frontend:
+    build:
+      context: frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      - BACKEND_HOST=backend
+      - BACKEND_PORT=8000

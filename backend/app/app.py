@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from db import CONFIG
 from db.controller import DBController
-from litestar import Litestar, Request
+from litestar import Litestar, Request, get
 from litestar.config.response_cache import ResponseCacheConfig
 from litestar.contrib.sqlalchemy.plugins import SQLAlchemyInitPlugin
 from litestar.stores.memory import MemoryStore
@@ -15,23 +15,6 @@ CACHE_EXPIRATION_DURATION = int(
 CACHE_DELETE_EXPIRED_INTERVAL = int(
     os.environ.get("CACHE_DELETE_EXPIRED_INTERVAL", None) or 600
 )
-
-
-async def before_request(request: Request) -> None:
-    """Before-request hook.
-
-    Delete all items from the cache if it has been invalidated and the request reqires
-    it.
-
-    :param request: The request.
-    """
-    route_name = str(request.route_handler).split(".")[-1]
-    if (
-        route_name.startswith("get") or route_name.startswith("search")
-    ) and request.app.state.get("cache_invalid", False):
-        request.logger.info("clearing all items from cache")
-        await CACHE_STORE.delete_all()
-        request.app.state["cache_invalid"] = False
 
 
 async def after_response(request: Request) -> None:
@@ -48,8 +31,9 @@ async def after_response(request: Request) -> None:
         or route_name.startswith("add")
         or route_name.startswith("remove")
     ):
-        request.logger.info("invalidating cache")
-        request.app.state["cache_invalid"] = True
+        request.logger.info("clearing all items from cache")
+        await CACHE_STORE.delete_all()
+        return
 
     now = datetime.now()
     if datetime.now() - request.app.state.get(
@@ -60,8 +44,17 @@ async def after_response(request: Request) -> None:
         request.app.state["cache_last_delete_expired"] = now
 
 
+@get(path="/ready")
+def ready() -> bool:
+    """Perform a simple health check.
+
+    :return: True once the app is ready.
+    """
+    return True
+
+
 app = Litestar(
-    route_handlers=[DBController],
+    route_handlers=[DBController, ready],
     plugins=[SQLAlchemyInitPlugin(CONFIG)],
     stores={"cache": CACHE_STORE},
     # configure caching for successful responses
@@ -70,6 +63,5 @@ app = Litestar(
         cache_response_filter=lambda _, status_code: 200 <= status_code < 300,
         store="cache",
     ),
-    before_request=before_request,
     after_response=after_response,
 )
