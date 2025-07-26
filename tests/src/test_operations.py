@@ -248,7 +248,76 @@ def test_get_query(api):
 
 
 def test_get_queries(api):
-    pass
+    assert list_of_dicts_equal(
+        requests.get(
+            f"{api}/get_queries",
+            params={"corpus_name": "c1", "dataset_name": "c1-ds1", "num_results": 5},
+        ).json()["items"],
+        [
+            {
+                "id": "c1-ds1-q1",
+                "text": "c1 ds1 abc def",
+                "description": "desc 1",
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "num_relevant_documents": 0,
+            },
+            {
+                "id": "c1-ds1-q2",
+                "text": "c1 ds1 def ghi",
+                "description": "desc 2",
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "num_relevant_documents": 0,
+            },
+            {
+                "id": "c1-ds1-q3",
+                "text": "c1 ds1 ghi jkl",
+                "description": "desc 3",
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "num_relevant_documents": 0,
+            },
+            {
+                "id": "c1-ds1-q4",
+                "text": "c1 ds1 jkl mno",
+                "description": "desc 4",
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "num_relevant_documents": 0,
+            },
+        ],
+    )
+
+    assert list_of_dicts_equal(
+        requests.get(
+            f"{api}/get_queries",
+            params={
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "match": "def",
+                "num_results": 3,
+            },
+        ).json()["items"],
+        [
+            {
+                "id": "c1-ds1-q1",
+                "text": "c1 ds1 abc def",
+                "description": "desc 1",
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "num_relevant_documents": 0,
+            },
+            {
+                "id": "c1-ds1-q2",
+                "text": "c1 ds1 def ghi",
+                "description": "desc 2",
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "num_relevant_documents": 0,
+            },
+        ],
+    )
 
 
 def test_get_qrels(api):
