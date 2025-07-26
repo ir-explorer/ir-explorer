@@ -160,7 +160,64 @@ def test_get_document(api):
 
 
 def test_get_documents(api):
-    pass
+    assert list_of_dicts_equal(
+        requests.get(
+            f"{api}/get_documents", params={"corpus_name": "c1", "num_results": 5}
+        ).json()["items"],
+        [
+            {
+                "id": "c1-d1",
+                "title": "title 1",
+                "text": "c1 abc def",
+                "corpus_name": "c1",
+                "num_relevant_queries": 0,
+            },
+            {
+                "id": "c1-d2",
+                "title": "title 2",
+                "text": "c1 def ghi",
+                "corpus_name": "c1",
+                "num_relevant_queries": 0,
+            },
+            {
+                "id": "c1-d3",
+                "title": "title 3",
+                "text": "c1 ghi jkl",
+                "corpus_name": "c1",
+                "num_relevant_queries": 0,
+            },
+            {
+                "id": "c1-d4",
+                "title": "title 4",
+                "text": "c1 jkl mno",
+                "corpus_name": "c1",
+                "num_relevant_queries": 0,
+            },
+        ],
+    )
+
+    assert list_of_dicts_equal(
+        requests.get(
+            f"{api}/get_documents",
+            params={"corpus_name": "c1", "match": "def", "num_results": 3},
+        ).json()["items"],
+        [
+            {
+                "id": "c1-d1",
+                "title": "title 1",
+                "text": "c1 abc def",
+                "corpus_name": "c1",
+                "num_relevant_queries": 0,
+            },
+            {
+                "id": "c1-d2",
+                "title": "title 2",
+                "text": "c1 def ghi",
+                "corpus_name": "c1",
+                "num_relevant_queries": 0,
+            },
+        ],
+    )
 
 
 def test_get_query(api):
