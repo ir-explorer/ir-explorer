@@ -1,0 +1,27 @@
+name: Run integration tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out ${{ github.ref_name }}
+        uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.8.2"
+      - name: Install packages
+        working-directory: ./tests
+        run: uv sync
+      - name: Run pytest
+        working-directory: ./tests
+        run: uv run pytest
