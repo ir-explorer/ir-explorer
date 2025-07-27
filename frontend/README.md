@@ -11,3 +11,5 @@ The app reads the following environment variables:
 
 - `BACKEND_HOST`
 - `BACKEND_PORT`
+- `SEARCH_RESULTS_PER_PAGE`
+- `MAX_SEARCH_RESULT_PAGES`

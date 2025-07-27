@@ -73,7 +73,14 @@
               Page {data.pageNum} of {toHumanReadable(data.totalPages)}
             </p>
           </div>
-          {#if data.nextPageLink != null}
+          {#if data.pageNum == data.maxSearchResultPages}
+            <div
+              class="tooltip tooltip-info"
+              data-tip="Only {data.maxSearchResultPages} pages are shown.">
+              <btn disabled class="btn join-item btn-sm btn-primary"
+                ><Fa icon={nextPageIcon} /></btn>
+            </div>
+          {:else if data.nextPageLink != null}
             <a href={data.nextPageLink} class="btn join-item btn-sm btn-primary"
               ><Fa icon={nextPageIcon} /></a>
           {/if}
