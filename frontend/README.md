@@ -7,7 +7,7 @@ In order to run the frontend locally, install [node.js](https://nodejs.org) and 
 - `npm install`
 - `npm run dev`
 
-For backend connectivity, the app reads the following environment variables (defined in `.env`):
+The app reads the following environment variables:
 
 - `BACKEND_HOST`
 - `BACKEND_PORT`

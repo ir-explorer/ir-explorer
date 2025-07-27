@@ -15,7 +15,7 @@
 The application can easily be run with Docker:
 
 ```bash
-docker compose up --watch
+docker compose -f compose.yaml -f compose.dev.yaml up --build --watch
 ```
 
 The frontend can then be accessed via port `8104`:
