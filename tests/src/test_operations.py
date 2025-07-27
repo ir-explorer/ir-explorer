@@ -81,6 +81,7 @@ def setup_data(api):
             {"query_id": "c1-ds2-q1", "document_id": "c1-d4", "relevance": 3},
             {"query_id": "c1-ds2-q2", "document_id": "c1-d2", "relevance": 1},
             {"query_id": "c1-ds2-q2", "document_id": "c1-d4", "relevance": 3},
+            {"query_id": "c1-ds2-q4", "document_id": "c1-d4", "relevance": 0},
         ],
     )
 
@@ -94,6 +95,8 @@ def setup_data(api):
         json=[
             {"id": "c2-d1", "title": "title 1", "text": "c2 abc def"},
             {"id": "c2-d2", "title": "title 2", "text": "c2 def ghi"},
+            {"id": "c2-d3", "title": "title 3", "text": "c2 ghi jkl"},
+            {"id": "c2-d4", "title": "title 4", "text": "c2 jkl mno"},
         ],
     )
     requests.post(
@@ -136,7 +139,7 @@ def test_get_corpora(api):
                 "name": "c2",
                 "language": "English",
                 "num_datasets": 1,
-                "num_documents": 2,
+                "num_documents": 4,
             },
         ],
     )
@@ -175,6 +178,7 @@ def test_get_datasets(api):
 
 
 def test_get_document(api):
+    # c1-d1 has a QRel of 0
     assert requests.get(
         f"{api}/get_document", params={"corpus_name": "c1", "document_id": "c1-d1"}
     ).json() == {
@@ -182,6 +186,17 @@ def test_get_document(api):
         "title": "title 1",
         "text": "c1 abc def",
         "corpus_name": "c1",
+        "num_relevant_queries": 0,
+    }
+
+    # c2-d4 has no QRels at all
+    assert requests.get(
+        f"{api}/get_document", params={"corpus_name": "c2", "document_id": "c2-d4"}
+    ).json() == {
+        "id": "c2-d4",
+        "title": "title 4",
+        "text": "c2 jkl mno",
+        "corpus_name": "c2",
         "num_relevant_queries": 0,
     }
 
@@ -278,6 +293,7 @@ def test_get_query(api):
         "num_relevant_documents": 3,
     }
 
+    # c1-ds1-q4 has no QRels at all
     assert requests.get(
         f"{api}/get_query",
         params={"corpus_name": "c1", "dataset_name": "c1-ds1", "query_id": "c1-ds1-q4"},
@@ -287,6 +303,19 @@ def test_get_query(api):
         "description": "desc 4",
         "corpus_name": "c1",
         "dataset_name": "c1-ds1",
+        "num_relevant_documents": 0,
+    }
+
+    # c1-ds2-q4 has a QRel which is 0
+    assert requests.get(
+        f"{api}/get_query",
+        params={"corpus_name": "c1", "dataset_name": "c1-ds2", "query_id": "c1-ds2-q4"},
+    ).json() == {
+        "id": "c1-ds2-q4",
+        "text": "c1 ds2 jkl mno",
+        "description": "desc 4",
+        "corpus_name": "c1",
+        "dataset_name": "c1-ds2",
         "num_relevant_documents": 0,
     }
 
