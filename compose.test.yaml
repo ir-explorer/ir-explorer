@@ -2,7 +2,6 @@ name: ir-explorer-test
 
 services:
   backend:
-    command: [ "uv", "run", "litestar", "--app-dir", "app", "run", "-H", "0.0.0.0", "-d" ]
     ports:
       - "8203:8000"
 

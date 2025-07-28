@@ -19,6 +19,8 @@ services:
       test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready').read()" ]
       start_period: 5s
     environment:
+      - LITESTAR_PORT=8000
+      - LITESTAR_HOST=0.0.0.0
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - POSTGRES_USER=${POSTGRES_USER?}

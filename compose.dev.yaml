@@ -19,7 +19,8 @@ services:
           path: backend/pyproject.toml
     ports:
       - "8103:8000"
-    command: [ "uv", "run", "litestar", "--app-dir", "app", "run", "-H", "0.0.0.0", "-d" ]
+    environment:
+      - LITESTAR_DEBUG=true
 
   frontend:
     restart: always
