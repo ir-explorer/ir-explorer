@@ -16,7 +16,7 @@ OLLAMA_PORT = os.environ.get("OLLAMA_PORT")
 async def provide_client() -> "AsyncGenerator[AsyncClient | None, None]":
     """Provide an asynchronous client for the Ollama API.
 
-    If no Ollama host and/or port are set, yield None.
+    If no Ollama host and port are set, yield None.
 
     :yield: The client (or None).
     """
