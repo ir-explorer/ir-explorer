@@ -1,3 +1,4 @@
+import { PUBLIC_MAX_ITEMS_PER_PAGE } from "$env/static/public";
 import { getDocuments } from "$lib/server/backend";
 import { error, json } from "@sveltejs/kit";
 
@@ -13,14 +14,22 @@ export async function GET({ url }) {
     error(400);
   }
 
+  const descParsed = desc ? desc === "true" : true;
+  const numResultsParsed = numResults ? Number(numResults) : 1;
+  const offsetParsed = offset ? Number(offset) : 0;
+
+  if (numResultsParsed > PUBLIC_MAX_ITEMS_PER_PAGE) {
+    error(413);
+  }
+
   return json(
     await getDocuments(
       corpusName,
       match,
       orderBy,
-      desc ? desc === "true" : true,
-      numResults ? Number(numResults) : 10,
-      offset ? Number(offset) : 0,
+      descParsed,
+      numResultsParsed,
+      offsetParsed,
     ),
   );
 }

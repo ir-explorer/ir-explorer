@@ -1,5 +1,4 @@
 import { BACKEND_HOST, BACKEND_PORT } from "$env/static/private";
-import { PUBLIC_MAX_SEARCH_RESULT_PAGES } from "$env/static/public";
 import type {
   AvailableOptions,
   Corpus,
@@ -278,9 +277,6 @@ export async function getDocuments(
  * @param corpusNames - Search only in these corpora.
  *
  * @returns The list of hits.
- *
- * @throws {@link Error}
- * When the maximum number of results pages was exceeded.
  */
 export async function searchDocuments(
   q: string,
@@ -289,10 +285,6 @@ export async function searchDocuments(
   page: number,
   corpusNames: string[] | null,
 ): Promise<Paginated<DocumentSearchHit>> {
-  if (page > PUBLIC_MAX_SEARCH_RESULT_PAGES) {
-    throw new Error("Maximum number of results pages exceeded.");
-  }
-
   const offset = (page - 1) * numResults;
   const searchParams = new URLSearchParams({
     q: q,
