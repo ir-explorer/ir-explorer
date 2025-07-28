@@ -8,17 +8,25 @@ from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import (
     HTTP_404_NOT_FOUND,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+    HTTP_501_NOT_IMPLEMENTED,
 )
+from llm import provide_client
+from llm.util import get_summary_prompt
 from models import (
     Corpus,
     Dataset,
     Document,
     DocumentInfo,
+    DocumentSummary,
     Paginated,
     QRel,
     Query,
     QueryInfo,
 )
+
+# litestar needs the type outside of the type checking block
+from ollama import AsyncClient  # noqa: TC002
 from sqlalchemy import (
     and_,
     asc,
@@ -37,7 +45,10 @@ if TYPE_CHECKING:
 class BrowseController(Controller):
     """Controller that handles browse-related API endpoints."""
 
-    dependencies = {"db_transaction": Provide(provide_transaction)}
+    dependencies = {
+        "db_transaction": Provide(provide_transaction),
+        "ollama_client": Provide(provide_client),
+    }
 
     @get(path="/get_corpora", cache=True)
     async def get_corpora(self, db_transaction: "AsyncSession") -> list[Corpus]:
@@ -572,4 +583,63 @@ class BrowseController(Controller):
             ],
             offset=offset,
             total_num_items=total_num_results,
+        )
+
+    @get(path="/get_document_summary", cache=True)
+    async def get_document_summary(
+        self,
+        db_transaction: "AsyncSession",
+        ollama_client: AsyncClient | None,
+        corpus_name: str,
+        document_id: str,
+        model: str,
+    ) -> DocumentSummary:
+        """Return a generated summary for a single document.
+
+        :param db_transaction: A DB transaction.
+        :param ollama_client: An Ollama client.
+        :param corpus_name: The corpus name.
+        :param document_id: The document ID.
+        :param model: The model to use.
+        :raises HTTPException: When the document does not exist.
+        :raises HTTPException: When the document could not be summarized.
+        :return: The document object.
+        """
+        if ollama_client is None:
+            raise HTTPException(
+                "LLM services not available.",
+                status_code=HTTP_501_NOT_IMPLEMENTED,
+            )
+
+        sql = (
+            select(ORMDocument)
+            .join(ORMCorpus)
+            .where(ORMCorpus.name == corpus_name, ORMDocument.id == document_id)
+        )
+
+        try:
+            db_document = (await db_transaction.execute(sql)).scalar_one()
+        except NoResultFound as e:
+            raise HTTPException(
+                "Could not find the requested document.",
+                status_code=HTTP_404_NOT_FOUND,
+                extra={
+                    "document_id": document_id,
+                    "corpus_name": corpus_name,
+                    "error_code": e.code,
+                },
+            )
+
+        try:
+            prompt = get_summary_prompt(db_document.text, db_document.title)
+            summary = await ollama_client.generate(model=model, prompt=prompt)
+        except Exception as e:
+            raise HTTPException(
+                "Failed to summarize document.",
+                status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+                extra={"error": str(e)},
+            )
+
+        return DocumentSummary(
+            id=db_document.id, corpus_name=corpus_name, summary=summary.response
         )
