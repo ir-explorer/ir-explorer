@@ -595,7 +595,7 @@ class BrowseController(Controller):
         document_id: str,
         model: str,
     ) -> Stream:
-        """Return a generated summary for a single document.
+        """Stream a generated summary of a single document.
 
         :param db_transaction: A DB transaction.
         :param ollama_client: An Ollama client.
@@ -605,7 +605,7 @@ class BrowseController(Controller):
         :raises HTTPException: When Ollama is not available.
         :raises HTTPException: When the document does not exist.
         :raises HTTPException: When the document could not be summarized.
-        :return: The document object.
+        :return: The document summary stream.
         """
         if ollama_client is None:
             raise HTTPException(
@@ -633,11 +633,11 @@ class BrowseController(Controller):
             )
 
         try:
-            prompt = get_summary_prompt(db_document.text, db_document.title)
             stream = await ollama_client.generate(
-                model=model, prompt=prompt, stream=True
+                model=model,
+                prompt=get_summary_prompt(db_document.text, db_document.title),
+                stream=True,
             )
-
             return Stream(
                 encode_json(
                     {
