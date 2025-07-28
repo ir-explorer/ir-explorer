@@ -9,11 +9,9 @@ from litestar.contrib.sqlalchemy.plugins import SQLAlchemyInitPlugin
 from litestar.stores.memory import MemoryStore
 
 CACHE_STORE = MemoryStore()
-CACHE_EXPIRATION_DURATION = int(
-    os.environ.get("CACHE_EXPIRATION_DURATION", None) or 120
-)
+CACHE_EXPIRATION_DURATION = int(os.environ.get("CACHE_EXPIRATION_DURATION") or 120)
 CACHE_DELETE_EXPIRED_INTERVAL = int(
-    os.environ.get("CACHE_DELETE_EXPIRED_INTERVAL", None) or 600
+    os.environ.get("CACHE_DELETE_EXPIRED_INTERVAL") or 600
 )
 
 
