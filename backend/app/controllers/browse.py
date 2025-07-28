@@ -37,13 +37,13 @@ if TYPE_CHECKING:
 class BrowseController(Controller):
     """Controller that handles browse-related API endpoints."""
 
-    dependencies = {"transaction": Provide(provide_transaction)}
+    dependencies = {"db_transaction": Provide(provide_transaction)}
 
     @get(path="/get_corpora", cache=True)
-    async def get_corpora(self, transaction: "AsyncSession") -> list[Corpus]:
+    async def get_corpora(self, db_transaction: "AsyncSession") -> list[Corpus]:
         """List all corpora including statistics about datasets and documents.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :return: The list of corpora.
         """
         sq_documents = (
@@ -71,7 +71,7 @@ class BrowseController(Controller):
             .outerjoin(sq_datasets)
         )
 
-        result = (await transaction.execute(sql)).all()
+        result = (await db_transaction.execute(sql)).all()
         return [
             Corpus(
                 name=corpus.name,
@@ -84,11 +84,11 @@ class BrowseController(Controller):
 
     @get(path="/get_datasets", cache=True)
     async def get_datasets(
-        self, transaction: "AsyncSession", corpus_name: str
+        self, db_transaction: "AsyncSession", corpus_name: str
     ) -> list[Dataset]:
         """List all datasets for a corpus, including statistics.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :return: The list of datasets.
         """
@@ -105,7 +105,7 @@ class BrowseController(Controller):
             .where(ORMCorpus.name == corpus_name)
         )
 
-        result = (await transaction.execute(sql)).all()
+        result = (await db_transaction.execute(sql)).all()
         return [
             Dataset(
                 name=dataset.name,
@@ -119,7 +119,7 @@ class BrowseController(Controller):
     @get(path="/get_queries", cache=True)
     async def get_queries(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         corpus_name: str,
         dataset_name: str,
         match: str | None = None,
@@ -130,7 +130,7 @@ class BrowseController(Controller):
     ) -> Paginated[Query]:
         """List queries.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: Return only queries in this dataset.
         :param match: Return only queries matching this.
@@ -199,8 +199,8 @@ class BrowseController(Controller):
             .offset(offset)
         )
 
-        total_num_results = (await transaction.execute(sql_count)).scalar_one()
-        result = (await transaction.execute(sql)).all()
+        total_num_results = (await db_transaction.execute(sql_count)).scalar_one()
+        result = (await db_transaction.execute(sql)).all()
         return Paginated[Query](
             items=[
                 Query(
@@ -220,14 +220,14 @@ class BrowseController(Controller):
     @get(path="/get_query", cache=True)
     async def get_query(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         corpus_name: str,
         dataset_name: str,
         query_id: str,
     ) -> Query:
         """Return a single specific query.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: The dataset name.
         :param query_id: The query ID.
@@ -255,7 +255,7 @@ class BrowseController(Controller):
         )
 
         try:
-            db_query, num_rel_docs = (await transaction.execute(sql)).one()
+            db_query, num_rel_docs = (await db_transaction.execute(sql)).one()
         except NoResultFound:
             raise HTTPException(
                 "Could not find the requested query.",
@@ -277,11 +277,11 @@ class BrowseController(Controller):
 
     @get(path="/get_document", cache=True)
     async def get_document(
-        self, transaction: "AsyncSession", corpus_name: str, document_id: str
+        self, db_transaction: "AsyncSession", corpus_name: str, document_id: str
     ) -> Document:
         """Return a single specific document.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The corpus name.
         :param document_id: The document ID.
         :raises HTTPException: When the document does not exist.
@@ -302,7 +302,7 @@ class BrowseController(Controller):
         ).group_by(ORMDocument.pkey)
 
         try:
-            db_document, num_rel_queries = (await transaction.execute(sql)).one()
+            db_document, num_rel_queries = (await db_transaction.execute(sql)).one()
         except NoResultFound as e:
             raise HTTPException(
                 "Could not find the requested document.",
@@ -324,7 +324,7 @@ class BrowseController(Controller):
     @get(path="/get_documents", cache=True)
     async def get_documents(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         corpus_name: str,
         match: str | None = None,
         num_results: int = 10,
@@ -334,7 +334,7 @@ class BrowseController(Controller):
     ) -> Paginated[Document]:
         """List documents.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param match: Return only documents matching this.
         :param num_results: How many documents to return.
@@ -414,8 +414,8 @@ class BrowseController(Controller):
             .order_by(*order_by_clause, sq_all_docs.c.pkey)
         )
 
-        total_num_results = (await transaction.execute(sql_count)).scalar_one()
-        result = (await transaction.execute(sql)).all()
+        total_num_results = (await db_transaction.execute(sql_count)).scalar_one()
+        result = (await db_transaction.execute(sql)).all()
         return Paginated[Document](
             items=[
                 Document(
@@ -434,7 +434,7 @@ class BrowseController(Controller):
     @get(path="/get_qrels", cache=True)
     async def get_qrels(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         corpus_name: str,
         document_id: str | None = None,
         dataset_name: str | None = None,
@@ -455,7 +455,7 @@ class BrowseController(Controller):
     ) -> Paginated[QRel]:
         """Return query-document pairs annotated as relevant.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The corpus name.
         :param document_id: Return QRels for this document only.
         :param dataset_name: Return QRels for this dataset only.
@@ -549,8 +549,8 @@ class BrowseController(Controller):
             .limit(num_results)
         )
 
-        total_num_results = (await transaction.execute(sql_count)).scalar_one()
-        result = (await transaction.execute(sql)).scalars()
+        total_num_results = (await db_transaction.execute(sql_count)).scalar_one()
+        result = (await db_transaction.execute(sql)).scalars()
         return Paginated[QRel](
             items=[
                 QRel(

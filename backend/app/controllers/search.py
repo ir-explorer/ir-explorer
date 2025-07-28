@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 class SearchController(Controller):
     """Controller that handles search-related API endpoints."""
 
-    dependencies = {"transaction": Provide(provide_transaction)}
+    dependencies = {"db_transaction": Provide(provide_transaction)}
 
     @get(path="/get_available_languages", cache=True)
     def get_available_languages(self) -> list[str]:
@@ -42,20 +42,20 @@ class SearchController(Controller):
         return ["English"]
 
     @get(path="/get_search_options", cache=True)
-    async def get_search_options(self, transaction: "AsyncSession") -> SearchOptions:
+    async def get_search_options(self, db_transaction: "AsyncSession") -> SearchOptions:
         """Get available options for all search settings.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :return: The available options.
         """
         sql = select(ORMCorpus.name)
-        result = (await transaction.execute(sql)).scalars()
+        result = (await db_transaction.execute(sql)).scalars()
         return SearchOptions(query_languages=["English"], corpus_names=list(result))
 
     @get(path="/search_documents", cache=True)
     async def search_documents(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         q: str,
         corpus_name: list[str] | None = None,
         num_results: int = 10,
@@ -63,7 +63,7 @@ class SearchController(Controller):
     ) -> Paginated[DocumentSearchHit]:
         """Search documents (using full-text search).
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param q: The search query.
         :param corpus_name: Search only within these corpora.
         :param num_results: How many hits to return.
@@ -120,8 +120,8 @@ class SearchController(Controller):
         # use a subquery to get the corpus names only for the current results
         sql_results = select(sql_results_sq, ORMCorpus.name).join(ORMCorpus)
 
-        total_num_results = (await transaction.execute(sql_count)).scalar_one()
-        results = (await transaction.execute(sql_results)).all()
+        total_num_results = (await db_transaction.execute(sql_count)).scalar_one()
+        results = (await db_transaction.execute(sql_results)).all()
         return Paginated[DocumentSearchHit](
             items=[
                 DocumentSearchHit(

@@ -36,15 +36,15 @@ if TYPE_CHECKING:
 class DataController(Controller):
     """Controller that handles data-related API endpoints."""
 
-    dependencies = {"transaction": Provide(provide_transaction)}
+    dependencies = {"db_transaction": Provide(provide_transaction)}
 
     @post(path="/create_corpus")
     async def create_corpus(
-        self, transaction: "AsyncSession", data: "CorpusInfo"
+        self, db_transaction: "AsyncSession", data: "CorpusInfo"
     ) -> None:
         """Create a new corpus in the database.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param data: The corpus.
         :raises HTTPException: When the corpus cannot be added to the database.
         """
@@ -59,7 +59,7 @@ class DataController(Controller):
         sql = insert(ORMCorpus).values({"name": data.name, "language": data.language})
 
         try:
-            await transaction.execute(sql)
+            await db_transaction.execute(sql)
         except (IntegrityError, ProgrammingError) as e:
             raise HTTPException(
                 "Failed to add corpus.",
@@ -69,11 +69,11 @@ class DataController(Controller):
 
     @post(path="/create_dataset")
     async def create_dataset(
-        self, transaction: "AsyncSession", data: "DatasetInfo"
+        self, db_transaction: "AsyncSession", data: "DatasetInfo"
     ) -> None:
         """Create a new dataset in the database.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param data: The dataset.
         :raises HTTPException: When the dataset cannot be added to the database.
         """
@@ -88,7 +88,7 @@ class DataController(Controller):
         )
 
         try:
-            await transaction.execute(sql)
+            await db_transaction.execute(sql)
         except IntegrityError as e:
             raise HTTPException(
                 "Failed to add dataset.",
@@ -103,14 +103,14 @@ class DataController(Controller):
     @post(path="/add_queries")
     async def add_queries(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         dataset_name: str,
         corpus_name: str,
         data: "Sequence[QueryInfo]",
     ) -> None:
         """Insert new queries into the database.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param dataset_name: The dataset the queries belong to.
         :param corpus_name: The corpus the dataset belongs to.
         :param data: The queries to insert.
@@ -139,7 +139,7 @@ class DataController(Controller):
         )
 
         try:
-            await transaction.execute(sql)
+            await db_transaction.execute(sql)
         except IntegrityError as e:
             raise HTTPException(
                 "Failed to add queries.",
@@ -150,13 +150,13 @@ class DataController(Controller):
     @post(path="/add_documents")
     async def add_documents(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         corpus_name: str,
         data: "Sequence[DocumentInfo]",
     ) -> None:
         """Insert new documents into the database.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The corpus the documents belong to.
         :param data: The documents to insert.
         :raises HTTPException: When the documents cannot be added to the database.
@@ -175,7 +175,7 @@ class DataController(Controller):
         )
 
         try:
-            await transaction.execute(sql)
+            await db_transaction.execute(sql)
         except IntegrityError as e:
             raise HTTPException(
                 "Failed to add Documents.",
@@ -186,14 +186,14 @@ class DataController(Controller):
     @post(path="/add_qrels")
     async def add_qrels(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         dataset_name: str,
         corpus_name: str,
         data: "Sequence[QRelInfo]",
     ) -> None:
         """Insert QRels into the database.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param dataset_name: The dataset the QRels belong to.
         :param corpus_name: The corpus the dataset belongs to.
         :param data: The QRels to insert.
@@ -231,7 +231,7 @@ class DataController(Controller):
         )
 
         try:
-            await transaction.execute(sql)
+            await db_transaction.execute(sql)
         except IntegrityError as e:
             raise HTTPException(
                 "Failed to add QRels.",
@@ -241,11 +241,11 @@ class DataController(Controller):
 
     @delete(path="/remove_dataset")
     async def remove_dataset(
-        self, transaction: "AsyncSession", corpus_name: str, dataset_name: str
+        self, db_transaction: "AsyncSession", corpus_name: str, dataset_name: str
     ) -> None:
         """Remove a dataset and its associated queries and QRels.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The name of the corpus the dataset is in.
         :param dataset_name: The name of the dataset to remove.
         """
@@ -260,19 +260,19 @@ class DataController(Controller):
         sql_del_queries = delete_(ORMQuery).filter_by(dataset_pkey=dataset_pkey)
         sql_del_dataset = delete_(ORMDataset).filter_by(pkey=dataset_pkey)
 
-        await transaction.execute(sql_del_qrels)
-        await transaction.execute(sql_del_queries)
-        await transaction.execute(sql_del_dataset)
+        await db_transaction.execute(sql_del_qrels)
+        await db_transaction.execute(sql_del_queries)
+        await db_transaction.execute(sql_del_dataset)
 
     @delete(path="/remove_corpus")
     async def remove_corpus(
-        self, transaction: "AsyncSession", corpus_name: str
+        self, db_transaction: "AsyncSession", corpus_name: str
     ) -> None:
         """Remove a corpus and its associated documents.
 
         Any associated datasets must be removed first.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The name of the corpus to remove.
         :raises HTTPException: When the corpus still has associated datasets.
         :raises HTTPException: When the corpus cannot be removed for other reasons.
@@ -282,7 +282,7 @@ class DataController(Controller):
             .options(joinedload(ORMCorpus.datasets))
             .filter_by(name=corpus_name)
         )
-        corpus = (await transaction.execute(sql_corpus)).unique().scalar_one()
+        corpus = (await db_transaction.execute(sql_corpus)).unique().scalar_one()
         if len(corpus.datasets) > 0:
             raise HTTPException(
                 "Associated datasets must be removed first.",
@@ -294,8 +294,8 @@ class DataController(Controller):
         sql_del_corpus = delete_(ORMCorpus).filter_by(name=corpus_name)
 
         try:
-            await transaction.execute(sql_del_documents)
-            await transaction.execute(sql_del_corpus)
+            await db_transaction.execute(sql_del_documents)
+            await db_transaction.execute(sql_del_corpus)
         except IntegrityError as e:
             raise HTTPException(
                 "Failed to remove corpus.",
