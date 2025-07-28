@@ -12,7 +12,7 @@
 
 ## Running with Docker
 
-The application can easily be run with Docker:
+The application can easily be run with Docker. For example, spin up a development instance as follows:
 
 ```bash
 docker compose -f compose.yaml -f compose.dev.yaml up --build --watch

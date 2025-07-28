@@ -13,12 +13,15 @@ services:
   frontend:
     restart: always
     ports:
-      - "8204:3000"
+      - "8204:8000"
     entrypoint: [ "/bin/sh", "-c" ]
     command:
       - |
         npm run build
         node build
+    environment:
+      - PORT=8000
+      - ORIGIN=${ORIGIN}
 
 volumes:
   pgdata:
