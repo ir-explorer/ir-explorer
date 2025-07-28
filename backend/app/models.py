@@ -119,12 +119,3 @@ class Paginated(Generic[T]):
     items: list[T]
     offset: int
     total_num_items: int
-
-
-@dataclass
-class DocumentSummary:
-    """A generated document summary."""
-
-    id: str
-    corpus_name: str
-    summary: str

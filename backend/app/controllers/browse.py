@@ -6,6 +6,8 @@ from db.util import escape_search_query
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
+from litestar.response import Stream
+from litestar.serialization import encode_json
 from litestar.status_codes import (
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
@@ -18,7 +20,6 @@ from models import (
     Dataset,
     Document,
     DocumentInfo,
-    DocumentSummary,
     Paginated,
     QRel,
     Query,
@@ -593,7 +594,7 @@ class BrowseController(Controller):
         corpus_name: str,
         document_id: str,
         model: str,
-    ) -> DocumentSummary:
+    ) -> Stream:
         """Return a generated summary for a single document.
 
         :param db_transaction: A DB transaction.
@@ -633,14 +634,22 @@ class BrowseController(Controller):
 
         try:
             prompt = get_summary_prompt(db_document.text, db_document.title)
-            summary = await ollama_client.generate(model=model, prompt=prompt)
+            stream = await ollama_client.generate(
+                model=model, prompt=prompt, stream=True
+            )
+
+            return Stream(
+                encode_json(
+                    {
+                        "response": chunk["response"],
+                        "done": chunk["done"],
+                    }
+                )
+                async for chunk in stream
+            )
         except Exception as e:
             raise HTTPException(
                 "Failed to summarize document.",
                 status_code=HTTP_500_INTERNAL_SERVER_ERROR,
                 extra={"error": str(e)},
             )
-
-        return DocumentSummary(
-            id=db_document.id, corpus_name=corpus_name, summary=summary.response
-        )

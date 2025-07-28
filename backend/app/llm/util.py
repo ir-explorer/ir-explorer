@@ -23,6 +23,6 @@ def get_summary_prompt(text: str, title: str | None) -> str:
         if name is not None
     }
     if len(placeholders - {"title", "text"}) > 0:
-        raise RuntimeError("LLM summary prompt is malformed.")
+        raise RuntimeError("LLM summary prompt template is malformed.")
 
     return LLM_PROMPT_SUMMARY.format(text=text, title=title)
