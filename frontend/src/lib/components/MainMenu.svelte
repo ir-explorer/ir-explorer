@@ -1,5 +1,9 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import {
+    PUBLIC_MAX_ITEMS_PER_PAGE,
+    PUBLIC_MAX_SNIPPET_LENGTH,
+  } from "$env/static/public";
   import { browseIcon, closeMenuIcon, menuIcon, searchIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type { AvailableOptions } from "$lib/types";
@@ -111,11 +115,10 @@ The main menu drawer.
           </div>
           <input
             type="range"
-            min="5"
-            max="100"
+            min="1"
+            max={PUBLIC_MAX_ITEMS_PER_PAGE}
             bind:value={selectedOptions.itemsPerPage}
-            class="range range-sm"
-            step="5" />
+            class="range range-sm" />
         </label>
 
         <label class="fieldset-label flex flex-col items-start">
@@ -125,11 +128,10 @@ The main menu drawer.
           </div>
           <input
             type="range"
-            min="50"
-            max="1000"
+            min="0"
+            max={PUBLIC_MAX_SNIPPET_LENGTH}
             bind:value={selectedOptions.snippetLength}
-            class="range range-sm"
-            step="10" />
+            class="range range-sm" />
         </label>
       </fieldset>
     </div>
