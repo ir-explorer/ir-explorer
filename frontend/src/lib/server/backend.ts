@@ -1,8 +1,5 @@
-import {
-  BACKEND_HOST,
-  BACKEND_PORT,
-  MAX_SEARCH_RESULT_PAGES,
-} from "$env/static/private";
+import { BACKEND_HOST, BACKEND_PORT } from "$env/static/private";
+import { PUBLIC_MAX_SEARCH_RESULT_PAGES } from "$env/static/public";
 import type {
   AvailableOptions,
   Corpus,
@@ -292,7 +289,7 @@ export async function searchDocuments(
   page: number,
   corpusNames: string[] | null,
 ): Promise<Paginated<DocumentSearchHit>> {
-  if (page > MAX_SEARCH_RESULT_PAGES) {
+  if (page > PUBLIC_MAX_SEARCH_RESULT_PAGES) {
     throw new Error("Maximum number of results pages exceeded.");
   }
 

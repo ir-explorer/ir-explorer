@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import { PUBLIC_MAX_SEARCH_RESULT_PAGES } from "$env/static/public";
   import Alert from "$lib/components/Alert.svelte";
   import {
     corpusIcon,
@@ -73,10 +74,10 @@
               Page {data.pageNum} of {toHumanReadable(data.totalPages)}
             </p>
           </div>
-          {#if data.pageNum == data.maxSearchResultPages}
+          {#if data.pageNum == PUBLIC_MAX_SEARCH_RESULT_PAGES}
             <div
               class="tooltip tooltip-info"
-              data-tip="Only {data.maxSearchResultPages} pages are shown.">
+              data-tip="Only {PUBLIC_MAX_SEARCH_RESULT_PAGES} pages are shown.">
               <btn disabled class="btn join-item btn-sm btn-primary"
                 ><Fa icon={nextPageIcon} /></btn>
             </div>
