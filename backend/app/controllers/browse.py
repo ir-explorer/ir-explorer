@@ -601,6 +601,7 @@ class BrowseController(Controller):
         :param corpus_name: The corpus name.
         :param document_id: The document ID.
         :param model: The model to use.
+        :raises HTTPException: When Ollama is not available.
         :raises HTTPException: When the document does not exist.
         :raises HTTPException: When the document could not be summarized.
         :return: The document object.
