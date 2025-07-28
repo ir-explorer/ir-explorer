@@ -6,7 +6,14 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "8102:5432"
+      - "8101:5432"
+
+  ollama:
+    restart: always
+    volumes:
+      - ollamadata:/root/.ollama
+    ports:
+      - "8102:11434"
 
   backend:
     restart: always
@@ -40,3 +47,4 @@ services:
 
 volumes:
   pgdata:
+  ollamadata:

@@ -9,11 +9,19 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
       - POSTGRES_DB=${POSTGRES_DB?}
 
+  ollama:
+    image: ollama/ollama
+    healthcheck:
+      test: [ "CMD", "ollama", "ps" ]
+      start_period: 5s
+
   backend:
     build:
       context: backend
     depends_on:
       db:
+        condition: service_healthy
+      ollama:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready').read()" ]
