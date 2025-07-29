@@ -53,7 +53,6 @@ class MiscController(Controller):
         if ollama_client is None:
             model_names = []
         else:
-            print()
             model_names = [
                 model["model"] for model in (await ollama_client.list()).models
             ]
