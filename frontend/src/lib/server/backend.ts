@@ -432,3 +432,32 @@ export async function getRelevantDocuments(
     items: documents,
   } as Paginated<RelevantDocument>;
 }
+
+/**
+ * Stream a document summary.
+ *
+ * @param corpusName - The name of the corpus.
+ * @param documentId - The ID of the document.
+ * @param modelName - The LLM to use.
+ *
+ * @returns The document summary (streamed).
+ *
+ * @throws {@link Error}
+ * When the document was not found.
+ */
+export async function getDocumentSummary(
+  corpusName: string,
+  documentId: string,
+  modelName: string,
+): Promise<Response> {
+  const searchParams = new URLSearchParams({
+    corpus_name: corpusName,
+    document_id: documentId,
+    model: modelName,
+  });
+  const res = await fetch(
+    `${BACKEND_REST_URL}/get_document_summary?${searchParams}`,
+  );
+  if (res.status == 404) throw new Error("Document not found.");
+  return res;
+}
