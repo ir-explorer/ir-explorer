@@ -38,14 +38,13 @@
 @component
 Display a query or document text and (optionally) summary in scrollable components.
 -->
-<div class="tabs-border tabs">
+<div class="tabs-border tabs text-sm">
   <label class="tab flex flex-row gap-2">
     <input type="radio" name="tabs-text" checked={true} />
     <Fa icon={textIcon} />
     {title}
   </label>
-  <div
-    class="tab-content rounded rounded-box border-base-300 p-4 text-sm shadow">
+  <div class="tab-content rounded rounded-box border-base-300 p-4 shadow">
     <div
       class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
       {text}
@@ -67,18 +66,14 @@ Display a query or document text and (optionally) summary in scrollable componen
       {/if}
       Summary
     </label>
-    <div
-      class="tab-content rounded rounded-box border-base-300 p-4 text-sm shadow">
-      {#if summaryBusy && summary.length == 0}
-        <div class="flex w-full flex-row justify-center">
-          <span class="loading loading-sm loading-dots"></span>
-        </div>
-      {:else}
-        <div
-          class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
-          {summary}
-        </div>
-      {/if}
+    <div class="tab-content rounded rounded-box border-base-300 p-4 shadow">
+      <div
+        class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
+        {summary}
+        {#if summaryBusy}
+          <div class="inline-block animate-blink font-bold text-primary">_</div>
+        {/if}
+      </div>
     </div>
   {/if}
 </div>
