@@ -88,7 +88,7 @@
   <!-- display selected query -->
   <MetaDisplay
     items={new Map([
-      ["ID", data.query.id],
+      ["Query ID", data.query.id],
       ["Description", data.query.description],
       [
         "Number of relevant documents",

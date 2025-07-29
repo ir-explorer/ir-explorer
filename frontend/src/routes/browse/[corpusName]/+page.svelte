@@ -89,7 +89,7 @@
   <!-- display selected document -->
   <MetaDisplay
     items={new Map([
-      ["ID", data.document.id],
+      ["Document ID", data.document.id],
       ["Title", data.document.title],
       [
         "Number of relevant queries",
