@@ -31,7 +31,7 @@ export async function getAvailableLanguages(): Promise<string[]> {
  * @returns All available options.
  */
 export async function getAvailableOptions(): Promise<AvailableOptions> {
-  const res = await fetch(`${BACKEND_REST_URL}/get_search_options`);
+  const res = await fetch(`${BACKEND_REST_URL}/get_available_options`);
   const resJson = await res.json();
 
   return {

@@ -7,7 +7,6 @@ from litestar import Controller, MediaType, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.response import Stream
-from litestar.serialization import encode_json
 from litestar.status_codes import (
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,

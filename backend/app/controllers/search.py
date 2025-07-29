@@ -6,9 +6,9 @@ from db.util import escape_search_query
 from litestar import Controller, get
 from litestar.di import Provide
 from models import (
+    AvailableOptions,
     DocumentSearchHit,
     Paginated,
-    SearchOptions,
 )
 from sqlalchemy import (
     VARCHAR,
@@ -41,16 +41,18 @@ class SearchController(Controller):
         # https://github.com/paradedb/paradedb/issues/1793
         return ["English"]
 
-    @get(path="/get_search_options", cache=True)
-    async def get_search_options(self, db_transaction: "AsyncSession") -> SearchOptions:
-        """Get available options for all search settings.
+    @get(path="/get_available_options", cache=True)
+    async def get_available_options(
+        self, db_transaction: "AsyncSession"
+    ) -> AvailableOptions:
+        """Get available options for all settings.
 
         :param db_transaction: A DB transaction.
         :return: The available options.
         """
         sql = select(ORMCorpus.name)
         result = (await db_transaction.execute(sql)).scalars()
-        return SearchOptions(query_languages=["English"], corpus_names=list(result))
+        return AvailableOptions(query_languages=["English"], corpus_names=list(result))
 
     @get(path="/search_documents", cache=True)
     async def search_documents(
