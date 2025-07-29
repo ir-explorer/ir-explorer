@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ url }) => {
   if (
     !Number.isInteger(pageNum) ||
     pageNum < 1 ||
-    pageNum > PUBLIC_MAX_SEARCH_RESULT_PAGES
+    pageNum > Number(PUBLIC_MAX_SEARCH_RESULT_PAGES)
   ) {
     pageNum = 1;
   }
@@ -33,12 +33,12 @@ export const load: PageServerLoad = async ({ url }) => {
   const result = await searchDocuments(
     q,
     language,
-    PUBLIC_SEARCH_RESULTS_PER_PAGE,
+    Number(PUBLIC_SEARCH_RESULTS_PER_PAGE),
     pageNum,
     corpusNames,
   );
   const totalPages = Math.ceil(
-    result.totalNumItems / PUBLIC_SEARCH_RESULTS_PER_PAGE,
+    result.totalNumItems / Number(PUBLIC_SEARCH_RESULTS_PER_PAGE),
   );
 
   if (totalPages == 0) {
