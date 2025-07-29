@@ -636,6 +636,7 @@ class BrowseController(Controller):
                 model=model,
                 prompt=get_summary_prompt(db_document.text, db_document.title),
                 stream=True,
+                think=False,
             )
             return Stream(chunk["response"] async for chunk in stream)
         except Exception as e:
