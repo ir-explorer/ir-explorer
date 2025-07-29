@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { textIcon } from "$lib/icons";
+  import Fa from "svelte-fa";
   interface Props {
     /** The title to render. */
     title?: string;
@@ -13,10 +15,17 @@
 @component
 Display a query or document text in a scrollable component.
 -->
-<fieldset class="fieldset rounded-box border border-base-300 px-4 pb-2 shadow">
-  <legend class="fieldset-legend mb-0 p-0">{title}</legend>
+<div class="tabs-border tabs">
+  <label class="tab flex flex-row gap-2">
+    <input type="radio" name="tabs-text" checked={true} />
+    <Fa icon={textIcon} />
+    {title}
+  </label>
   <div
-    class="max-h-128 overflow-y-scroll text-sm leading-relaxed whitespace-pre-wrap">
-    {text}
+    class="tab-content rounded rounded-box border-base-300 p-4 text-sm shadow">
+    <div
+      class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
+      {text}
+    </div>
   </div>
-</fieldset>
+</div>
