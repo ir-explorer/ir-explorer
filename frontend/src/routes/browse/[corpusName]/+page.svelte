@@ -21,6 +21,19 @@
 
   const { data }: PageProps = $props();
 
+  async function getDocumentSummary() {
+    const searchParams = new URLSearchParams({
+      corpusName: page.params.corpusName,
+      documentId: data.document !== null ? data.document.id : "",
+      modelName: "llama3.2:latest",
+    });
+    const res = await fetch("/api/documentSummary?" + searchParams);
+    if (res.body === null) {
+      return new ReadableStream();
+    }
+    return res.body.pipeThrough(new TextDecoderStream());
+  }
+
   // document list
   async function getDocumentsPage(
     match: string | null,
@@ -51,7 +64,7 @@
     { name: "Match", option: "match_score" },
   ] as OrderByOption[];
 
-  // relevent queries list
+  // relevant queries list
   async function getQueriesPage(
     match: string | null,
     orderBy: string | null,
@@ -97,7 +110,7 @@
         data.document.numRelevantQueries.toString(),
       ],
     ])} />
-  <TextDisplay text={data.document.text} />
+  <TextDisplay text={data.document.text} getSummary={getDocumentSummary} />
 
   {#if data.document.numRelevantQueries > 0}
     <!-- display relevant queries for selected document -->

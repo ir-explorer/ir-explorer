@@ -1,19 +1,39 @@
 <script lang="ts">
-  import { textIcon } from "$lib/icons";
+  import { summaryIcon, textIcon } from "$lib/icons";
   import Fa from "svelte-fa";
   interface Props {
     /** The title to render. */
     title?: string;
     /** The text to render. */
     text: string;
+    /** A function to generate a summary. */
+    getSummary?: (() => Promise<ReadableStream<string>>) | null;
   }
 
-  let { title = "Text", text }: Props = $props();
+  let { title = "Text", text, getSummary = null }: Props = $props();
+
+  let summary = $state("");
+  let summaryLoaded = false;
+
+  async function loadSummary() {
+    if (!summaryLoaded && getSummary != null) {
+      summaryLoaded = true;
+
+      const reader = (await getSummary()).getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
+        summary += value;
+      }
+    }
+  }
 </script>
 
 <!--
 @component
-Display a query or document text in a scrollable component.
+Display a query or document text and (optionally) summary in scrollable components.
 -->
 <div class="tabs-border tabs">
   <label class="tab flex flex-row gap-2">
@@ -28,4 +48,24 @@ Display a query or document text in a scrollable component.
       {text}
     </div>
   </div>
+
+  {#if getSummary !== null}
+    <label class="tab flex flex-row gap-2">
+      <input
+        type="radio"
+        name="tabs-text"
+        onclick={async () => {
+          await loadSummary();
+        }} />
+      <Fa icon={summaryIcon} />
+      Summary
+    </label>
+    <div
+      class="tab-content rounded rounded-box border-base-300 p-4 text-sm shadow">
+      <div
+        class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
+        {summary}
+      </div>
+    </div>
+  {/if}
 </div>

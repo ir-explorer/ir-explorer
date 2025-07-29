@@ -97,7 +97,7 @@
         data.query.numRelevantDocuments.toString(),
       ],
     ])} />
-  <TextDisplay text={data.query.text} />
+  <TextDisplay text={data.query.text} title="Text" />
 
   {#if data.query.numRelevantDocuments > 0}
     <!-- display relevant documents for selected query -->

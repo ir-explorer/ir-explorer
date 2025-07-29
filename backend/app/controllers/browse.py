@@ -638,15 +638,7 @@ class BrowseController(Controller):
                 prompt=get_summary_prompt(db_document.text, db_document.title),
                 stream=True,
             )
-            return Stream(
-                encode_json(
-                    {
-                        "response": chunk["response"],
-                        "done": chunk["done"],
-                    }
-                )
-                async for chunk in stream
-            )
+            return Stream(chunk["response"] async for chunk in stream)
         except Exception as e:
             raise HTTPException(
                 "Failed to summarize document.",
