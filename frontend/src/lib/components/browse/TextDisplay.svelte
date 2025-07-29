@@ -14,15 +14,18 @@
 
   let summary = $state("");
   let summaryLoaded = false;
+  let summaryBusy = $state(false);
 
   async function loadSummary() {
     if (!summaryLoaded && getSummary != null) {
       summaryLoaded = true;
+      summaryBusy = true;
 
       const reader = (await getSummary()).getReader();
       while (true) {
         const { done, value } = await reader.read();
         if (done) {
+          summaryBusy = false;
           break;
         }
         summary += value;
@@ -57,7 +60,11 @@ Display a query or document text and (optionally) summary in scrollable componen
         onclick={async () => {
           await loadSummary();
         }} />
-      <Fa icon={summaryIcon} />
+      {#if summaryBusy}
+        <span class="loading loading-xs loading-ball"></span>
+      {:else}
+        <Fa icon={summaryIcon} />
+      {/if}
       Summary
     </label>
     <div
