@@ -88,6 +88,8 @@
   <!-- display selected query -->
   <MetaDisplay
     items={new Map([
+      ["Corpus", data.query.corpusName],
+      ["Dataset", data.query.datasetName],
       ["Query ID", data.query.id],
       ["Description", data.query.description],
       [

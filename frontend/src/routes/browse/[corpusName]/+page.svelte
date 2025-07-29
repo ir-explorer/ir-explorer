@@ -89,6 +89,7 @@
   <!-- display selected document -->
   <MetaDisplay
     items={new Map([
+      ["Corpus", data.document.corpusName],
       ["Document ID", data.document.id],
       ["Title", data.document.title],
       [
