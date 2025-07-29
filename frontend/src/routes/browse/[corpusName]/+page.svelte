@@ -22,10 +22,14 @@
   const { data }: PageProps = $props();
 
   async function getDocumentSummary() {
+    if (data.document === null || selectedOptions.modelName === null) {
+      throw new Error("Failed to summarize document.");
+    }
+
     const searchParams = new URLSearchParams({
       corpusName: page.params.corpusName,
-      documentId: data.document !== null ? data.document.id : "",
-      modelName: "llama3.2:latest",
+      documentId: data.document.id,
+      modelName: selectedOptions.modelName,
     });
     const res = await fetch("/api/documentSummary?" + searchParams);
     if (res.body === null) {

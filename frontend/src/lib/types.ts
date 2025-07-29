@@ -1,10 +1,12 @@
 export interface AvailableOptions {
   queryLanguages: string[];
   corpusNames: string[];
+  modelNames: string[];
 }
 export interface SelectedOptions {
   queryLanguage: string | null;
   corpusNames: string[];
+  modelName: string | null;
   itemsPerPage: number;
   snippetLength: number;
 }

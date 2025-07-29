@@ -11,6 +11,7 @@ def test_available_options(api):
     assert requests.get(f"{api}/get_available_options").json() == {
         "query_languages": ["English"],
         "corpus_names": [],
+        "model_names": [],
     }
 
 

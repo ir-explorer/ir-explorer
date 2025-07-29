@@ -1,7 +1,12 @@
 import os
 from datetime import datetime, timedelta
 
-from controllers import BrowseController, DataController, SearchController
+from controllers import (
+    BrowseController,
+    DataController,
+    MiscController,
+    SearchController,
+)
 from db import CONFIG
 from litestar import Litestar, Request, get
 from litestar.config.response_cache import ResponseCacheConfig
@@ -52,7 +57,13 @@ def ready() -> bool:
 
 
 app = Litestar(
-    route_handlers=[BrowseController, DataController, SearchController, ready],
+    route_handlers=[
+        BrowseController,
+        DataController,
+        SearchController,
+        MiscController,
+        ready,
+    ],
     plugins=[SQLAlchemyInitPlugin(CONFIG)],
     stores={"cache": CACHE_STORE},
     # configure caching for successful responses

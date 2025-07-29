@@ -16,6 +16,17 @@
   }
   let { availableOptions }: Props = $props();
 
+  // assign missing values
+  if (selectedOptions.queryLanguage === null) {
+    selectedOptions.queryLanguage = availableOptions.queryLanguages[0];
+  }
+  if (
+    selectedOptions.modelName === null &&
+    availableOptions.modelNames.length > 0
+  ) {
+    selectedOptions.modelName = availableOptions.modelNames[0];
+  }
+
   let atSearch: boolean = $derived(
     page.url.pathname.startsWith("/search") || page.url.pathname == "/",
   );
@@ -34,8 +45,7 @@ The main menu drawer.
     </label>
   </div>
   <div class="drawer-side z-99">
-    <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"
-    ></label>
+    <label for="my-drawer" class="drawer-overlay"></label>
     <div class="menu min-h-full w-80 bg-base-200 p-4 text-base-content">
       <div class="flex w-full items-center gap-4">
         <label for="my-drawer" class="drawer-button btn btn-ghost btn-sm">
@@ -68,7 +78,7 @@ The main menu drawer.
 
       <!-- search settings -->
       <fieldset class="fieldset gap-4">
-        <legend class="fieldset-legend">Search settings</legend>
+        <legend class="fieldset-legend">Search</legend>
 
         <label class="fieldset-label flex flex-col items-start">
           Query language
@@ -82,31 +92,33 @@ The main menu drawer.
           </select>
         </label>
 
-        <label class="fieldset-label flex flex-col items-start">
-          Search only in
-          <div
-            id="filter-corpora"
-            class="menu w-full gap-2 rounded-box border border-base-300 bg-base-100 text-sm">
-            {#each availableOptions.corpusNames as corpusName}
-              <label>
-                <input
-                  type="checkbox"
-                  class="toggle mr-2 toggle-sm"
-                  value={corpusName}
-                  bind:group={selectedOptions.corpusNames}
-                  name="corpus" />
-                {corpusName}
-              </label>
-            {/each}
-          </div>
-        </label>
+        {#if availableOptions.corpusNames.length > 0}
+          <label class="fieldset-label flex flex-col items-start">
+            Search only in
+            <div
+              id="filter-corpora"
+              class="menu w-full gap-2 rounded-box border border-base-300 bg-base-100 text-sm">
+              {#each availableOptions.corpusNames as corpusName}
+                <label>
+                  <input
+                    type="checkbox"
+                    class="toggle mr-2 toggle-sm"
+                    value={corpusName}
+                    bind:group={selectedOptions.corpusNames}
+                    name="corpus" />
+                  {corpusName}
+                </label>
+              {/each}
+            </div>
+          </label>
+        {/if}
       </fieldset>
 
       <div class="my-2"></div>
 
       <!-- browse settings -->
       <fieldset class="fieldset gap-4">
-        <legend class="fieldset-legend">Browse settings</legend>
+        <legend class="fieldset-legend">Browse</legend>
 
         <label class="fieldset-label flex flex-col items-start">
           <div class="flex w-full flex-row justify-between">
@@ -133,6 +145,20 @@ The main menu drawer.
             bind:value={selectedOptions.snippetLength}
             class="range range-sm" />
         </label>
+
+        {#if availableOptions.modelNames.length > 0}
+          <label class="fieldset-label flex flex-col items-start">
+            LLM
+            <select
+              class="select w-full select-sm"
+              name="model"
+              bind:value={selectedOptions.modelName}>
+              {#each availableOptions.modelNames as modelName}
+                <option value={modelName}>{modelName}</option>
+              {/each}
+            </select>
+          </label>
+        {/if}
       </fieldset>
     </div>
   </div>

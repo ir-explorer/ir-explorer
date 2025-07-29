@@ -37,6 +37,7 @@ export async function getAvailableOptions(): Promise<AvailableOptions> {
   return {
     queryLanguages: resJson["query_languages"],
     corpusNames: resJson["corpus_names"],
+    modelNames: resJson["model_names"],
   } as AvailableOptions;
 }
 

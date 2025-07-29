@@ -6,7 +6,6 @@ from db.util import escape_search_query
 from litestar import Controller, get
 from litestar.di import Provide
 from models import (
-    AvailableOptions,
     DocumentSearchHit,
     Paginated,
 )
@@ -29,30 +28,6 @@ class SearchController(Controller):
     """Controller that handles search-related API endpoints."""
 
     dependencies = {"db_transaction": Provide(provide_transaction)}
-
-    @get(path="/get_available_languages", cache=True)
-    def get_available_languages(self) -> list[str]:
-        """List all corpus languages supported by the DB engine (for full-text search).
-
-        :return: All available languages.
-        """
-        # currently, paradedb does not support configuration based on a language column,
-        # so, for now, only english is supported
-        # https://github.com/paradedb/paradedb/issues/1793
-        return ["English"]
-
-    @get(path="/get_available_options", cache=True)
-    async def get_available_options(
-        self, db_transaction: "AsyncSession"
-    ) -> AvailableOptions:
-        """Get available options for all settings.
-
-        :param db_transaction: A DB transaction.
-        :return: The available options.
-        """
-        sql = select(ORMCorpus.name)
-        result = (await db_transaction.execute(sql)).scalars()
-        return AvailableOptions(query_languages=["English"], corpus_names=list(result))
 
     @get(path="/search_documents", cache=True)
     async def search_documents(

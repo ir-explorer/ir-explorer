@@ -10,6 +10,7 @@ class AvailableOptions:
 
     query_languages: list[str]
     corpus_names: list[str]
+    model_names: list[str]
 
 
 @dataclass
