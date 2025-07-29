@@ -69,10 +69,16 @@ Display a query or document text and (optionally) summary in scrollable componen
     </label>
     <div
       class="tab-content rounded rounded-box border-base-300 p-4 text-sm shadow">
-      <div
-        class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
-        {summary}
-      </div>
+      {#if summaryBusy && summary.length == 0}
+        <div class="flex w-full flex-row justify-center">
+          <span class="loading loading-sm loading-dots"></span>
+        </div>
+      {:else}
+        <div
+          class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
+          {summary}
+        </div>
+      {/if}
     </div>
   {/if}
 </div>
