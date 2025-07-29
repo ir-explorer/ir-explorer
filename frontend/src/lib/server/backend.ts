@@ -454,7 +454,7 @@ export async function getDocumentSummary(
   const searchParams = new URLSearchParams({
     corpus_name: corpusName,
     document_id: documentId,
-    model: modelName,
+    model_name: modelName,
   });
   const res = await fetch(
     `${BACKEND_REST_URL}/get_document_summary?${searchParams}`,

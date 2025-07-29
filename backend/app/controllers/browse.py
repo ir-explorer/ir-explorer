@@ -8,6 +8,7 @@ from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.response import Stream
 from litestar.status_codes import (
+    HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
     HTTP_501_NOT_IMPLEMENTED,
@@ -592,7 +593,7 @@ class BrowseController(Controller):
         ollama_client: AsyncClient | None,
         corpus_name: str,
         document_id: str,
-        model: str,
+        model_name: str,
     ) -> Stream:
         """Stream a generated summary of a single document.
 
@@ -600,8 +601,9 @@ class BrowseController(Controller):
         :param ollama_client: An Ollama client.
         :param corpus_name: The corpus name.
         :param document_id: The document ID.
-        :param model: The model to use.
+        :param model_name: The model to use.
         :raises HTTPException: When Ollama is not available.
+        :raises HTTPException: When the requested model is not available.
         :raises HTTPException: When the document does not exist.
         :raises HTTPException: When the document could not be summarized.
         :return: The document summary stream.
@@ -610,6 +612,15 @@ class BrowseController(Controller):
             raise HTTPException(
                 "LLM services not available.",
                 status_code=HTTP_501_NOT_IMPLEMENTED,
+            )
+
+        try:
+            await ollama_client.show(model_name)
+        except Exception:
+            raise HTTPException(
+                "Requested model is not available.",
+                status_code=HTTP_400_BAD_REQUEST,
+                extra={"model_name": model_name},
             )
 
         sql = (
@@ -633,7 +644,7 @@ class BrowseController(Controller):
 
         try:
             stream = await ollama_client.generate(
-                model=model,
+                model=model_name,
                 prompt=get_summary_prompt(db_document.text, db_document.title),
                 stream=True,
                 think=False,
