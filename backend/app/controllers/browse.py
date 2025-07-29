@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Literal
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
 from db.util import escape_search_query
-from litestar import Controller, get
+from litestar import Controller, MediaType, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.response import Stream
@@ -586,7 +586,7 @@ class BrowseController(Controller):
             total_num_items=total_num_results,
         )
 
-    @get(path="/get_document_summary", cache=True)
+    @get(path="/get_document_summary", cache=True, media_type=MediaType.TEXT)
     async def get_document_summary(
         self,
         db_transaction: "AsyncSession",
