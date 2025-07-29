@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { PUBLIC_MIN_DOCUMENT_LENGTH_SUMMARY } from "$env/static/public";
   import { summaryIcon, textIcon } from "$lib/icons";
   import Fa from "svelte-fa";
+
   interface Props {
     /** The title to render. */
     title?: string;
@@ -9,7 +11,6 @@
     /** A function to generate a summary. */
     getSummary?: (() => Promise<ReadableStream<string>>) | null;
   }
-
   let { title = "Text", text, getSummary = null }: Props = $props();
 
   let summary = $state("");
@@ -51,7 +52,7 @@ Display a query or document text and (optionally) summary in scrollable componen
     </div>
   </div>
 
-  {#if getSummary !== null}
+  {#if getSummary !== null && text.length >= Number(PUBLIC_MIN_DOCUMENT_LENGTH_SUMMARY)}
     <label class="tab flex flex-row gap-2">
       <input
         type="radio"
