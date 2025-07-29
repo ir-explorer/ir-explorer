@@ -5,11 +5,12 @@ T = TypeVar("T")
 
 
 @dataclass
-class SearchOptions:
-    """All available search options."""
+class AvailableOptions:
+    """All available options."""
 
     query_languages: list[str]
     corpus_names: list[str]
+    model_names: list[str]
 
 
 @dataclass

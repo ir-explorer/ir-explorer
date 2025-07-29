@@ -88,14 +88,16 @@
   <!-- display selected query -->
   <MetaDisplay
     items={new Map([
-      ["ID", data.query.id],
+      ["Corpus", data.query.corpusName],
+      ["Dataset", data.query.datasetName],
+      ["Query ID", data.query.id],
       ["Description", data.query.description],
       [
         "Number of relevant documents",
         data.query.numRelevantDocuments.toString(),
       ],
     ])} />
-  <TextDisplay text={data.query.text} />
+  <TextDisplay text={data.query.text} title="Text" />
 
   {#if data.query.numRelevantDocuments > 0}
     <!-- display relevant documents for selected query -->

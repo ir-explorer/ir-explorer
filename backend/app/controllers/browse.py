@@ -1,288 +1,60 @@
 from typing import TYPE_CHECKING, Literal
 
-from litestar import Controller, delete, get, post
+from db import provide_transaction
+from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
+from db.util import escape_search_query
+from litestar import Controller, MediaType, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
+from litestar.response import Stream
 from litestar.status_codes import (
-    HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
-    HTTP_409_CONFLICT,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+    HTTP_501_NOT_IMPLEMENTED,
 )
+from llm import provide_client
+from llm.util import get_summary_prompt
 from models import (
     Corpus,
-    CorpusInfo,
     Dataset,
-    DatasetInfo,
     Document,
     DocumentInfo,
-    DocumentSearchHit,
     Paginated,
     QRel,
-    QRelInfo,
     Query,
     QueryInfo,
-    SearchOptions,
 )
+
+# litestar needs the type outside of the type checking block
+from ollama import AsyncClient  # noqa: TC002
 from sqlalchemy import (
-    VARCHAR,
-    Integer,
-    SQLColumnExpression,
     and_,
     asc,
     desc,
     func,
-    insert,
-    literal_column,
     select,
     text,
 )
-from sqlalchemy import delete as delete_
-from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
-from db import provide_transaction
-from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
-from db.util import escape_search_query
-
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class DBController(Controller):
-    """Controller that handles database related API endpoints."""
+class BrowseController(Controller):
+    """Controller that handles browse-related API endpoints."""
 
-    dependencies = {"transaction": Provide(provide_transaction)}
-
-    @get(path="/get_available_languages", cache=True)
-    def get_available_languages(self) -> list[str]:
-        """List all corpus languages supported by the DB engine (for full-text search).
-
-        :return: All available languages.
-        """
-        # currently, paradedb does not support configuration based on a language column,
-        # so, for now, only english is supported
-        # https://github.com/paradedb/paradedb/issues/1793
-        return ["English"]
-
-    @get(path="/get_search_options", cache=True)
-    async def get_search_options(self, transaction: "AsyncSession") -> SearchOptions:
-        """Get available options for all search settings.
-
-        :param transaction: A DB transaction.
-        :return: The available options.
-        """
-        sql = select(ORMCorpus.name)
-        result = (await transaction.execute(sql)).scalars()
-        return SearchOptions(query_languages=["English"], corpus_names=list(result))
-
-    @post(path="/create_corpus")
-    async def create_corpus(
-        self, transaction: "AsyncSession", data: CorpusInfo
-    ) -> None:
-        """Create a new corpus in the database.
-
-        :param transaction: A DB transaction.
-        :param data: The corpus.
-        :raises HTTPException: When the corpus cannot be added to the database.
-        """
-        # for now, only english is supported
-        if data.language != "English":
-            raise HTTPException(
-                "Unsupported language.",
-                status_code=HTTP_400_BAD_REQUEST,
-                extra={"language": data.language},
-            )
-
-        sql = insert(ORMCorpus).values({"name": data.name, "language": data.language})
-
-        try:
-            await transaction.execute(sql)
-        except (IntegrityError, ProgrammingError) as e:
-            raise HTTPException(
-                "Failed to add corpus.",
-                status_code=HTTP_409_CONFLICT,
-                extra={"corpus_name": data.name, "error_code": e.code},
-            )
-
-    @post(path="/create_dataset")
-    async def create_dataset(
-        self, transaction: "AsyncSession", data: DatasetInfo
-    ) -> None:
-        """Create a new dataset in the database.
-
-        :param transaction: A DB transaction.
-        :param data: The dataset.
-        :raises HTTPException: When the dataset cannot be added to the database.
-        """
-        sql = insert(ORMDataset).values(
-            {
-                "name": data.name,
-                "corpus_pkey": select(ORMCorpus.pkey)
-                .filter_by(name=data.corpus_name)
-                .scalar_subquery(),
-                "min_relevance": data.min_relevance,
-            }
-        )
-
-        try:
-            await transaction.execute(sql)
-        except IntegrityError as e:
-            raise HTTPException(
-                "Failed to add dataset.",
-                status_code=HTTP_409_CONFLICT,
-                extra={
-                    "name": data.name,
-                    "corpus_name": data.corpus_name,
-                    "error_code": e.code,
-                },
-            )
-
-    @post(path="/add_queries")
-    async def add_queries(
-        self,
-        transaction: "AsyncSession",
-        dataset_name: str,
-        corpus_name: str,
-        data: "Sequence[QueryInfo]",
-    ) -> None:
-        """Insert new queries into the database.
-
-        :param transaction: A DB transaction.
-        :param dataset_name: The dataset the queries belong to.
-        :param corpus_name: The corpus the dataset belongs to.
-        :param data: The queries to insert.
-        :raises HTTPException: When the queries cannot be added to the database.
-        """
-        dataset_cte = (
-            select(ORMDataset)
-            .join(ORMCorpus)
-            .where(
-                and_(
-                    ORMDataset.name == dataset_name,
-                    ORMCorpus.name == corpus_name,
-                )
-            )
-        ).cte()
-        sql = insert(ORMQuery).values(
-            [
-                {
-                    "id": q.id,
-                    "dataset_pkey": select(dataset_cte.c.pkey),
-                    "text": q.text,
-                    "description": q.description,
-                }
-                for q in data
-            ]
-        )
-
-        try:
-            await transaction.execute(sql)
-        except IntegrityError as e:
-            raise HTTPException(
-                "Failed to add queries.",
-                status_code=HTTP_409_CONFLICT,
-                extra={"error_code": e.code},
-            )
-
-    @post(path="/add_documents")
-    async def add_documents(
-        self,
-        transaction: "AsyncSession",
-        corpus_name: str,
-        data: "Sequence[DocumentInfo]",
-    ) -> None:
-        """Insert new documents into the database.
-
-        :param transaction: A DB transaction.
-        :param corpus_name: The corpus the documents belong to.
-        :param data: The documents to insert.
-        :raises HTTPException: When the documents cannot be added to the database.
-        """
-        corpus_cte = select(ORMCorpus).where(ORMCorpus.name == corpus_name).cte()
-        sql = insert(ORMDocument).values(
-            [
-                {
-                    "id": doc.id,
-                    "corpus_pkey": select(corpus_cte.c.pkey),
-                    "title": doc.title,
-                    "text": doc.text,
-                }
-                for doc in data
-            ]
-        )
-
-        try:
-            await transaction.execute(sql)
-        except IntegrityError as e:
-            raise HTTPException(
-                "Failed to add Documents.",
-                status_code=HTTP_409_CONFLICT,
-                extra={"error_code": e.code},
-            )
-
-    @post(path="/add_qrels")
-    async def add_qrels(
-        self,
-        transaction: "AsyncSession",
-        dataset_name: str,
-        corpus_name: str,
-        data: "Sequence[QRelInfo]",
-    ) -> None:
-        """Insert QRels into the database.
-
-        :param transaction: A DB transaction.
-        :param dataset_name: The dataset the QRels belong to.
-        :param corpus_name: The corpus the dataset belongs to.
-        :param data: The QRels to insert.
-        :raises HTTPException: When the QRels cannot be added to the database.
-        """
-        dataset_cte = (
-            select(ORMDataset)
-            .join(ORMCorpus)
-            .where(
-                and_(
-                    ORMDataset.name == dataset_name,
-                    ORMCorpus.name == corpus_name,
-                )
-            )
-        ).cte()
-        sql = insert(ORMQRel).values(
-            [
-                {
-                    "query_pkey": select(ORMQuery.pkey)
-                    .where(
-                        ORMQuery.id == qrel.query_id,
-                        ORMQuery.dataset_pkey == dataset_cte.c.pkey,
-                    )
-                    .scalar_subquery(),
-                    "document_pkey": select(ORMDocument.pkey)
-                    .where(
-                        ORMDocument.id == qrel.document_id,
-                        ORMDocument.corpus_pkey == dataset_cte.c.corpus_pkey,
-                    )
-                    .scalar_subquery(),
-                    "relevance": qrel.relevance,
-                }
-                for qrel in data
-            ]
-        )
-
-        try:
-            await transaction.execute(sql)
-        except IntegrityError as e:
-            raise HTTPException(
-                "Failed to add QRels.",
-                status_code=HTTP_409_CONFLICT,
-                extra={"error_code": e.code},
-            )
+    dependencies = {
+        "db_transaction": Provide(provide_transaction),
+        "ollama_client": Provide(provide_client),
+    }
 
     @get(path="/get_corpora", cache=True)
-    async def get_corpora(self, transaction: "AsyncSession") -> list[Corpus]:
+    async def get_corpora(self, db_transaction: "AsyncSession") -> list[Corpus]:
         """List all corpora including statistics about datasets and documents.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :return: The list of corpora.
         """
         sq_documents = (
@@ -310,7 +82,7 @@ class DBController(Controller):
             .outerjoin(sq_datasets)
         )
 
-        result = (await transaction.execute(sql)).all()
+        result = (await db_transaction.execute(sql)).all()
         return [
             Corpus(
                 name=corpus.name,
@@ -323,11 +95,11 @@ class DBController(Controller):
 
     @get(path="/get_datasets", cache=True)
     async def get_datasets(
-        self, transaction: "AsyncSession", corpus_name: str
+        self, db_transaction: "AsyncSession", corpus_name: str
     ) -> list[Dataset]:
         """List all datasets for a corpus, including statistics.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :return: The list of datasets.
         """
@@ -344,7 +116,7 @@ class DBController(Controller):
             .where(ORMCorpus.name == corpus_name)
         )
 
-        result = (await transaction.execute(sql)).all()
+        result = (await db_transaction.execute(sql)).all()
         return [
             Dataset(
                 name=dataset.name,
@@ -358,7 +130,7 @@ class DBController(Controller):
     @get(path="/get_queries", cache=True)
     async def get_queries(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         corpus_name: str,
         dataset_name: str,
         match: str | None = None,
@@ -369,7 +141,7 @@ class DBController(Controller):
     ) -> Paginated[Query]:
         """List queries.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: Return only queries in this dataset.
         :param match: Return only queries matching this.
@@ -438,8 +210,8 @@ class DBController(Controller):
             .offset(offset)
         )
 
-        total_num_results = (await transaction.execute(sql_count)).scalar_one()
-        result = (await transaction.execute(sql)).all()
+        total_num_results = (await db_transaction.execute(sql_count)).scalar_one()
+        result = (await db_transaction.execute(sql)).all()
         return Paginated[Query](
             items=[
                 Query(
@@ -459,14 +231,14 @@ class DBController(Controller):
     @get(path="/get_query", cache=True)
     async def get_query(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         corpus_name: str,
         dataset_name: str,
         query_id: str,
     ) -> Query:
         """Return a single specific query.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param dataset_name: The dataset name.
         :param query_id: The query ID.
@@ -494,7 +266,7 @@ class DBController(Controller):
         )
 
         try:
-            db_query, num_rel_docs = (await transaction.execute(sql)).one()
+            db_query, num_rel_docs = (await db_transaction.execute(sql)).one()
         except NoResultFound:
             raise HTTPException(
                 "Could not find the requested query.",
@@ -516,11 +288,11 @@ class DBController(Controller):
 
     @get(path="/get_document", cache=True)
     async def get_document(
-        self, transaction: "AsyncSession", corpus_name: str, document_id: str
+        self, db_transaction: "AsyncSession", corpus_name: str, document_id: str
     ) -> Document:
         """Return a single specific document.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The corpus name.
         :param document_id: The document ID.
         :raises HTTPException: When the document does not exist.
@@ -541,7 +313,7 @@ class DBController(Controller):
         ).group_by(ORMDocument.pkey)
 
         try:
-            db_document, num_rel_queries = (await transaction.execute(sql)).one()
+            db_document, num_rel_queries = (await db_transaction.execute(sql)).one()
         except NoResultFound as e:
             raise HTTPException(
                 "Could not find the requested document.",
@@ -563,7 +335,7 @@ class DBController(Controller):
     @get(path="/get_documents", cache=True)
     async def get_documents(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         corpus_name: str,
         match: str | None = None,
         num_results: int = 10,
@@ -573,7 +345,7 @@ class DBController(Controller):
     ) -> Paginated[Document]:
         """List documents.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :param match: Return only documents matching this.
         :param num_results: How many documents to return.
@@ -653,8 +425,8 @@ class DBController(Controller):
             .order_by(*order_by_clause, sq_all_docs.c.pkey)
         )
 
-        total_num_results = (await transaction.execute(sql_count)).scalar_one()
-        result = (await transaction.execute(sql)).all()
+        total_num_results = (await db_transaction.execute(sql_count)).scalar_one()
+        result = (await db_transaction.execute(sql)).all()
         return Paginated[Document](
             items=[
                 Document(
@@ -670,94 +442,10 @@ class DBController(Controller):
             total_num_items=total_num_results,
         )
 
-    @get(path="/search_documents", cache=True)
-    async def search_documents(
-        self,
-        transaction: "AsyncSession",
-        q: str,
-        corpus_name: list[str] | None = None,
-        num_results: int = 10,
-        offset: int = 0,
-    ) -> Paginated[DocumentSearchHit]:
-        """Search documents (using full-text search).
-
-        :param transaction: A DB transaction.
-        :param q: The search query.
-        :param corpus_name: Search only within these corpora.
-        :param num_results: How many hits to return.
-        :param offset: Offset for pagination.
-        :return: Paginated list of results, ordered by score.
-        """
-        where_clause: list[SQLColumnExpression] = [
-            ORMDocument.text.bool_op("@@@")(escape_search_query(q))
-        ]
-        if corpus_name is not None:
-            corpus_cte = (
-                select(ORMCorpus.pkey).where(ORMCorpus.name.in_(corpus_name)).cte()
-            )
-
-            # use ParadeDB's set filter: https://docs.paradedb.com/documentation/full-text/filtering#set-filter
-            corpus_pkey_agg = select(
-                func.concat(
-                    "IN [",
-                    func.string_agg(
-                        func.cast(corpus_cte.c.pkey, VARCHAR), literal_column("' '")
-                    ),
-                    "]",
-                )
-            )
-            where_clause.append(
-                ORMDocument.corpus_pkey.bool_op("@@@")(
-                    corpus_pkey_agg.scalar_subquery()
-                )
-            )
-
-        # count the total number of hits
-        sql_count = select(func.count(ORMDocument.pkey)).where(and_(*where_clause))
-
-        # results for the current page only
-        sql_results_sq = (
-            select(
-                ORMDocument.id,
-                ORMDocument.corpus_pkey,
-                func.paradedb.score(ORMDocument.pkey).label("score"),
-                func.paradedb.snippet(
-                    ORMDocument.text,
-                    literal_column("'<b>'"),
-                    literal_column("'</b>'"),
-                    literal_column("500", Integer),
-                ),
-            )
-            .where(and_(*where_clause))
-            .order_by(desc("score"))
-            .order_by(ORMDocument.id)
-            .offset(offset)
-            .limit(num_results)
-        ).subquery()
-
-        # use a subquery to get the corpus names only for the current results
-        sql_results = select(sql_results_sq, ORMCorpus.name).join(ORMCorpus)
-
-        total_num_results = (await transaction.execute(sql_count)).scalar_one()
-        results = (await transaction.execute(sql_results)).all()
-        return Paginated[DocumentSearchHit](
-            items=[
-                DocumentSearchHit(
-                    id=id,
-                    corpus_name=corpus_name,
-                    snippet=snippet,
-                    score=score,
-                )
-                for id, _, score, snippet, corpus_name in results
-            ],
-            offset=offset,
-            total_num_items=total_num_results,
-        )
-
     @get(path="/get_qrels", cache=True)
     async def get_qrels(
         self,
-        transaction: "AsyncSession",
+        db_transaction: "AsyncSession",
         corpus_name: str,
         document_id: str | None = None,
         dataset_name: str | None = None,
@@ -778,7 +466,7 @@ class DBController(Controller):
     ) -> Paginated[QRel]:
         """Return query-document pairs annotated as relevant.
 
-        :param transaction: A DB transaction.
+        :param db_transaction: A DB transaction.
         :param corpus_name: The corpus name.
         :param document_id: Return QRels for this document only.
         :param dataset_name: Return QRels for this dataset only.
@@ -872,8 +560,8 @@ class DBController(Controller):
             .limit(num_results)
         )
 
-        total_num_results = (await transaction.execute(sql_count)).scalar_one()
-        result = (await transaction.execute(sql)).scalars()
+        total_num_results = (await db_transaction.execute(sql_count)).scalar_one()
+        result = (await db_transaction.execute(sql)).scalars()
         return Paginated[QRel](
             items=[
                 QRel(
@@ -897,66 +585,62 @@ class DBController(Controller):
             total_num_items=total_num_results,
         )
 
-    @delete(path="/remove_dataset")
-    async def remove_dataset(
-        self, transaction: "AsyncSession", corpus_name: str, dataset_name: str
-    ) -> None:
-        """Remove a dataset and its associated queries and QRels.
+    @get(path="/get_document_summary", cache=True, media_type=MediaType.TEXT)
+    async def get_document_summary(
+        self,
+        db_transaction: "AsyncSession",
+        ollama_client: AsyncClient | None,
+        corpus_name: str,
+        document_id: str,
+        model: str,
+    ) -> Stream:
+        """Stream a generated summary of a single document.
 
-        :param transaction: A DB transaction.
-        :param corpus_name: The name of the corpus the dataset is in.
-        :param dataset_name: The name of the dataset to remove.
+        :param db_transaction: A DB transaction.
+        :param ollama_client: An Ollama client.
+        :param corpus_name: The corpus name.
+        :param document_id: The document ID.
+        :param model: The model to use.
+        :raises HTTPException: When Ollama is not available.
+        :raises HTTPException: When the document does not exist.
+        :raises HTTPException: When the document could not be summarized.
+        :return: The document summary stream.
         """
-        dataset_pkey = (
-            select(ORMDataset.pkey)
-            .join(ORMCorpus)
-            .where(and_(ORMDataset.name == dataset_name, ORMCorpus.name == corpus_name))
-        ).scalar_subquery()
-        sql_del_qrels = delete_(ORMQRel).where(
-            ORMQRel.query_pkey == ORMQuery.pkey, ORMQuery.dataset_pkey == dataset_pkey
-        )
-        sql_del_queries = delete_(ORMQuery).filter_by(dataset_pkey=dataset_pkey)
-        sql_del_dataset = delete_(ORMDataset).filter_by(pkey=dataset_pkey)
-
-        await transaction.execute(sql_del_qrels)
-        await transaction.execute(sql_del_queries)
-        await transaction.execute(sql_del_dataset)
-
-    @delete(path="/remove_corpus")
-    async def remove_corpus(
-        self, transaction: "AsyncSession", corpus_name: str
-    ) -> None:
-        """Remove a corpus and its associated documents.
-
-        Any associated datasets must be removed first.
-
-        :param transaction: A DB transaction.
-        :param corpus_name: The name of the corpus to remove.
-        :raises HTTPException: When the corpus still has associated datasets.
-        :raises HTTPException: When the corpus cannot be removed for other reasons.
-        """
-        sql_corpus = (
-            select(ORMCorpus)
-            .options(joinedload(ORMCorpus.datasets))
-            .filter_by(name=corpus_name)
-        )
-        corpus = (await transaction.execute(sql_corpus)).unique().scalar_one()
-        if len(corpus.datasets) > 0:
+        if ollama_client is None:
             raise HTTPException(
-                "Associated datasets must be removed first.",
-                status_code=HTTP_409_CONFLICT,
-                extra={"corpus_name": corpus_name},
+                "LLM services not available.",
+                status_code=HTTP_501_NOT_IMPLEMENTED,
             )
 
-        sql_del_documents = delete_(ORMDocument).filter_by(corpus_pkey=corpus.pkey)
-        sql_del_corpus = delete_(ORMCorpus).filter_by(name=corpus_name)
+        sql = (
+            select(ORMDocument)
+            .join(ORMCorpus)
+            .where(ORMCorpus.name == corpus_name, ORMDocument.id == document_id)
+        )
 
         try:
-            await transaction.execute(sql_del_documents)
-            await transaction.execute(sql_del_corpus)
-        except IntegrityError as e:
+            db_document = (await db_transaction.execute(sql)).scalar_one()
+        except NoResultFound as e:
             raise HTTPException(
-                "Failed to remove corpus.",
-                status_code=HTTP_409_CONFLICT,
-                extra={"corpus_name": corpus_name, "error_code": e.code},
+                "Could not find the requested document.",
+                status_code=HTTP_404_NOT_FOUND,
+                extra={
+                    "document_id": document_id,
+                    "corpus_name": corpus_name,
+                    "error_code": e.code,
+                },
+            )
+
+        try:
+            stream = await ollama_client.generate(
+                model=model,
+                prompt=get_summary_prompt(db_document.text, db_document.title),
+                stream=True,
+            )
+            return Stream(chunk["response"] async for chunk in stream)
+        except Exception as e:
+            raise HTTPException(
+                "Failed to summarize document.",
+                status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+                extra={"error": str(e)},
             )

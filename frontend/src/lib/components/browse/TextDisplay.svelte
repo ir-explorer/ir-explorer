@@ -1,22 +1,80 @@
 <script lang="ts">
+  import { PUBLIC_MIN_DOCUMENT_LENGTH_SUMMARY } from "$env/static/public";
+  import { summaryIcon, textIcon } from "$lib/icons";
+  import Fa from "svelte-fa";
+
   interface Props {
     /** The title to render. */
     title?: string;
     /** The text to render. */
     text: string;
+    /** A function to generate a summary. */
+    getSummary?: (() => Promise<ReadableStream<string>>) | null;
   }
+  let { title = "Text", text, getSummary = null }: Props = $props();
 
-  let { title = "Text", text }: Props = $props();
+  let summary = $state("");
+  let summaryLoaded = false;
+  let summaryBusy = $state(false);
+
+  async function loadSummary() {
+    if (!summaryLoaded && getSummary != null) {
+      summaryLoaded = true;
+      summaryBusy = true;
+
+      const reader = (await getSummary()).getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          summaryBusy = false;
+          break;
+        }
+        summary += value;
+      }
+    }
+  }
 </script>
 
 <!--
 @component
-Display a query or document text in a scrollable component.
+Display a query or document text and (optionally) summary in scrollable components.
 -->
-<fieldset class="fieldset rounded-box border border-base-300 px-4 pb-2 shadow">
-  <legend class="fieldset-legend mb-0 p-0">{title}</legend>
-  <div
-    class="max-h-128 overflow-y-scroll text-sm leading-relaxed whitespace-pre-wrap">
-    {text}
+<div class="tabs-border tabs text-sm">
+  <label class="tab flex flex-row gap-2">
+    <input type="radio" name="tabs-text" checked={true} />
+    <Fa icon={textIcon} />
+    {title}
+  </label>
+  <div class="tab-content rounded rounded-box border-base-300 p-4 shadow">
+    <div
+      class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
+      {text}
+    </div>
   </div>
-</fieldset>
+
+  {#if getSummary !== null && text.length >= Number(PUBLIC_MIN_DOCUMENT_LENGTH_SUMMARY)}
+    <label class="tab flex flex-row gap-2">
+      <input
+        type="radio"
+        name="tabs-text"
+        onclick={async () => {
+          await loadSummary();
+        }} />
+      {#if summaryBusy}
+        <span class="loading loading-xs loading-ball"></span>
+      {:else}
+        <Fa icon={summaryIcon} />
+      {/if}
+      Summary
+    </label>
+    <div class="tab-content rounded rounded-box border-base-300 p-4 shadow">
+      <div
+        class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
+        {summary}
+        {#if summaryBusy}
+          <div class="inline-block animate-blink font-bold text-primary">_</div>
+        {/if}
+      </div>
+    </div>
+  {/if}
+</div>

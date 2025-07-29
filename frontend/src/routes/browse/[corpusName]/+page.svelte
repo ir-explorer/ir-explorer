@@ -21,6 +21,23 @@
 
   const { data }: PageProps = $props();
 
+  async function getDocumentSummary() {
+    if (data.document === null || selectedOptions.modelName === null) {
+      throw new Error("Failed to summarize document.");
+    }
+
+    const searchParams = new URLSearchParams({
+      corpusName: page.params.corpusName,
+      documentId: data.document.id,
+      modelName: selectedOptions.modelName,
+    });
+    const res = await fetch("/api/documentSummary?" + searchParams);
+    if (res.body === null) {
+      return new ReadableStream();
+    }
+    return res.body.pipeThrough(new TextDecoderStream());
+  }
+
   // document list
   async function getDocumentsPage(
     match: string | null,
@@ -51,7 +68,7 @@
     { name: "Match", option: "match_score" },
   ] as OrderByOption[];
 
-  // relevent queries list
+  // relevant queries list
   async function getQueriesPage(
     match: string | null,
     orderBy: string | null,
@@ -89,14 +106,15 @@
   <!-- display selected document -->
   <MetaDisplay
     items={new Map([
-      ["ID", data.document.id],
+      ["Corpus", data.document.corpusName],
+      ["Document ID", data.document.id],
       ["Title", data.document.title],
       [
         "Number of relevant queries",
         data.document.numRelevantQueries.toString(),
       ],
     ])} />
-  <TextDisplay text={data.document.text} />
+  <TextDisplay text={data.document.text} getSummary={getDocumentSummary} />
 
   {#if data.document.numRelevantQueries > 0}
     <!-- display relevant queries for selected document -->

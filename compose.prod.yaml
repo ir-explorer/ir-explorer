@@ -6,6 +6,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  ollama:
+    restart: always
+    volumes:
+      - ollamadata:/root/.ollama
+
   backend:
     restart: always
 

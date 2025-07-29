@@ -19,7 +19,7 @@ export async function GET({ url }) {
   const numResultsParsed = numResults ? Number(numResults) : 1;
   const offsetParsed = offset ? Number(offset) : 0;
 
-  if (numResultsParsed > PUBLIC_MAX_ITEMS_PER_PAGE) {
+  if (numResultsParsed > Number(PUBLIC_MAX_ITEMS_PER_PAGE)) {
     error(413);
   }
 

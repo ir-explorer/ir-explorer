@@ -31,12 +31,13 @@ export async function getAvailableLanguages(): Promise<string[]> {
  * @returns All available options.
  */
 export async function getAvailableOptions(): Promise<AvailableOptions> {
-  const res = await fetch(`${BACKEND_REST_URL}/get_search_options`);
+  const res = await fetch(`${BACKEND_REST_URL}/get_available_options`);
   const resJson = await res.json();
 
   return {
     queryLanguages: resJson["query_languages"],
     corpusNames: resJson["corpus_names"],
+    modelNames: resJson["model_names"],
   } as AvailableOptions;
 }
 
@@ -431,4 +432,33 @@ export async function getRelevantDocuments(
     offset: resJson["offset"],
     items: documents,
   } as Paginated<RelevantDocument>;
+}
+
+/**
+ * Stream a document summary.
+ *
+ * @param corpusName - The name of the corpus.
+ * @param documentId - The ID of the document.
+ * @param modelName - The LLM to use.
+ *
+ * @returns The document summary (streamed).
+ *
+ * @throws {@link Error}
+ * When the document was not found.
+ */
+export async function getDocumentSummary(
+  corpusName: string,
+  documentId: string,
+  modelName: string,
+): Promise<Response> {
+  const searchParams = new URLSearchParams({
+    corpus_name: corpusName,
+    document_id: documentId,
+    model: modelName,
+  });
+  const res = await fetch(
+    `${BACKEND_REST_URL}/get_document_summary?${searchParams}`,
+  );
+  if (res.status == 404) throw new Error("Document not found.");
+  return res;
 }

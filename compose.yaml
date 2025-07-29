@@ -9,11 +9,19 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
       - POSTGRES_DB=${POSTGRES_DB?}
 
+  ollama:
+    image: ollama/ollama
+    healthcheck:
+      test: [ "CMD", "ollama", "ps" ]
+      start_period: 5s
+
   backend:
     build:
       context: backend
     depends_on:
       db:
+        condition: service_healthy
+      ollama:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready').read()" ]
@@ -26,8 +34,11 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
       - POSTGRES_DB=${POSTGRES_DB?}
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=11434
       - CACHE_EXPIRATION_DURATION=${CACHE_EXPIRATION_DURATION?}
       - CACHE_DELETE_EXPIRED_INTERVAL=${CACHE_DELETE_EXPIRED_INTERVAL?}
+      - LLM_PROMPT_SUMMARY=${LLM_PROMPT_SUMMARY?}
 
   frontend:
     build:
@@ -42,3 +53,4 @@ services:
       - PUBLIC_MAX_SEARCH_RESULT_PAGES=${PUBLIC_MAX_SEARCH_RESULT_PAGES?}
       - PUBLIC_MAX_ITEMS_PER_PAGE=${PUBLIC_MAX_ITEMS_PER_PAGE?}
       - PUBLIC_MAX_SNIPPET_LENGTH=${PUBLIC_MAX_SNIPPET_LENGTH?}
+      - PUBLIC_MIN_DOCUMENT_LENGTH_SUMMARY=${PUBLIC_MIN_DOCUMENT_LENGTH_SUMMARY?}

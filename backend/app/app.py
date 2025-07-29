@@ -1,19 +1,22 @@
 import os
 from datetime import datetime, timedelta
 
+from controllers import (
+    BrowseController,
+    DataController,
+    MiscController,
+    SearchController,
+)
 from db import CONFIG
-from db.controller import DBController
 from litestar import Litestar, Request, get
 from litestar.config.response_cache import ResponseCacheConfig
 from litestar.contrib.sqlalchemy.plugins import SQLAlchemyInitPlugin
 from litestar.stores.memory import MemoryStore
 
 CACHE_STORE = MemoryStore()
-CACHE_EXPIRATION_DURATION = int(
-    os.environ.get("CACHE_EXPIRATION_DURATION", None) or 120
-)
+CACHE_EXPIRATION_DURATION = int(os.environ.get("CACHE_EXPIRATION_DURATION") or 120)
 CACHE_DELETE_EXPIRED_INTERVAL = int(
-    os.environ.get("CACHE_DELETE_EXPIRED_INTERVAL", None) or 600
+    os.environ.get("CACHE_DELETE_EXPIRED_INTERVAL") or 600
 )
 
 
@@ -54,7 +57,13 @@ def ready() -> bool:
 
 
 app = Litestar(
-    route_handlers=[DBController, ready],
+    route_handlers=[
+        BrowseController,
+        DataController,
+        SearchController,
+        MiscController,
+        ready,
+    ],
     plugins=[SQLAlchemyInitPlugin(CONFIG)],
     stores={"cache": CACHE_STORE},
     # configure caching for successful responses

@@ -1,8 +1,17 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@theme {
+  --animate-blink: blink 1s step-start 0s infinite;
 
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+@plugin "daisyui";
 @plugin "daisyui/theme" {
-  name: "irx_light";
+  name: "irx-light";
   default: true;
   prefersdark: false;
   color-scheme: light;
@@ -47,9 +56,8 @@
   --depth: 0;
   --noise: 0;
 }
-
 @plugin "daisyui/theme" {
-  name: "irx_dark";
+  name: "irx-dark";
   default: false;
   prefersdark: true;
   color-scheme: dark;

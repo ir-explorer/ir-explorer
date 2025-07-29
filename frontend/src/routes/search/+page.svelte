@@ -74,7 +74,7 @@
               Page {data.pageNum} of {toHumanReadable(data.totalPages)}
             </p>
           </div>
-          {#if data.pageNum == PUBLIC_MAX_SEARCH_RESULT_PAGES}
+          {#if data.pageNum == Number(PUBLIC_MAX_SEARCH_RESULT_PAGES)}
             <div
               class="tooltip tooltip-info"
               data-tip="Only {PUBLIC_MAX_SEARCH_RESULT_PAGES} pages are shown.">

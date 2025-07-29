@@ -1,5 +1,6 @@
 import {
   faBars,
+  faBrain,
   faChevronLeft,
   faChevronRight,
   faCircleQuestion,
@@ -11,6 +12,7 @@ import {
   faLongArrowDown,
   faLongArrowUp,
   faMagnifyingGlass,
+  faQuoteRight,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -35,3 +37,6 @@ export const queryIcon = faCircleQuestion;
 
 export const orderDescIcon = faLongArrowDown;
 export const orderAscIcon = faLongArrowUp;
+
+export const textIcon = faQuoteRight;
+export const summaryIcon = faBrain;
