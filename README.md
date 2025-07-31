@@ -27,4 +27,4 @@ The backend REST API is available on port `8103`:
 - http://127.0.0.1:8103/schema/
 - http://127.0.0.1:8103/schema/swagger
 
-The example script under `scripts/add_dataset.py` may be used to index datasets directly from [ir-datasets](https://ir-datasets.com/).
+To index datasets directly from [ir-datasets](https://ir-datasets.com/), use the [indexer utility](https://github.com/ir-explorer/indexer).
