@@ -6,7 +6,14 @@
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
-  import { corpusIcon, datasetIcon, documentIcon, queryIcon } from "$lib/icons";
+  import IconWithText from "$lib/components/IconWithText.svelte";
+  import {
+    corpusIcon,
+    datasetIcon,
+    documentIcon,
+    queryIcon,
+    relevanceIcon,
+  } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
     Dataset,
@@ -16,7 +23,6 @@
     RelevantQuery,
   } from "$lib/types";
   import { truncate } from "$lib/util";
-  import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
   const { data }: PageProps = $props();
@@ -130,18 +136,16 @@
         <div class="flex flex-col gap-2">
           <div class="flex flex-row items-center justify-between">
             <div class="join">
-              <p class="join-item badge font-thin">
-                <Fa icon={datasetIcon} />
-                {q.datasetName}
-              </p>
-              <p class="join-item badge font-thin">
-                <Fa icon={queryIcon} />
-                {q.id}
-              </p>
+              <div class="join-item badge">
+                <IconWithText icon={datasetIcon} text={q.datasetName} />
+              </div>
+              <div class="join-item badge">
+                <IconWithText icon={queryIcon} text={q.id} />
+              </div>
             </div>
-            <p class="badge badge-sm badge-secondary">
-              Relevance: {q.relevance}
-            </p>
+            <div class="badge badge-sm badge-secondary">
+              <IconWithText icon={relevanceIcon} text={String(q.relevance)} />
+            </div>
           </div>
           <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
         </div>
@@ -162,14 +166,15 @@
       {#snippet item(d: Dataset)}
         <div class="flex items-center justify-between gap-4">
           <div class="flex flex-col gap-2">
-            <p class="flex items-center gap-2 text-sm font-thin">
-              <Fa icon={corpusIcon} />
-              {d.corpusName}
-            </p>
-            <p class="flex items-center gap-2 text-lg">
-              <Fa icon={datasetIcon} />
-              {d.name}
-            </p>
+            <div class="text-lg">
+              <IconWithText icon={datasetIcon} text={d.name} iconWidth={6} />
+            </div>
+            <div class="text-sm">
+              <IconWithText
+                icon={corpusIcon}
+                text={d.corpusName}
+                iconWidth={6} />
+            </div>
           </div>
           <SizeIndicator
             value={d.numQueries}
@@ -195,12 +200,16 @@
     {#snippet item(d: Document)}
       <div class="flex flex-col gap-2">
         <div class="flex flex-row items-center justify-between">
-          <p class="badge font-thin"><Fa icon={documentIcon} /> {d.id}</p>
+          <div class="badge">
+            <IconWithText icon={documentIcon} text={d.id} />
+          </div>
           {#if d.numRelevantQueries > 0}
-            <p class="badge badge-sm badge-secondary">
-              Relevant for {d.numRelevantQueries}
-              {d.numRelevantQueries == 1 ? "query" : "queries"}
-            </p>
+            <div class="badge badge-sm badge-secondary">
+              <IconWithText
+                icon={queryIcon}
+                text={String(d.numRelevantQueries)}
+                iconRight />
+            </div>
           {/if}
         </div>
         {#if d.title !== null}

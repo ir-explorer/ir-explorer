@@ -8,6 +8,7 @@
   import { selectedOptions } from "$lib/options.svelte";
   import type { AvailableOptions } from "$lib/types";
   import Fa from "svelte-fa";
+  import IconWithText from "./IconWithText.svelte";
   import Logo from "./Logo.svelte";
 
   interface Props {
@@ -60,16 +61,16 @@ The main menu drawer.
       <ul class="menu w-full p-0">
         <li>
           <a
-            class={[atSearch && "menu-active pointer-events-none", "px-0"]}
+            class={[atSearch && "menu-active pointer-events-none"]}
             href="/search">
-            <Fa icon={searchIcon} class="mx-2 w-4" />Search
+            <IconWithText icon={searchIcon} text="Search" iconWidth={6} />
           </a>
         </li>
         <li>
           <a
-            class={[atBrowse && "menu-active pointer-events-none", "px-0"]}
+            class={[atBrowse && "menu-active pointer-events-none"]}
             href="/browse">
-            <Fa icon={browseIcon} class="mx-2 w-4" />Browse
+            <IconWithText icon={browseIcon} text="Browse" iconWidth={6} />
           </a>
         </li>
       </ul>

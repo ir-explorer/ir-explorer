@@ -4,7 +4,8 @@
   import MetaDisplay from "$lib/components/browse/MetaDisplay.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
-  import { documentIcon, queryIcon } from "$lib/icons";
+  import IconWithText from "$lib/components/IconWithText.svelte";
+  import { documentIcon, queryIcon, relevanceIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
     OrderByOption,
@@ -13,7 +14,6 @@
     RelevantDocument,
   } from "$lib/types";
   import { truncate } from "$lib/util";
-  import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
@@ -111,13 +111,12 @@
       {/snippet}
       {#snippet item(d: RelevantDocument)}
         <div class="flex flex-col gap-2">
-          <div class="flex flex-row items-center justify-between">
-            <p class="badge font-thin">
-              <Fa icon={documentIcon} />
-              {d.id}
-            </p>
+          <div class="flex flex-row justify-between">
+            <div class="badge">
+              <IconWithText icon={documentIcon} text={d.id} />
+            </div>
             <p class="badge badge-sm badge-secondary">
-              Relevance: {d.relevance}
+              <IconWithText icon={relevanceIcon} text={String(d.relevance)} />
             </p>
           </div>
           <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
@@ -140,12 +139,16 @@
     {#snippet item(q: Query)}
       <div class="flex flex-col gap-2">
         <div class="flex flex-row items-center justify-between">
-          <p class="badge font-thin"><Fa icon={queryIcon} /> {q.id}</p>
+          <div class="badge">
+            <IconWithText icon={queryIcon} text={q.id} />
+          </div>
           {#if q.numRelevantDocuments > 0}
-            <p class="badge badge-sm badge-secondary">
-              {q.numRelevantDocuments} relevant
-              {q.numRelevantDocuments == 1 ? "document" : "documents"}
-            </p>
+            <div class="badge badge-sm badge-secondary">
+              <IconWithText
+                icon={documentIcon}
+                text={String(q.numRelevantDocuments)}
+                iconRight />
+            </div>
           {/if}
         </div>
         <p>{truncate(q.text, selectedOptions.snippetLength)}</p>

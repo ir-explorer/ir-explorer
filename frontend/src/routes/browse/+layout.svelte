@@ -1,5 +1,6 @@
 <script lang="ts">
   import Header from "$lib/components/Header.svelte";
+  import IconWithText from "$lib/components/IconWithText.svelte";
   import Logo from "$lib/components/Logo.svelte";
   import MainMenu from "$lib/components/MainMenu.svelte";
   import {
@@ -9,7 +10,6 @@
     documentIcon,
     queryIcon,
   } from "$lib/icons.js";
-  import Fa from "svelte-fa";
 
   let { data, children } = $props();
 </script>
@@ -25,32 +25,38 @@
     <div class="max-w-full rounded-box border border-base-300 bg-neutral px-4">
       <div class="breadcrumbs text-sm">
         <ul>
-          <li><a href="/browse"><Fa icon={browseIcon} />Browse</a></li>
+          <li>
+            <a href="/browse">
+              <IconWithText icon={browseIcon} text="Browse" />
+            </a>
+          </li>
           {#if data.corpusName}
             <li>
-              <a href="/browse/{data.corpusName}"
-                ><Fa icon={corpusIcon} />{data.corpusName}
+              <a href="/browse/{data.corpusName}">
+                <IconWithText icon={corpusIcon} text={data.corpusName} />
               </a>
             </li>
           {/if}
 
           {#if data.datasetName}
             <li>
-              <a href="/browse/{data.corpusName}/{data.datasetName}"
-                ><Fa icon={datasetIcon} />{data.datasetName}
+              <a href="/browse/{data.corpusName}/{data.datasetName}">
+                <IconWithText icon={datasetIcon} text={data.datasetName} />
               </a>
             </li>
             {#if data.queryId}
               <li>
                 <a
-                  href="/browse/{data.corpusName}/{data.datasetName}?queryId={data.queryId}"
-                  ><Fa icon={queryIcon} />{data.queryId}</a>
+                  href="/browse/{data.corpusName}/{data.datasetName}?queryId={data.queryId}">
+                  <IconWithText icon={queryIcon} text={data.queryId} />
+                </a>
               </li>
             {/if}
           {:else if data.documentId}
             <li>
-              <a href="/browse/{data.corpusName}?documentId={data.documentId}"
-                ><Fa icon={documentIcon} />{data.documentId}</a>
+              <a href="/browse/{data.corpusName}?documentId={data.documentId}">
+                <IconWithText icon={documentIcon} text={data.documentId} />
+              </a>
             </li>
           {/if}
         </ul>

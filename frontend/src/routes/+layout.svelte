@@ -1,7 +1,7 @@
 <script lang="ts">
+  import IconWithText from "$lib/components/IconWithText.svelte";
   import NavProgress from "$lib/components/NavProgress.svelte";
   import { faGithub } from "@fortawesome/free-brands-svg-icons";
-  import { Fa } from "svelte-fa";
   import "../app.css";
 
   let { children } = $props();
@@ -21,10 +21,9 @@
   <footer
     class="flex w-full flex-col justify-center gap-2 border-t border-base-300 bg-base-200 px-4 py-2 text-sm md:flex-row md:items-center">
     <a
-      class="badge flex flex-row gap-2 text-neutral-content badge-neutral"
+      class="badge font-mono text-xs text-neutral-content badge-neutral"
       href="https://github.com/ir-explorer">
-      <Fa icon={faGithub} />
-      <p class="font-mono text-xs">ir-explorer</p>
+      <IconWithText icon={faGithub} text="ir-explorer" />
     </a>
     <p class="hidden md:block">&bull;</p>
     <p>

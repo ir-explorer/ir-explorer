@@ -1,10 +1,10 @@
 <script lang="ts">
   import BusyIndicator from "$lib/components/BusyIndicator.svelte";
+  import IconWithText from "$lib/components/IconWithText.svelte";
   import Logo from "$lib/components/Logo.svelte";
   import MainMenu from "$lib/components/MainMenu.svelte";
   import SearchBar from "$lib/components/search/SearchBar.svelte";
   import { browseIcon } from "$lib/icons";
-  import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
@@ -15,9 +15,8 @@
     <div class="w-fit">
       <MainMenu availableOptions={data.availableOptions} />
     </div>
-
-    <a href="/browse" class="flex items-center gap-2 text-sm link-hover">
-      <Fa icon={browseIcon} />Browse
+    <a href="/browse" class="text-sm link-hover">
+      <IconWithText icon={browseIcon} text={"Browse"} />
     </a>
   </div>
   <div class="navbar-end">

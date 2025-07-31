@@ -201,8 +201,9 @@ Render items as a list with pagination.
               name={goToName}
               class="input input-sm join-item w-full md:w-24"
               placeholder="Go to ID..." />
-            <button class="btn join-item btn-sm btn-primary" type="submit"
-              ><Fa icon={goToIcon} /></button>
+            <button class="btn join-item btn-sm btn-primary" type="submit">
+              <Fa icon={goToIcon} />
+            </button>
           </form>
         {/if}
       </div>

@@ -2,6 +2,7 @@
   import { page } from "$app/state";
   import { PUBLIC_MAX_SEARCH_RESULT_PAGES } from "$env/static/public";
   import Alert from "$lib/components/Alert.svelte";
+  import IconWithText from "$lib/components/IconWithText.svelte";
   import {
     corpusIcon,
     documentIcon,
@@ -43,15 +44,18 @@
               </span>
             </p>
             <a href="/browse/{hit.corpusName}?documentId={hit.id}">
-              <div class="join-vertical join font-thin md:join-horizontal">
-                <div class="join-item badge w-full md:w-fit">
-                  <Fa icon={corpusIcon} />
-                  <p class="mr-auto w-fit">{hit.corpusName}</p>
+              <div class="join-vertical join md:join-horizontal">
+                <div class="join-item badge">
+                  <IconWithText
+                    icon={corpusIcon}
+                    text={hit.corpusName}
+                    iconWidth={4} />
                 </div>
-                <div
-                  class="join-item badge flex w-full flex-row text-left md:w-fit">
-                  <Fa icon={documentIcon} />
-                  <p class="mr-auto w-fit">{hit.id}</p>
+                <div class="join-item badge">
+                  <IconWithText
+                    icon={documentIcon}
+                    text={hit.id}
+                    iconWidth={4} />
                 </div>
               </div>
             </a>
@@ -65,8 +69,11 @@
       <li class="list-row flex w-full justify-center">
         <div class="join">
           {#if data.prevPageLink != null}
-            <a href={data.prevPageLink} class="btn join-item btn-sm btn-primary"
-              ><Fa icon={prevPageIcon} /></a>
+            <a
+              href={data.prevPageLink}
+              class="btn join-item btn-sm btn-primary">
+              <Fa icon={prevPageIcon} />
+            </a>
           {/if}
           <div
             class="join-item flex items-center border border-base-300 bg-base-200 px-4">
@@ -78,12 +85,16 @@
             <div
               class="tooltip tooltip-info"
               data-tip="Only {PUBLIC_MAX_SEARCH_RESULT_PAGES} pages are shown.">
-              <btn disabled class="btn join-item btn-sm btn-primary"
-                ><Fa icon={nextPageIcon} /></btn>
+              <btn disabled class="btn join-item btn-sm btn-primary">
+                <Fa icon={nextPageIcon} />
+              </btn>
             </div>
           {:else if data.nextPageLink != null}
-            <a href={data.nextPageLink} class="btn join-item btn-sm btn-primary"
-              ><Fa icon={nextPageIcon} /></a>
+            <a
+              href={data.nextPageLink}
+              class="btn join-item btn-sm btn-primary">
+              <Fa icon={nextPageIcon} />
+            </a>
           {/if}
         </div>
       </li>

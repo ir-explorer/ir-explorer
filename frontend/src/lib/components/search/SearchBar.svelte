@@ -2,6 +2,7 @@
   import { corpusIcon, searchIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import { Fa } from "svelte-fa";
+  import IconWithText from "../IconWithText.svelte";
 
   interface Props {
     /** Initial value for the search query field. */
@@ -31,8 +32,10 @@ A search bar.
           class="tooltip tooltip-left"
           data-tip={selectedOptions.corpusNames.join(", ")}>
           <span class="badge text-xs badge-neutral">
-            <Fa icon={corpusIcon} />
-            {selectedOptions.corpusNames.length}
+            <IconWithText
+              icon={corpusIcon}
+              text={String(selectedOptions.corpusNames.length)}
+              iconRight />
           </span>
         </div>
       {/if}

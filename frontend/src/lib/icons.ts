@@ -1,6 +1,7 @@
 import {
   faBars,
   faBrain,
+  faCheck,
   faChevronLeft,
   faChevronRight,
   faCircleQuestion,
@@ -40,3 +41,5 @@ export const orderAscIcon = faLongArrowUp;
 
 export const textIcon = faQuoteRight;
 export const summaryIcon = faBrain;
+
+export const relevanceIcon = faCheck;
