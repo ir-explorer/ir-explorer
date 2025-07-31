@@ -37,30 +37,25 @@
         <div>
           <div class="flex flex-col gap-2 md:flex-row">
             <p
-              class="tooltip badge badge-soft tooltip-secondary badge-secondary"
+              class="tooltip tooltip-right badge badge-soft tooltip-secondary badge-secondary"
               data-tip="Score: {hit.score}">
               #<span class="-ml-1 font-bold">
                 {data.result.offset + index + 1}
               </span>
             </p>
-            <a href="/browse/{hit.corpusName}?documentId={hit.id}">
-              <div class="join-vertical join md:join-horizontal">
-                <div class="join-item badge">
-                  <IconWithText
-                    icon={corpusIcon}
-                    text={hit.corpusName}
-                    iconWidth={4} />
-                </div>
-                <div class="join-item badge">
-                  <IconWithText
-                    icon={documentIcon}
-                    text={hit.id}
-                    iconWidth={4} />
-                </div>
-              </div>
-            </a>
           </div>
           <p class="my-2">{@html hit.snippet}</p>
+
+          <a href="/browse/{hit.corpusName}?documentId={hit.id}">
+            <div class="join max-w-full overflow-scroll text-nowrap">
+              <div class="join-item badge badge-soft badge-sm">
+                <IconWithText icon={corpusIcon} text={hit.corpusName} />
+              </div>
+              <div class="join-item badge badge-soft badge-sm">
+                <IconWithText icon={documentIcon} text={hit.id} />
+              </div>
+            </div>
+          </a>
         </div>
       </li>
     {/each}
