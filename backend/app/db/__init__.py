@@ -44,6 +44,10 @@ CONFIG = SQLAlchemyAsyncConfig(
         host=os.environ["POSTGRES_HOST"],
         port=int(os.environ["POSTGRES_PORT"]),
         database=os.environ["POSTGRES_DB"],
+        # caching prepared statements causes search queries to hang randomly,
+        # disable caching as a workaround
+        # https://github.com/MagicStack/asyncpg/issues/243
+        query={"prepared_statement_cache_size": "0"},
     ).__to_string__(hide_password=False),
     metadata=ORMBase.metadata,
     create_all=True,
