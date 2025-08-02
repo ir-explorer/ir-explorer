@@ -42,6 +42,10 @@ A search bar.
       {#each selectedOptions.corpusNames as corpusName}
         <input type="hidden" name="corpus" value={corpusName} />
       {/each}
+      <input
+        type="hidden"
+        name="language"
+        value={selectedOptions.queryLanguage} />
     </label>
 
     <button class="btn join-item w-12 btn-primary" type="submit">
