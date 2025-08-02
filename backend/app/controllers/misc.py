@@ -27,7 +27,7 @@ class MiscController(Controller):
         "ollama_client": Provide(provide_client),
     }
 
-    @get(path="/get_available_languages", cache=True)
+    @get(path="/get_available_languages")
     def get_available_languages(self) -> list[str]:
         """List all corpus languages supported by the DB engine (for full-text search).
 
@@ -38,7 +38,7 @@ class MiscController(Controller):
         # https://github.com/paradedb/paradedb/issues/1793
         return ["English"]
 
-    @get(path="/get_available_options", cache=True)
+    @get(path="/get_available_options")
     async def get_available_options(
         self,
         db_transaction: "AsyncSession",
