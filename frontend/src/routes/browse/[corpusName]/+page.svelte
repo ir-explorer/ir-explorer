@@ -160,7 +160,7 @@
       0,
     )}
     <CardGrid
-      gridItems={data.datasetList.sort((a, b) => b.numQueries - a.numQueries)}
+      gridItems={data.datasetList}
       getTargetLink={(d: Dataset) =>
         `/browse/${page.params.corpusName}/${d.name}`}>
       {#snippet item(d: Dataset)}

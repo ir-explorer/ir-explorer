@@ -14,7 +14,7 @@
 </script>
 
 <CardGrid
-  gridItems={data.corpusList.sort((a, b) => b.numDocuments - a.numDocuments)}
+  gridItems={data.corpusList}
   getTargetLink={(c: Corpus) => `/browse/${c.name}`}>
   {#snippet item(c: Corpus)}
     <div class="flex items-center justify-between gap-4">

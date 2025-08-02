@@ -55,6 +55,8 @@ class BrowseController(Controller):
     async def get_corpora(self, db_transaction: "AsyncSession") -> list[Corpus]:
         """List all corpora including statistics about datasets and documents.
 
+        Results are ordered by corpus name.
+
         :param db_transaction: A DB transaction.
         :return: The list of corpora.
         """
@@ -81,6 +83,7 @@ class BrowseController(Controller):
             )
             .outerjoin(sq_documents)
             .outerjoin(sq_datasets)
+            .order_by(ORMCorpus.name.asc())
         )
 
         result = (await db_transaction.execute(sql)).all()
@@ -100,6 +103,8 @@ class BrowseController(Controller):
     ) -> list[Dataset]:
         """List all datasets for a corpus, including statistics.
 
+        Results are ordered by dataset name.
+
         :param db_transaction: A DB transaction.
         :param corpus_name: The name of the corpus.
         :return: The list of datasets.
@@ -115,6 +120,7 @@ class BrowseController(Controller):
             .outerjoin(sq_queries)
             .join(ORMCorpus)
             .where(ORMCorpus.name == corpus_name)
+            .order_by(ORMDataset.name.asc())
         )
 
         result = (await db_transaction.execute(sql)).all()
