@@ -196,7 +196,7 @@ class SearchController(Controller):
             return Stream(chunk["response"] async for chunk in stream)
         except Exception as e:
             raise HTTPException(
-                "Failed to summarize document.",
+                "Failed to generate answer.",
                 status_code=HTTP_500_INTERNAL_SERVER_ERROR,
                 extra={"error": str(e)},
             )
