@@ -39,17 +39,17 @@
 The main menu drawer.
 -->
 <div class="drawer w-auto">
-  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+  <input id="main-menu" type="checkbox" class="drawer-toggle" />
   <div class="drawer-content">
-    <label for="my-drawer" class="drawer-button btn btn-ghost btn-sm">
+    <label for="main-menu" class="drawer-button btn btn-ghost btn-sm">
       <Fa icon={menuIcon} />
     </label>
   </div>
   <div class="drawer-side z-99">
-    <label for="my-drawer" class="drawer-overlay"></label>
+    <label for="main-menu" class="drawer-overlay"></label>
     <div class="menu min-h-full w-80 bg-base-200 p-4 text-base-content">
       <div class="flex w-full items-center gap-4">
-        <label for="my-drawer" class="drawer-button btn btn-ghost btn-sm">
+        <label for="main-menu" class="drawer-button btn btn-ghost btn-sm">
           <Fa icon={closeMenuIcon} />
         </label>
         <Logo small />
