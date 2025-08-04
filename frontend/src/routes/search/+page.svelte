@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { afterNavigate } from "$app/navigation";
   import { page } from "$app/state";
   import { PUBLIC_MAX_SEARCH_RESULT_PAGES } from "$env/static/public";
   import Alert from "$lib/components/Alert.svelte";
@@ -59,6 +60,12 @@
     }
     answerGenerationBusy = false;
   }
+
+  afterNavigate(() => {
+    generatedAnswer = "";
+    answerGenerationStarted = false;
+    answerGenerationBusy = false;
+  });
 </script>
 
 {#if answerGenerationStarted}
