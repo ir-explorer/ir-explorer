@@ -2,6 +2,7 @@
   import { page } from "$app/state";
   import { PUBLIC_MAX_SEARCH_RESULT_PAGES } from "$env/static/public";
   import Alert from "$lib/components/Alert.svelte";
+  import BlinkingCursor from "$lib/components/BlinkingCursor.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
   import {
     corpusIcon,
@@ -19,8 +20,12 @@
   let corpusNames = $derived(page.url.searchParams.getAll("corpus"));
 
   let generatedAnswer = $state("");
+  let answerGenerationStarted = $state(false);
+  let answerGenerationBusy = $state(false);
 
   async function generateAnswer() {
+    answerGenerationStarted = true;
+    answerGenerationBusy = true;
     if (data.result.items.length == 0 || selectedOptions.modelName === null) {
       throw new Error("Failed to generate answer.");
     }
@@ -52,10 +57,21 @@
       }
       generatedAnswer += value;
     }
+    answerGenerationBusy = false;
   }
 </script>
 
-<p>{generatedAnswer}</p>
+{#if answerGenerationStarted}
+  <div
+    class="m-4 max-h-128 rounded border border-secondary bg-secondary/10 p-2 text-sm shadow">
+    <div class="overflow-y-scroll leading-relaxed whitespace-pre-wrap">
+      {generatedAnswer}
+      {#if answerGenerationBusy}
+        <BlinkingCursor />
+      {/if}
+    </div>
+  </div>
+{/if}
 
 {#if data.result.totalNumItems == 0}
   <Alert text={"No results found."} />
@@ -72,10 +88,11 @@
           >{/if}.
       </p>
       <!-- RAG button only appears on page 1 -->
-      {#if data.pageNum == 1 && selectedOptions.modelName !== null}
+      {#if data.pageNum == 1 && selectedOptions.modelName !== null && !answerGenerationStarted}
         <p class="tooltip tooltip-left" data-tip="Generate answer">
-          <button onclick={generateAnswer} class="btn btn-square btn-sm"
-            ><Fa icon={ragIcon} /></button>
+          <button onclick={generateAnswer} class="btn btn-square btn-sm">
+            <Fa icon={ragIcon} />
+          </button>
         </p>
       {/if}
     </li>
