@@ -8,20 +8,61 @@
     documentIcon,
     nextPageIcon,
     prevPageIcon,
+    ragIcon,
   } from "$lib/icons";
+  import { selectedOptions } from "$lib/options.svelte";
   import { toHumanReadable } from "$lib/util";
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
   let corpusNames = $derived(page.url.searchParams.getAll("corpus"));
+
+  let generatedAnswer = $state("");
+
+  async function generateAnswer() {
+    if (data.result.items.length == 0 || selectedOptions.modelName === null) {
+      throw new Error("Failed to generate answer.");
+    }
+
+    const searchParams = new URLSearchParams({
+      q: data.q,
+      modelName: selectedOptions.modelName,
+    });
+    for (const hit of data.result.items.slice(
+      0,
+      selectedOptions.ragDocuments,
+    )) {
+      searchParams.append("corpusName", hit.corpusName);
+      searchParams.append("documentId", hit.id);
+    }
+    const res = await fetch("/api/rag?" + searchParams);
+
+    if (res.body === null) {
+      return;
+    }
+
+    const textStream = res.body.pipeThrough(new TextDecoderStream());
+    const reader = textStream.getReader();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      generatedAnswer += value;
+    }
+  }
 </script>
+
+<p>{generatedAnswer}</p>
 
 {#if data.result.totalNumItems == 0}
   <Alert text={"No results found."} />
 {:else}
   <ul class="list">
-    <li class="list-row p-2 text-xs">
+    <li
+      class="list-row flex w-full flex-row items-end justify-between px-4 py-2 text-xs">
       <p>
         <span>
           {toHumanReadable(data.result.totalNumItems)} results for query
@@ -30,6 +71,13 @@
             &nbsp;(corpora: {corpusNames.join(", ")})</span
           >{/if}.
       </p>
+      <!-- RAG button only appears on page 1 -->
+      {#if data.pageNum == 1 && selectedOptions.modelName !== null}
+        <p class="tooltip tooltip-left" data-tip="Generate answer">
+          <button onclick={generateAnswer} class="btn btn-square btn-sm"
+            ><Fa icon={ragIcon} /></button>
+        </p>
+      {/if}
     </li>
 
     {#each data.result.items as hit, index}

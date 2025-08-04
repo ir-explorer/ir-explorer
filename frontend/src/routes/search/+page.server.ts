@@ -70,6 +70,7 @@ export const load: PageServerLoad = async ({ url }) => {
   }
 
   return {
+    q: q,
     result: result,
     pageNum: pageNum,
     totalPages: totalPages,

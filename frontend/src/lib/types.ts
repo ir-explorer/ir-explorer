@@ -9,6 +9,7 @@ export interface SelectedOptions {
   modelName: string | null;
   itemsPerPage: number;
   snippetLength: number;
+  ragDocuments: number;
 }
 
 export interface Corpus {
