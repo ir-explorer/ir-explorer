@@ -144,7 +144,7 @@ class SearchController(Controller):
         :param db_transaction: A DB transaction.
         :param ollama_client: An Ollama client.
         :param model_name: The model to use.
-        :param q: The search query.
+        :param q: The search query/question.
         :param corpus_name: Corpus identifiers for the corresponding documents.
         :param num_documents: IDs of documents to use for RAG.
         :raises HTTPException: When Ollama is not available.

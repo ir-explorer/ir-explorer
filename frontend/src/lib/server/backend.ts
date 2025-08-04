@@ -462,3 +462,33 @@ export async function getDocumentSummary(
   if (res.status == 404) throw new Error("Document not found.");
   return res;
 }
+
+/**
+ * Stream a RAG answer.
+ *
+ * @param modelName - The LLM to use.
+ * @param question - The search query/question.
+ * @param corpusNames - Corpus identifiers for the corresponding documents.
+ * @param documentIds - IDs of documents to use for RAG.
+ *
+ * @returns The answer (streamed).
+ */
+export async function getAnswer(
+  modelName: string,
+  question: string,
+  corpusNames: string[],
+  documentIds: string[],
+): Promise<Response> {
+  const searchParams = new URLSearchParams({
+    q: question,
+    model_name: modelName,
+  });
+  for (const corpusName of corpusNames) {
+    searchParams.append("corpus_name", corpusName);
+  }
+  for (const documentId of documentIds) {
+    searchParams.append("document_id", documentId);
+  }
+  const res = await fetch(`${BACKEND_REST_URL}/get_answer?${searchParams}`);
+  return res;
+}
