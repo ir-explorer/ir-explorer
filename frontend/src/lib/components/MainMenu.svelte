@@ -2,6 +2,7 @@
   import { page } from "$app/state";
   import {
     PUBLIC_MAX_ITEMS_PER_PAGE,
+    PUBLIC_MAX_RAG_DOCUMENTS,
     PUBLIC_MAX_SNIPPET_LENGTH,
   } from "$env/static/public";
   import { browseIcon, closeMenuIcon, menuIcon, searchIcon } from "$lib/icons";
@@ -148,17 +149,33 @@ The main menu drawer.
         </label>
 
         {#if availableOptions.modelNames.length > 0}
-          <label class="fieldset-label flex flex-col items-start">
-            LLM
-            <select
-              class="select w-full select-sm"
-              name="model"
-              bind:value={selectedOptions.modelName}>
-              {#each availableOptions.modelNames as modelName}
-                <option value={modelName}>{modelName}</option>
-              {/each}
-            </select>
-          </label>
+          <fieldset class="fieldset gap-4">
+            <legend class="fieldset-legend">Generation</legend>
+            <label class="fieldset-label flex flex-col items-start">
+              LLM
+              <select
+                class="select w-full select-sm"
+                name="model"
+                bind:value={selectedOptions.modelName}>
+                {#each availableOptions.modelNames as modelName}
+                  <option value={modelName}>{modelName}</option>
+                {/each}
+              </select>
+            </label>
+
+            <label class="fieldset-label flex flex-col items-start">
+              <div class="flex w-full flex-row justify-between">
+                <span>Number of documents (RAG)</span>
+                <span class="pr-2">{selectedOptions.ragDocuments}</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max={PUBLIC_MAX_RAG_DOCUMENTS}
+                bind:value={selectedOptions.ragDocuments}
+                class="range range-sm" />
+            </label>
+          </fieldset>
         {/if}
       </fieldset>
     </div>
