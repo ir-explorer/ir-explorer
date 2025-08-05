@@ -58,7 +58,8 @@ def get_rag_prompt(q: str, documents: "Sequence[tuple[str | None, str]]") -> str
     ):
         raise RuntimeError("LLM RAG prompt template is malformed.")
 
-    context = ""
-    for i, (title, text) in enumerate(documents):
-        context += LLM_PROMPT_RAG_DOCUMENT.format(docno=i + 1, title=title, text=text)
-    return LLM_PROMPT_RAG.format(question=q, context=context)
+    doc_prompts = [
+        LLM_PROMPT_RAG_DOCUMENT.format(docno=i + 1, title=title, text=text)
+        for i, (title, text) in enumerate(documents)
+    ]
+    return LLM_PROMPT_RAG.format(question=q, context="\n\n".join(doc_prompts))
