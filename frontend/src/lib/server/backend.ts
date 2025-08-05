@@ -1,4 +1,5 @@
 import { BACKEND_HOST, BACKEND_PORT } from "$env/static/private";
+import { PUBLIC_MAX_QUERY_LENGTH } from "$env/static/public";
 import type {
   AvailableOptions,
   Corpus,
@@ -288,7 +289,7 @@ export async function searchDocuments(
 ): Promise<Paginated<DocumentSearchHit>> {
   const offset = (page - 1) * numResults;
   const searchParams = new URLSearchParams({
-    q: q,
+    q: q.slice(0, PUBLIC_MAX_QUERY_LENGTH),
     num_results: numResults.toString(),
     offset: offset.toString(),
   });
@@ -467,7 +468,7 @@ export async function getDocumentSummary(
  * Stream a RAG answer.
  *
  * @param modelName - The LLM to use.
- * @param question - The search query/question.
+ * @param q - The search query/question.
  * @param corpusNames - Corpus identifiers for the corresponding documents.
  * @param documentIds - IDs of documents to use for RAG.
  *
@@ -475,12 +476,12 @@ export async function getDocumentSummary(
  */
 export async function getAnswer(
   modelName: string,
-  question: string,
+  q: string,
   corpusNames: string[],
   documentIds: string[],
 ): Promise<Response> {
   const searchParams = new URLSearchParams({
-    q: question,
+    q: q.slice(0, PUBLIC_MAX_QUERY_LENGTH),
     model_name: modelName,
   });
   for (const corpusName of corpusNames) {

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { afterNavigate } from "$app/navigation";
-  import { page } from "$app/state";
   import { PUBLIC_MAX_SEARCH_RESULT_PAGES } from "$env/static/public";
   import Alert from "$lib/components/Alert.svelte";
   import BlinkingCursor from "$lib/components/BlinkingCursor.svelte";
@@ -18,7 +17,6 @@
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
-  let corpusNames = $derived(page.url.searchParams.getAll("corpus"));
 
   let generatedAnswer = $state("");
   let answerGenerationStarted = $state(false);
@@ -90,9 +88,9 @@
       <p>
         <span>
           {toHumanReadable(data.result.totalNumItems)} results for query
-          <i><b>{page.url.searchParams.get("q")}</b></i>
-        </span>{#if corpusNames.length > 0}<span>
-            &nbsp;(corpora: {corpusNames.join(", ")})</span
+          <i><b>{data.q}</b></i>
+        </span>{#if data.corpusNames.length > 0}<span>
+            &nbsp;(corpora: {data.corpusNames.join(", ")})</span
           >{/if}.
       </p>
       <!-- RAG button only appears on page 1 -->
