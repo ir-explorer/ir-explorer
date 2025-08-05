@@ -21,8 +21,20 @@
   let generatedAnswer = $state("");
   let answerGenerationStarted = $state(false);
   let answerGenerationBusy = $state(false);
+  let abortToken = { abort: false };
 
-  async function generateAnswer() {
+  // RAG: abort previous generation (if any), reset values and flags
+  function resetAnswer() {
+    abortToken.abort = true;
+    abortToken = { abort: false };
+
+    generatedAnswer = "";
+    answerGenerationStarted = false;
+    answerGenerationBusy = false;
+  }
+
+  // RAG: fetch answer from API, decode, and display
+  async function generateAnswer(abortToken: { abort: boolean }) {
     answerGenerationStarted = true;
     answerGenerationBusy = true;
     if (
@@ -55,7 +67,7 @@
 
     while (true) {
       const { done, value } = await reader.read();
-      if (done) {
+      if (done || abortToken.abort) {
         break;
       }
       generatedAnswer += value;
@@ -63,11 +75,8 @@
     answerGenerationBusy = false;
   }
 
-  afterNavigate(() => {
-    generatedAnswer = "";
-    answerGenerationStarted = false;
-    answerGenerationBusy = false;
-  });
+  // answers do not reset automatically upon navigating, so we need to do it manually
+  afterNavigate(resetAnswer);
 </script>
 
 {#if answerGenerationStarted}
@@ -101,7 +110,7 @@
       {#if data.pageNum == 1 && selectedOptions.modelName !== null && !answerGenerationStarted}
         <p class="tooltip tooltip-left" data-tip="Generate answer">
           <button
-            onclick={generateAnswer}
+            onclick={() => generateAnswer(abortToken)}
             class="btn btn-square animate-shake btn-sm btn-primary hover:animate-none">
             <Fa icon={ragIcon} />
           </button>

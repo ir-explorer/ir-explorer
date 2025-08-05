@@ -10,7 +10,7 @@
     /** Whether to display the icon on the right of the text. */
     iconRight?: boolean;
     /** Override fixed icon width. */
-    iconWidth?: Number | null;
+    iconWidth?: number | null;
   }
   const { icon, text, iconRight = false, iconWidth = null }: Props = $props();
 
