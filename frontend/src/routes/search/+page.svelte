@@ -25,7 +25,11 @@
   async function generateAnswer() {
     answerGenerationStarted = true;
     answerGenerationBusy = true;
-    if (data.result.items.length == 0 || selectedOptions.modelName === null) {
+    if (
+      !data.q ||
+      data.result.items.length == 0 ||
+      selectedOptions.modelName === null
+    ) {
       throw new Error("Failed to generate answer.");
     }
 
@@ -89,7 +93,7 @@
         <span>
           {toHumanReadable(data.result.totalNumItems)} results for query
           <i><b>{data.q}</b></i>
-        </span>{#if data.corpusNames.length > 0}<span>
+        </span>{#if data.corpusNames && data.corpusNames.length > 0}<span>
             &nbsp;(corpora: {data.corpusNames.join(", ")})</span
           >{/if}.
       </p>

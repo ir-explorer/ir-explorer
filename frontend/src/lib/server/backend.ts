@@ -289,7 +289,7 @@ export async function searchDocuments(
 ): Promise<Paginated<DocumentSearchHit>> {
   const offset = (page - 1) * numResults;
   const searchParams = new URLSearchParams({
-    q: q.slice(0, PUBLIC_MAX_QUERY_LENGTH),
+    q: q.slice(0, Number(PUBLIC_MAX_QUERY_LENGTH)),
     num_results: numResults.toString(),
     offset: offset.toString(),
   });
@@ -481,7 +481,7 @@ export async function getAnswer(
   documentIds: string[],
 ): Promise<Response> {
   const searchParams = new URLSearchParams({
-    q: q.slice(0, PUBLIC_MAX_QUERY_LENGTH),
+    q: q.slice(0, Number(PUBLIC_MAX_QUERY_LENGTH)),
     model_name: modelName,
   });
   for (const corpusName of corpusNames) {

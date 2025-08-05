@@ -71,7 +71,7 @@ export const load: PageServerLoad = async ({ url }) => {
   }
 
   return {
-    q: q.slice(0, PUBLIC_MAX_QUERY_LENGTH),
+    q: q.slice(0, Number(PUBLIC_MAX_QUERY_LENGTH)),
     corpusNames: corpusNames,
     result: result,
     pageNum: pageNum,
