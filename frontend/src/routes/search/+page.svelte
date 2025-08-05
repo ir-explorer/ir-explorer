@@ -70,8 +70,9 @@
 
 {#if answerGenerationStarted}
   <div
-    class="m-4 max-h-128 rounded border border-secondary bg-secondary/10 p-2 text-sm shadow">
-    <div class="overflow-y-scroll leading-relaxed whitespace-pre-wrap">
+    class="m-4 rounded border border-secondary bg-secondary/10 p-2 text-sm shadow">
+    <div
+      class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
       {generatedAnswer}
       {#if answerGenerationBusy}
         <BlinkingCursor />
