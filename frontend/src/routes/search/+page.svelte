@@ -37,7 +37,7 @@
     });
     for (const hit of data.result.items.slice(
       0,
-      selectedOptions.ragDocuments,
+      selectedOptions.numRagDocuments,
     )) {
       searchParams.append("corpusName", hit.corpusName);
       searchParams.append("documentId", hit.id);

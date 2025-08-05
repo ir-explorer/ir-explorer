@@ -166,13 +166,13 @@ The main menu drawer.
             <label class="fieldset-label flex flex-col items-start">
               <div class="flex w-full flex-row justify-between">
                 <span>Number of documents (RAG)</span>
-                <span class="pr-2">{selectedOptions.ragDocuments}</span>
+                <span class="pr-2">{selectedOptions.numRagDocuments}</span>
               </div>
               <input
                 type="range"
                 min="1"
                 max={PUBLIC_MAX_RAG_DOCUMENTS}
-                bind:value={selectedOptions.ragDocuments}
+                bind:value={selectedOptions.numRagDocuments}
                 class="range range-sm" />
             </label>
           </fieldset>

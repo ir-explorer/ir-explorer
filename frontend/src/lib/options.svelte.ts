@@ -6,5 +6,5 @@ export const selectedOptions = $state({
   modelName: null,
   itemsPerPage: 10,
   snippetLength: 300,
-  ragDocuments: 1,
+  numRagDocuments: 2,
 } as SelectedOptions);
