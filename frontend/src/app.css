@@ -1,10 +1,28 @@
 @import "tailwindcss";
 @theme {
   --animate-blink: blink 1s step-start 0s infinite;
-
   @keyframes blink {
     50% {
       opacity: 0;
+    }
+  }
+
+  --animate-shake: shake 2s infinite;
+  @keyframes shake {
+    0% {
+      transform: rotate(0);
+    }
+    5% {
+      transform: rotate(5deg);
+    }
+    10% {
+      transform: rotate(-5deg);
+    }
+    15% {
+      transform: rotate(5deg);
+    }
+    20% {
+      transform: rotate(0);
     }
   }
 }

@@ -97,7 +97,9 @@
       <!-- RAG button only appears on page 1 -->
       {#if data.pageNum == 1 && selectedOptions.modelName !== null && !answerGenerationStarted}
         <p class="tooltip tooltip-left" data-tip="Generate answer">
-          <button onclick={generateAnswer} class="btn btn-square btn-sm">
+          <button
+            onclick={generateAnswer}
+            class="btn btn-square animate-shake btn-sm btn-primary hover:animate-none">
             <Fa icon={ragIcon} />
           </button>
         </p>
