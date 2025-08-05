@@ -41,5 +41,6 @@ export const orderAscIcon = faLongArrowUp;
 
 export const textIcon = faQuoteRight;
 export const summaryIcon = faBrain;
+export const ragIcon = faBrain;
 
 export const relevanceIcon = faCheck;

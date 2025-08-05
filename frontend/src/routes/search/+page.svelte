@@ -1,35 +1,121 @@
 <script lang="ts">
-  import { page } from "$app/state";
+  import { afterNavigate } from "$app/navigation";
   import { PUBLIC_MAX_SEARCH_RESULT_PAGES } from "$env/static/public";
   import Alert from "$lib/components/Alert.svelte";
+  import BlinkingCursor from "$lib/components/BlinkingCursor.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
   import {
     corpusIcon,
     documentIcon,
     nextPageIcon,
     prevPageIcon,
+    ragIcon,
   } from "$lib/icons";
+  import { selectedOptions } from "$lib/options.svelte";
   import { toHumanReadable } from "$lib/util";
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
-  let corpusNames = $derived(page.url.searchParams.getAll("corpus"));
+
+  let generatedAnswer = $state("");
+  let answerGenerationStarted = $state(false);
+  let answerGenerationBusy = $state(false);
+  let abortToken = { abort: false };
+
+  // RAG: abort previous generation (if any), reset values and flags
+  function resetAnswer() {
+    abortToken.abort = true;
+    abortToken = { abort: false };
+
+    generatedAnswer = "";
+    answerGenerationStarted = false;
+    answerGenerationBusy = false;
+  }
+
+  // RAG: fetch answer from API, decode, and display
+  async function generateAnswer(abortToken: { abort: boolean }) {
+    answerGenerationStarted = true;
+    answerGenerationBusy = true;
+    if (
+      !data.q ||
+      data.result.items.length == 0 ||
+      selectedOptions.modelName === null
+    ) {
+      throw new Error("Failed to generate answer.");
+    }
+
+    const searchParams = new URLSearchParams({
+      q: data.q,
+      modelName: selectedOptions.modelName,
+    });
+    for (const hit of data.result.items.slice(
+      0,
+      selectedOptions.numRagDocuments,
+    )) {
+      searchParams.append("corpusName", hit.corpusName);
+      searchParams.append("documentId", hit.id);
+    }
+    const res = await fetch("/api/rag?" + searchParams);
+
+    if (res.body === null) {
+      return;
+    }
+
+    const textStream = res.body.pipeThrough(new TextDecoderStream());
+    const reader = textStream.getReader();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done || abortToken.abort) {
+        break;
+      }
+      generatedAnswer += value;
+    }
+    answerGenerationBusy = false;
+  }
+
+  // answers do not reset automatically upon navigating, so we need to do it manually
+  afterNavigate(resetAnswer);
 </script>
+
+{#if answerGenerationStarted}
+  <div
+    class="m-4 rounded border border-secondary bg-secondary/10 p-2 text-sm shadow">
+    <div
+      class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
+      {generatedAnswer}
+      {#if answerGenerationBusy}
+        <BlinkingCursor />
+      {/if}
+    </div>
+  </div>
+{/if}
 
 {#if data.result.totalNumItems == 0}
   <Alert text={"No results found."} />
 {:else}
   <ul class="list">
-    <li class="list-row p-2 text-xs">
+    <li
+      class="list-row flex w-full flex-row items-end justify-between px-4 py-2 text-xs">
       <p>
         <span>
           {toHumanReadable(data.result.totalNumItems)} results for query
-          <i><b>{page.url.searchParams.get("q")}</b></i>
-        </span>{#if corpusNames.length > 0}<span>
-            &nbsp;(corpora: {corpusNames.join(", ")})</span
+          <i><b>{data.q}</b></i>
+        </span>{#if data.corpusNames && data.corpusNames.length > 0}<span>
+            &nbsp;(corpora: {data.corpusNames.join(", ")})</span
           >{/if}.
       </p>
+      <!-- RAG button only appears on page 1 -->
+      {#if data.pageNum == 1 && selectedOptions.modelName !== null && !answerGenerationStarted}
+        <p class="tooltip tooltip-left" data-tip="Generate answer">
+          <button
+            onclick={() => generateAnswer(abortToken)}
+            class="btn btn-square animate-shake btn-sm btn-primary hover:animate-none">
+            <Fa icon={ragIcon} />
+          </button>
+        </p>
+      {/if}
     </li>
 
     {#each data.result.items as hit, index}

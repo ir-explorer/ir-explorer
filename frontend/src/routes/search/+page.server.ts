@@ -1,4 +1,5 @@
 import {
+  PUBLIC_MAX_QUERY_LENGTH,
   PUBLIC_MAX_SEARCH_RESULT_PAGES,
   PUBLIC_SEARCH_RESULTS_PER_PAGE,
 } from "$env/static/public";
@@ -70,6 +71,8 @@ export const load: PageServerLoad = async ({ url }) => {
   }
 
   return {
+    q: q.slice(0, Number(PUBLIC_MAX_QUERY_LENGTH)),
+    corpusNames: corpusNames,
     result: result,
     pageNum: pageNum,
     totalPages: totalPages,

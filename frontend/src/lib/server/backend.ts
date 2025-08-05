@@ -1,4 +1,5 @@
 import { BACKEND_HOST, BACKEND_PORT } from "$env/static/private";
+import { PUBLIC_MAX_QUERY_LENGTH } from "$env/static/public";
 import type {
   AvailableOptions,
   Corpus,
@@ -288,7 +289,7 @@ export async function searchDocuments(
 ): Promise<Paginated<DocumentSearchHit>> {
   const offset = (page - 1) * numResults;
   const searchParams = new URLSearchParams({
-    q: q,
+    q: q.slice(0, Number(PUBLIC_MAX_QUERY_LENGTH)),
     num_results: numResults.toString(),
     offset: offset.toString(),
   });
@@ -460,5 +461,35 @@ export async function getDocumentSummary(
     `${BACKEND_REST_URL}/get_document_summary?${searchParams}`,
   );
   if (res.status == 404) throw new Error("Document not found.");
+  return res;
+}
+
+/**
+ * Stream a RAG answer.
+ *
+ * @param modelName - The LLM to use.
+ * @param q - The search query/question.
+ * @param corpusNames - Corpus identifiers for the corresponding documents.
+ * @param documentIds - IDs of documents to use for RAG.
+ *
+ * @returns The answer (streamed).
+ */
+export async function getAnswer(
+  modelName: string,
+  q: string,
+  corpusNames: string[],
+  documentIds: string[],
+): Promise<Response> {
+  const searchParams = new URLSearchParams({
+    q: q.slice(0, Number(PUBLIC_MAX_QUERY_LENGTH)),
+    model_name: modelName,
+  });
+  for (const corpusName of corpusNames) {
+    searchParams.append("corpus_name", corpusName);
+  }
+  for (const documentId of documentIds) {
+    searchParams.append("document_id", documentId);
+  }
+  const res = await fetch(`${BACKEND_REST_URL}/get_answer?${searchParams}`);
   return res;
 }

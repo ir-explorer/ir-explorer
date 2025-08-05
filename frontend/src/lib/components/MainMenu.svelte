@@ -2,6 +2,7 @@
   import { page } from "$app/state";
   import {
     PUBLIC_MAX_ITEMS_PER_PAGE,
+    PUBLIC_MAX_RAG_DOCUMENTS,
     PUBLIC_MAX_SNIPPET_LENGTH,
   } from "$env/static/public";
   import { browseIcon, closeMenuIcon, menuIcon, searchIcon } from "$lib/icons";
@@ -39,17 +40,17 @@
 The main menu drawer.
 -->
 <div class="drawer w-auto">
-  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+  <input id="main-menu" type="checkbox" class="drawer-toggle" />
   <div class="drawer-content">
-    <label for="my-drawer" class="drawer-button btn btn-ghost btn-sm">
+    <label for="main-menu" class="drawer-button btn btn-ghost btn-sm">
       <Fa icon={menuIcon} />
     </label>
   </div>
   <div class="drawer-side z-99">
-    <label for="my-drawer" class="drawer-overlay"></label>
+    <label for="main-menu" class="drawer-overlay"></label>
     <div class="menu min-h-full w-80 bg-base-200 p-4 text-base-content">
       <div class="flex w-full items-center gap-4">
-        <label for="my-drawer" class="drawer-button btn btn-ghost btn-sm">
+        <label for="main-menu" class="drawer-button btn btn-ghost btn-sm">
           <Fa icon={closeMenuIcon} />
         </label>
         <Logo small />
@@ -148,17 +149,33 @@ The main menu drawer.
         </label>
 
         {#if availableOptions.modelNames.length > 0}
-          <label class="fieldset-label flex flex-col items-start">
-            LLM
-            <select
-              class="select w-full select-sm"
-              name="model"
-              bind:value={selectedOptions.modelName}>
-              {#each availableOptions.modelNames as modelName}
-                <option value={modelName}>{modelName}</option>
-              {/each}
-            </select>
-          </label>
+          <fieldset class="fieldset gap-4">
+            <legend class="fieldset-legend">Generation</legend>
+            <label class="fieldset-label flex flex-col items-start">
+              LLM
+              <select
+                class="select w-full select-sm"
+                name="model"
+                bind:value={selectedOptions.modelName}>
+                {#each availableOptions.modelNames as modelName}
+                  <option value={modelName}>{modelName}</option>
+                {/each}
+              </select>
+            </label>
+
+            <label class="fieldset-label flex flex-col items-start">
+              <div class="flex w-full flex-row justify-between">
+                <span>Number of documents (RAG)</span>
+                <span class="pr-2">{selectedOptions.numRagDocuments}</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max={PUBLIC_MAX_RAG_DOCUMENTS}
+                bind:value={selectedOptions.numRagDocuments}
+                class="range range-sm" />
+            </label>
+          </fieldset>
         {/if}
       </fieldset>
     </div>

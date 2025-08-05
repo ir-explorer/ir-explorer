@@ -11,7 +11,7 @@ from litestar.status_codes import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
-    HTTP_501_NOT_IMPLEMENTED,
+    HTTP_503_SERVICE_UNAVAILABLE,
 )
 from llm import provide_client
 from llm.util import get_summary_prompt
@@ -617,7 +617,7 @@ class BrowseController(Controller):
         if ollama_client is None:
             raise HTTPException(
                 "LLM services not available.",
-                status_code=HTTP_501_NOT_IMPLEMENTED,
+                status_code=HTTP_503_SERVICE_UNAVAILABLE,
             )
 
         try:
