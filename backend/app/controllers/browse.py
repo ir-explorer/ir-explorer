@@ -592,7 +592,7 @@ class BrowseController(Controller):
             total_num_items=total_num_results,
         )
 
-    @get(path="/get_document_summary", cache=True, media_type=MediaType.TEXT)
+    @get(path="/get_document_summary", cache=True, media_type="text/event-stream")
     async def get_document_summary(
         self,
         db_transaction: "AsyncSession",
