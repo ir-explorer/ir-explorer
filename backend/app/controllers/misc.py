@@ -53,7 +53,7 @@ class MiscController(Controller):
         model_names = []
         if openai_client is not None:
             for t, item in await openai_client.models.list():
-                if t == "data":
+                if t == "data" and item is not None:
                     model_names.extend([model.id for model in item])
 
         sql = select(ORMCorpus.name)
