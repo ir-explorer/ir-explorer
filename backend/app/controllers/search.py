@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDocument
 from db.util import escape_search_query
-from litestar import Controller, MediaType, get
+from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.response import Stream
@@ -20,7 +20,7 @@ from models import (
 )
 
 # litestar needs the type outside of the type checking block
-from ollama import AsyncClient  # noqa: TC002
+from openai import AsyncOpenAI  # noqa: TC002
 from sqlalchemy import (
     VARCHAR,
     Integer,
@@ -42,7 +42,7 @@ class SearchController(Controller):
 
     dependencies = {
         "db_transaction": Provide(provide_transaction),
-        "ollama_client": Provide(provide_client),
+        "openai_client": Provide(provide_client),
     }
 
     @get(path="/search_documents", cache=True)
@@ -133,7 +133,7 @@ class SearchController(Controller):
     async def get_answer(
         self,
         db_transaction: "AsyncSession",
-        ollama_client: AsyncClient | None,
+        openai_client: AsyncOpenAI | None,
         model_name: str,
         q: str,
         corpus_name: list[str],
@@ -142,18 +142,17 @@ class SearchController(Controller):
         """Generate an answer using RAG.
 
         :param db_transaction: A DB transaction.
-        :param ollama_client: An Ollama client.
+        :param openai_client: An OpenAI client.
         :param model_name: The model to use.
         :param q: The search query/question.
         :param corpus_name: Corpus identifiers for the corresponding documents.
         :param num_documents: IDs of documents to use for RAG.
-        :raises HTTPException: When Ollama is not available.
+        :raises HTTPException: When the OpenAI API is not available.
         :raises HTTPException: When the document identifiers are not properly provided.
-        :raises HTTPException: When the requested model is not available.
         :raises HTTPException: When the answer could not be generated.
         :return: The answer stream.
         """
-        if ollama_client is None:
+        if openai_client is None:
             raise HTTPException(
                 "LLM services not available.",
                 status_code=HTTP_503_SERVICE_UNAVAILABLE,
@@ -164,15 +163,6 @@ class SearchController(Controller):
                 "Must provide at least one matching corpus-document pair.",
                 status_code=HTTP_400_BAD_REQUEST,
                 extra={"corpus_name": corpus_name, "document_id": document_id},
-            )
-
-        try:
-            await ollama_client.show(model_name)
-        except Exception:
-            raise HTTPException(
-                "Requested model is not available.",
-                status_code=HTTP_400_BAD_REQUEST,
-                extra={"model_name": model_name},
             )
 
         sql = (
@@ -187,13 +177,12 @@ class SearchController(Controller):
         documents = (await db_transaction.execute(sql)).all()
         doc_inputs = [(title, text) for title, text in documents]
         try:
-            stream = await ollama_client.generate(
+            stream = await openai_client.completions.create(
                 model=model_name,
                 prompt=get_rag_prompt(q, doc_inputs),
                 stream=True,
-                think=False,
             )
-            return Stream(chunk["response"] async for chunk in stream)
+            return Stream(chunk.choices[0].text async for chunk in stream)
         except Exception as e:
             raise HTTPException(
                 "Failed to generate answer.",
