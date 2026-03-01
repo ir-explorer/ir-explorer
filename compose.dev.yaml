@@ -2,21 +2,21 @@ name: ir-explorer-dev
 
 services:
   db:
-    restart: always
+    restart: unless-stopped
     volumes:
       - pgdata:/var/lib/postgresql
     ports:
       - "8101:5432"
 
   ollama:
-    restart: always
+    restart: unless-stopped
     volumes:
       - ollamadata:/root/.ollama
     ports:
       - "8102:11434"
 
   backend:
-    restart: always
+    restart: unless-stopped
     develop:
       watch:
         - action: sync+restart
@@ -30,7 +30,7 @@ services:
       - LITESTAR_DEBUG=true
 
   frontend:
-    restart: always
+    restart: unless-stopped
     develop:
       watch:
         - action: sync
