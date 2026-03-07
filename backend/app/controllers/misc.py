@@ -10,7 +10,7 @@ from models import (
 )
 
 # litestar needs the type outside of the type checking block
-from ollama import AsyncClient  # noqa: TC002
+from openai import AsyncOpenAI  # noqa: TC002
 from sqlalchemy import (
     select,
 )
@@ -24,7 +24,7 @@ class MiscController(Controller):
 
     dependencies = {
         "db_transaction": Provide(provide_transaction),
-        "ollama_client": Provide(provide_client),
+        "openai_client": Provide(provide_client),
     }
 
     @get(path="/get_available_languages")
@@ -42,20 +42,19 @@ class MiscController(Controller):
     async def get_available_options(
         self,
         db_transaction: "AsyncSession",
-        ollama_client: AsyncClient | None,
+        openai_client: AsyncOpenAI | None,
     ) -> AvailableOptions:
         """Get available options for all settings.
 
         :param db_transaction: A DB transaction.
-        :param ollama_client: An Ollama client.
+        :param openai_client: An OpenAI client.
         :return: The available options.
         """
-        if ollama_client is None:
-            model_names = []
-        else:
-            model_names = [
-                model["model"] for model in (await ollama_client.list()).models
-            ]
+        model_names = []
+        if openai_client is not None:
+            for t, item in await openai_client.models.list():
+                if t == "data" and item is not None:
+                    model_names.extend([model.id for model in item])
 
         sql = select(ORMCorpus.name)
         result = (await db_transaction.execute(sql)).scalars()

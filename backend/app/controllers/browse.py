@@ -3,12 +3,11 @@ from typing import TYPE_CHECKING, Literal
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
 from db.util import escape_search_query
-from litestar import Controller, MediaType, get
+from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.response import Stream
 from litestar.status_codes import (
-    HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
     HTTP_503_SERVICE_UNAVAILABLE,
@@ -27,7 +26,7 @@ from models import (
 )
 
 # litestar needs the type outside of the type checking block
-from ollama import AsyncClient  # noqa: TC002
+from openai import AsyncOpenAI  # noqa: TC002
 from sqlalchemy import (
     and_,
     asc,
@@ -48,7 +47,7 @@ class BrowseController(Controller):
 
     dependencies = {
         "db_transaction": Provide(provide_transaction),
-        "ollama_client": Provide(provide_client),
+        "openai_client": Provide(provide_client),
     }
 
     @get(path="/get_corpora", cache=True)
@@ -596,7 +595,7 @@ class BrowseController(Controller):
     async def get_document_summary(
         self,
         db_transaction: "AsyncSession",
-        ollama_client: AsyncClient | None,
+        openai_client: AsyncOpenAI | None,
         corpus_name: str,
         document_id: str,
         model_name: str,
@@ -604,29 +603,19 @@ class BrowseController(Controller):
         """Stream a generated summary of a single document.
 
         :param db_transaction: A DB transaction.
-        :param ollama_client: An Ollama client.
+        :param openai_client: An OpenAI client.
         :param corpus_name: The corpus name.
         :param document_id: The document ID.
         :param model_name: The model to use.
-        :raises HTTPException: When Ollama is not available.
-        :raises HTTPException: When the requested model is not available.
+        :raises HTTPException: When the OpenAI API is not available.
         :raises HTTPException: When the document does not exist.
         :raises HTTPException: When the document could not be summarized.
         :return: The document summary stream.
         """
-        if ollama_client is None:
+        if openai_client is None:
             raise HTTPException(
                 "LLM services not available.",
                 status_code=HTTP_503_SERVICE_UNAVAILABLE,
-            )
-
-        try:
-            await ollama_client.show(model_name)
-        except Exception:
-            raise HTTPException(
-                "Requested model is not available.",
-                status_code=HTTP_400_BAD_REQUEST,
-                extra={"model_name": model_name},
             )
 
         sql = (
@@ -649,13 +638,12 @@ class BrowseController(Controller):
             )
 
         try:
-            stream = await ollama_client.generate(
+            stream = await openai_client.completions.create(
                 model=model_name,
                 prompt=get_summary_prompt(db_document.text, db_document.title),
                 stream=True,
-                think=False,
             )
-            return Stream(chunk["response"] async for chunk in stream)
+            return Stream(chunk.choices[0].text async for chunk in stream)
         except Exception as e:
             raise HTTPException(
                 "Failed to summarize document.",

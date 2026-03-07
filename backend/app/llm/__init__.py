@@ -3,24 +3,24 @@
 import os
 from typing import TYPE_CHECKING
 
-from ollama import AsyncClient
+from openai import AsyncOpenAI
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
 
-OLLAMA_HOST = os.environ.get("OLLAMA_HOST")
-OLLAMA_PORT = os.environ.get("OLLAMA_PORT")
+OPENAI_API_ENDPOINT = os.environ.get("OPENAI_API_ENDPOINT")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 
-async def provide_client() -> "AsyncGenerator[AsyncClient | None, None]":
-    """Provide an asynchronous client for the Ollama API.
+async def provide_client() -> "AsyncGenerator[AsyncOpenAI | None, None]":
+    """Provide an asynchronous client for the OpenAI API.
 
-    If no Ollama host and port are set, yield None.
+    If no endpoint is set, yield None.
 
     :yield: The client (or None).
     """
-    if OLLAMA_HOST is not None and OLLAMA_PORT is not None:
-        yield AsyncClient(f"http://{OLLAMA_HOST}:{OLLAMA_PORT}")
+    if OPENAI_API_ENDPOINT is not None:
+        yield AsyncOpenAI(base_url=OPENAI_API_ENDPOINT, api_key=OPENAI_API_KEY)
     else:
         yield None
