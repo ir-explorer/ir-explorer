@@ -9,5 +9,14 @@
   "features": {
     "ghcr.io/devcontainers/features/node:1": {}
   },
-  "shutdownAction": "none"
+  "shutdownAction": "none",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "svelte.svelte-vscode",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  }
 }
