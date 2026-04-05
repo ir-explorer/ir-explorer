@@ -16,7 +16,7 @@ services:
       - BACKEND_HOST=backend
       - BACKEND_PORT=8000
 
-    # join the same network as the compose stack that is launched by pytest
+    # join the same network as the backend that is launched by pytest
     networks:
       - testing-network
 
