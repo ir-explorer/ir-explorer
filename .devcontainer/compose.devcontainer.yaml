@@ -1,0 +1,16 @@
+# following this guide: https://code.visualstudio.com/remote/advancedcontainers/connect-multiple-containers
+
+name: ir-explorer-devcontainer
+
+services:
+  devcontainer-backend:
+    image: mcr.microsoft.com/devcontainers/base:ubuntu
+    command: sleep infinity
+    volumes:
+      - .:/workspace:z
+
+  devcontainer-frontend:
+    image: mcr.microsoft.com/devcontainers/base:ubuntu
+    command: sleep infinity
+    volumes:
+      - .:/workspace:z

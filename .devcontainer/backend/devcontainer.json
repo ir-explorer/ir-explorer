@@ -1,0 +1,14 @@
+{
+  "dockerComposeFile": [
+    "../../compose.yaml",
+    "../../compose.dev.yaml",
+    "../compose.devcontainer.yaml"
+  ],
+  "service": "devcontainer-backend",
+  "workspaceFolder": "/workspace/backend",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers-extra/features/uv:1": {}
+  },
+  "shutdownAction": "none"
+}

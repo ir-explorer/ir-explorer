@@ -1,0 +1,13 @@
+{
+  "dockerComposeFile": [
+    "../../compose.yaml",
+    "../../compose.dev.yaml",
+    "../compose.devcontainer.yaml"
+  ],
+  "service": "devcontainer-frontend",
+  "workspaceFolder": "/workspace/frontend",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "shutdownAction": "none"
+}

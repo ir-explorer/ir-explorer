@@ -2,7 +2,15 @@ services:
   db:
     image: paradedb/paradedb
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER?}", "-d", "${POSTGRES_DB?}" ]
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "${POSTGRES_USER?}",
+          "-d",
+          "${POSTGRES_DB?}",
+        ]
       start_period: 5s
     environment:
       - POSTGRES_USER=${POSTGRES_USER?}
@@ -12,7 +20,7 @@ services:
   ollama:
     image: ollama/ollama
     healthcheck:
-      test: [ "CMD", "ollama", "ps" ]
+      test: ["CMD", "ollama", "ps"]
       start_period: 5s
 
   backend:
@@ -24,7 +32,13 @@ services:
       ollama:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready').read()" ]
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready').read()",
+        ]
       start_period: 5s
     environment:
       - LITESTAR_PORT=8000
