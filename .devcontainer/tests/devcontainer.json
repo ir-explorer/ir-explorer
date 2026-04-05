@@ -11,5 +11,10 @@
     },
     "ghcr.io/devcontainers/features/python:1": {},
     "ghcr.io/devcontainer-community/devcontainer-features/astral.sh-uv:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "charliermarsh.ruff"]
+    }
   }
 }
