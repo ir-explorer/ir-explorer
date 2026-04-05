@@ -1,8 +1,8 @@
 {
   "dockerComposeFile": [
     "../../compose.yaml",
-    "../../compose.development.yaml",
-    "../compose.dev.yaml"
+    "../../compose.dev.yaml",
+    "../compose.development.yaml"
   ],
   "service": "devcontainer-frontend",
   "workspaceFolder": "/workspace/frontend",

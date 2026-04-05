@@ -1,5 +1,3 @@
-name: ir-explorer-devcontainer-testing
-
 services:
   devcontainer-tests:
     image: mcr.microsoft.com/devcontainers/base:ubuntu
