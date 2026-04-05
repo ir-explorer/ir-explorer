@@ -1,0 +1,15 @@
+{
+  "dockerComposeFile": "../compose.testing.yaml",
+  "service": "devcontainer-tests",
+  "workspaceFolder": "/workspace/tests",
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "enableNonRootDocker": "true",
+      "moby": "false"
+    },
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainer-community/devcontainer-features/astral.sh-uv:1": {}
+  }
+}

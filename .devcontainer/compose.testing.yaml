@@ -1,0 +1,25 @@
+name: ir-explorer-devcontainer-testing
+
+services:
+  devcontainer-tests:
+    image: mcr.microsoft.com/devcontainers/base:ubuntu
+    command: sleep infinity
+
+    # location is relative to first compose file
+    # use :z to avoid SELinux complications
+    volumes:
+      - ..:/workspace:z
+
+    # we want to be able to run tests inside and outside the devcontainer,
+    # which makes this configuration necessary
+    environment:
+      - BACKEND_HOST=backend
+      - BACKEND_PORT=8000
+
+    # join the same network as the compose stack that is launched by pytest
+    networks:
+      - testing-network
+
+networks:
+  testing-network:
+    name: ir-explorer-testing-network
