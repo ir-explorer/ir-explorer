@@ -93,7 +93,11 @@ class SearchController(Controller):
         ).subquery()
 
         # use a subquery to get the corpus names only for the current results
-        sql_results = select(sql_results_sq, ORMCorpus.name).join(ORMCorpus)
+        sql_results = (
+            select(sql_results_sq, ORMCorpus.name)
+            .join(ORMCorpus)
+            .order_by(desc("score"))
+        )
 
         total_num_results = (await db_transaction.execute(sql_count)).scalar_one()
         results = (await db_transaction.execute(sql_results)).all()
