@@ -1,8 +1,13 @@
 from typing import TYPE_CHECKING, Literal
 
 from db import provide_transaction
-from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
-from db.util import escape_search_query
+from db.schema import (
+    ORMCorpus,
+    ORMDataset,
+    ORMDocument,
+    ORMQRel,
+    ORMQuery,
+)
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
@@ -27,6 +32,7 @@ from models import (
 
 # litestar needs the type outside of the type checking block
 from openai import AsyncOpenAI  # noqa: TC002
+from paradedb.sqlalchemy import pdb, search
 from sqlalchemy import (
     and_,
     asc,
@@ -40,6 +46,8 @@ from sqlalchemy.orm import joinedload
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
+
+# TODO: remove pyright ignores once sqlalchemy-paradedb matures
 
 
 class BrowseController(Controller):
@@ -62,10 +70,6 @@ class BrowseController(Controller):
         sq_documents = (
             select(ORMDocument.corpus_pkey, func.count().label("count"))
             .group_by(ORMDocument.corpus_pkey)
-            # this where clause is a hack to have ParadeDB perform the count aggregation
-            # rather than postgres
-            # TODO: remove once no longer necessary
-            .where(ORMDocument.corpus_pkey.bool_op("@@@")(">0"))
             .subquery()
         )
         sq_datasets = (
@@ -162,7 +166,10 @@ class BrowseController(Controller):
             where_clause.append(ORMDataset.name == dataset_name)
         if match is not None:
             where_clause.append(
-                ORMQuery.text.bool_op("@@@")(escape_search_query(match))
+                search.match_any(
+                    ORMQuery.text,  # pyright: ignore[reportArgumentType]
+                    match,
+                )
             )
 
         order_by_op = desc if order_by_desc else asc
@@ -175,7 +182,7 @@ class BrowseController(Controller):
             )
         elif order_by == "match_score":
             order_by_clause = (
-                order_by_op(func.paradedb.score(ORMQuery.pkey)),
+                order_by_op(pdb.score(ORMQuery.pkey)),  # pyright: ignore[reportArgumentType]
                 ORMQuery.pkey,
             )
         else:
@@ -370,7 +377,10 @@ class BrowseController(Controller):
         where_clause = [ORMDocument.corpus_pkey == sq_corpus_pkey]
         if match is not None:
             where_clause.append(
-                ORMDocument.text.bool_op("@@@")(escape_search_query(match))
+                search.match_any(
+                    ORMDocument.text,  # pyright: ignore[reportArgumentType]
+                    match,
+                )
             )
 
         # count all matching docoments
@@ -390,9 +400,7 @@ class BrowseController(Controller):
             select_clause_sq.append(ORMDocument.text_length.label("text_length"))
             order_by_clause = [order_by_op(text("text_length"))]
         elif order_by == "match_score":
-            select_clause_sq.append(
-                func.paradedb.score(ORMDocument.pkey).label("score")
-            )
+            select_clause_sq.append(pdb.score(ORMDocument.pkey).label("score"))  # pyright: ignore[reportAttributeAccessIssue, reportArgumentType]
             order_by_clause = [order_by_op(text("score"))]
         else:
             order_by_clause = []
@@ -497,11 +505,17 @@ class BrowseController(Controller):
             where_clause.append(ORMQuery.id == query_id)
         if match_query is not None:
             where_clause.append(
-                ORMQuery.text.bool_op("@@@")(escape_search_query(match_query))
+                search.match_any(
+                    ORMQuery.text,  # pyright: ignore[reportArgumentType]
+                    match_query,
+                )
             )
         if match_document is not None:
             where_clause.append(
-                ORMDocument.text.bool_op("@@@")(escape_search_query(match_document))
+                search.match_any(
+                    ORMDocument.text,  # pyright: ignore[reportArgumentType]
+                    match_document,
+                )
             )
 
         sql_count = (
@@ -535,13 +549,13 @@ class BrowseController(Controller):
             )
         elif order_by == "query_match_score":
             order_by_clause = (
-                order_by_op(func.paradedb.score(ORMQuery.pkey)),
+                order_by_op(pdb.score(ORMQuery.pkey)),  # pyright: ignore[reportArgumentType]
                 ORMQRel.query_pkey,
                 ORMQRel.document_pkey,
             )
         elif order_by == "document_match_score":
             order_by_clause = (
-                order_by_op(func.paradedb.score(ORMDocument.pkey)),
+                order_by_op(pdb.score(ORMDocument.pkey)),  # pyright: ignore[reportArgumentType]
                 ORMQRel.query_pkey,
                 ORMQRel.document_pkey,
             )

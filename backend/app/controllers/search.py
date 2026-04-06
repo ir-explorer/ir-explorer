@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDocument
-from db.util import escape_search_query
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
@@ -21,20 +20,19 @@ from models import (
 
 # litestar needs the type outside of the type checking block
 from openai import AsyncOpenAI  # noqa: TC002
+from paradedb.sqlalchemy import pdb, search
 from sqlalchemy import (
-    VARCHAR,
-    Integer,
-    SQLColumnExpression,
     and_,
     desc,
     func,
-    literal_column,
     select,
     tuple_,
 )
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
+
+# TODO: remove pyright ignores once sqlalchemy-paradedb matures
 
 
 class SearchController(Controller):
@@ -63,55 +61,44 @@ class SearchController(Controller):
         :param offset: Offset for pagination.
         :return: Paginated list of results, ordered by score.
         """
-        where_clause: list[SQLColumnExpression] = [
-            ORMDocument.text.bool_op("@@@")(escape_search_query(q))
+        where_clause = [
+            search.match_any(ORMDocument.text, q)  # pyright: ignore[reportArgumentType]
         ]
         if corpus_name is not None:
-            corpus_cte = (
-                select(ORMCorpus.pkey).where(ORMCorpus.name.in_(corpus_name)).cte()
+            corpus_pkeys_sq = select(ORMCorpus.pkey).where(
+                ORMCorpus.name.in_(corpus_name)
             )
-
-            # use ParadeDB's set filter: https://docs.paradedb.com/documentation/full-text/filtering#set-filter
-            corpus_pkey_agg = select(
-                func.concat(
-                    "IN [",
-                    func.string_agg(
-                        func.cast(corpus_cte.c.pkey, VARCHAR), literal_column("' '")
-                    ),
-                    "]",
-                )
-            )
-            where_clause.append(
-                ORMDocument.corpus_pkey.bool_op("@@@")(
-                    corpus_pkey_agg.scalar_subquery()
-                )
-            )
+            where_clause.append(ORMDocument.corpus_pkey.in_(corpus_pkeys_sq))
 
         # count the total number of hits
         sql_count = select(func.count(ORMDocument.pkey)).where(and_(*where_clause))
 
         # results for the current page only
         sql_results_sq = (
-            select(
+            select(  # pyright: ignore[reportCallIssue]
                 ORMDocument.id,
                 ORMDocument.corpus_pkey,
-                func.paradedb.score(ORMDocument.pkey).label("score"),
-                func.paradedb.snippet(
-                    ORMDocument.text,
-                    literal_column("'<b>'"),
-                    literal_column("'</b>'"),
-                    literal_column("500", Integer),
+                pdb.score(ORMDocument.pkey).label("score"),  # pyright: ignore[reportArgumentType,reportAttributeAccessIssue]
+                pdb.snippet(
+                    ORMDocument.text,  # pyright: ignore[reportArgumentType]
+                    start_tag="<b>",
+                    end_tag="</b>",
+                    max_num_chars=500,
                 ),
             )
             .where(and_(*where_clause))
             .order_by(desc("score"))
-            .order_by(ORMDocument.id)
+            .order_by(ORMDocument.pkey)
             .offset(offset)
             .limit(num_results)
         ).subquery()
 
         # use a subquery to get the corpus names only for the current results
-        sql_results = select(sql_results_sq, ORMCorpus.name).join(ORMCorpus)
+        sql_results = (
+            select(sql_results_sq, ORMCorpus.name)
+            .join(ORMCorpus)
+            .order_by(desc("score"))
+        )
 
         total_num_results = (await db_transaction.execute(sql_count)).scalar_one()
         results = (await db_transaction.execute(sql_results)).all()

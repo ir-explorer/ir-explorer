@@ -1,3 +1,4 @@
+from paradedb.sqlalchemy import indexing
 from sqlalchemy import (
     Column,
     Computed,
@@ -59,29 +60,7 @@ class ORMQuery(ORMBase):
     qrels: Mapped[list["ORMQRel"]] = relationship(back_populates="query")
 
     __tablename__ = "queries"
-    __table_args__ = (
-        UniqueConstraint(id, dataset_pkey),
-        Index(
-            "ix_queries_search",
-            pkey,
-            text,
-            description,
-            dataset_pkey,
-            postgresql_using="bm25",
-            postgresql_with={
-                "key_field": "pkey",
-                "text_fields": """\'{
-                    "text": {
-                        "tokenizer": {
-                            "type": "default",
-                            "stemmer": "English",
-                            "stopwords_language": "English"
-                        }
-                    }
-                }\'""",
-            },
-        ),
-    )
+    __table_args__ = (UniqueConstraint(id, dataset_pkey),)
 
 
 class ORMDocument(ORMBase):
@@ -102,26 +81,6 @@ class ORMDocument(ORMBase):
     __tablename__ = "documents"
     __table_args__ = (
         UniqueConstraint(id, corpus_pkey),
-        Index(
-            "ix_documents_search",
-            pkey,
-            title,
-            text,
-            corpus_pkey,
-            postgresql_using="bm25",
-            postgresql_with={
-                "key_field": "pkey",
-                "text_fields": """\'{
-                    "text": {
-                        "tokenizer": {
-                            "type": "default",
-                            "stemmer": "English",
-                            "stopwords_language": "English"
-                        }
-                    }
-                }\'""",
-            },
-        ),
         Index("ix_documents_length", corpus_pkey, text_length),
     )
 
@@ -141,3 +100,37 @@ class ORMQRel(ORMBase):
     document: Mapped["ORMDocument"] = relationship(back_populates="qrels")
 
     __tablename__ = "qrels"
+
+
+# TODO: update tokenizer and indexes once sqlalchemy-paradedb matures
+TOKENIZER_CONFIG = """
+'{
+    "text": {
+        "tokenizer": {
+            "type": "default",
+            "stemmer": "English",
+            "stopwords_language": "English"
+        }
+    }
+}'"""
+
+Index(
+    "ix_queries_search",
+    indexing.BM25Field(ORMQuery.__table__.c.pkey),
+    indexing.BM25Field(ORMQuery.__table__.c.text),
+    indexing.BM25Field(ORMQuery.__table__.c.description),
+    indexing.BM25Field(ORMQuery.__table__.c.dataset_pkey),
+    postgresql_using="bm25",
+    postgresql_with={"key_field": "pkey", "text_fields": TOKENIZER_CONFIG},
+)
+
+
+Index(
+    "ix_documents_search",
+    indexing.BM25Field(ORMDocument.__table__.c.pkey),
+    indexing.BM25Field(ORMDocument.__table__.c.title),
+    indexing.BM25Field(ORMDocument.__table__.c.text),
+    indexing.BM25Field(ORMDocument.__table__.c.corpus_pkey),
+    postgresql_using="bm25",
+    postgresql_with={"key_field": "pkey", "text_fields": TOKENIZER_CONFIG},
+)
