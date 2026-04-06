@@ -11,6 +11,7 @@
     "ghcr.io/devcontainers-extra/features/uv:1": {}
   },
   "shutdownAction": "none",
+  "postCreateCommand": "uv sync",
   "customizations": {
     "vscode": {
       "extensions": [

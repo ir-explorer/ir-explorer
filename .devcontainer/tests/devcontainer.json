@@ -2,7 +2,6 @@
   "dockerComposeFile": "../compose.testing.yaml",
   "service": "devcontainer-tests",
   "workspaceFolder": "/workspace/tests",
-
   "features": {
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
       "version": "latest",
@@ -12,6 +11,8 @@
     "ghcr.io/devcontainers/features/python:1": {},
     "ghcr.io/devcontainer-community/devcontainer-features/astral.sh-uv:1": {}
   },
+  "shutdownAction": "none",
+  "postCreateCommand": "uv sync",
   "customizations": {
     "vscode": {
       "extensions": ["ms-python.python", "charliermarsh.ruff"]
