@@ -104,7 +104,7 @@ class ORMQRel(ORMBase):
 
 # TODO: update tokenizer and indexes once sqlalchemy-paradedb matures
 TOKENIZER_CONFIG = """
-\'{
+'{
     "text": {
         "tokenizer": {
             "type": "default",
@@ -112,7 +112,7 @@ TOKENIZER_CONFIG = """
             "stopwords_language": "English"
         }
     }
-}\'"""
+}'"""
 
 Index(
     "ix_queries_search",

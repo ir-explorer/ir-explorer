@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDocument
-from db.util import escape_search_query
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
@@ -62,7 +61,9 @@ class SearchController(Controller):
         :param offset: Offset for pagination.
         :return: Paginated list of results, ordered by score.
         """
-        where_clause = [search.parse(ORMDocument.text, escape_search_query(q))]  # pyright: ignore[reportArgumentType]
+        where_clause = [
+            search.match_any(ORMDocument.text, q)  # pyright: ignore[reportArgumentType]
+        ]
         if corpus_name is not None:
             corpus_pkeys_sq = select(ORMCorpus.pkey).where(
                 ORMCorpus.name.in_(corpus_name)

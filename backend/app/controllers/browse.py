@@ -1,8 +1,13 @@
 from typing import TYPE_CHECKING, Literal
 
 from db import provide_transaction
-from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
-from db.util import escape_search_query
+from db.schema import (
+    ORMCorpus,
+    ORMDataset,
+    ORMDocument,
+    ORMQRel,
+    ORMQuery,
+)
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
@@ -160,7 +165,12 @@ class BrowseController(Controller):
         if dataset_name is not None:
             where_clause.append(ORMDataset.name == dataset_name)
         if match is not None:
-            where_clause.append(search.parse(ORMQuery.text, escape_search_query(match)))  # pyright: ignore[reportArgumentType]
+            where_clause.append(
+                search.match_any(
+                    ORMQuery.text,  # pyright: ignore[reportArgumentType]
+                    match,
+                )
+            )
 
         order_by_op = desc if order_by_desc else asc
         if order_by == "relevant_documents":
@@ -367,7 +377,10 @@ class BrowseController(Controller):
         where_clause = [ORMDocument.corpus_pkey == sq_corpus_pkey]
         if match is not None:
             where_clause.append(
-                search.parse(ORMDocument.text, escape_search_query(match))  # pyright: ignore[reportArgumentType]
+                search.match_any(
+                    ORMDocument.text,  # pyright: ignore[reportArgumentType]
+                    match,
+                )
             )
 
         # count all matching docoments
@@ -492,11 +505,17 @@ class BrowseController(Controller):
             where_clause.append(ORMQuery.id == query_id)
         if match_query is not None:
             where_clause.append(
-                search.parse(ORMQuery.text, escape_search_query(match_query))  # pyright: ignore[reportArgumentType]
+                search.match_any(
+                    ORMQuery.text,  # pyright: ignore[reportArgumentType]
+                    match_query,
+                )
             )
         if match_document is not None:
             where_clause.append(
-                search.parse(ORMDocument.text, escape_search_query(match_document))  # pyright: ignore[reportArgumentType]
+                search.match_any(
+                    ORMDocument.text,  # pyright: ignore[reportArgumentType]
+                    match_document,
+                )
             )
 
         sql_count = (
