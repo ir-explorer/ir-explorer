@@ -1,5 +1,10 @@
+import os
+
 import pytest
 from testcontainers.compose import DockerCompose
+
+BACKEND_HOST = os.environ.get("BACKEND_HOST", "localhost")
+BACKEND_PORT = os.environ.get("BACKEND_PORT", "8203")
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -13,4 +18,4 @@ def setup_stack(request):
 
 @pytest.fixture(scope="module", autouse=True)
 def api():
-    yield "http://localhost:8203"
+    yield f"http://{BACKEND_HOST}:{BACKEND_PORT}"

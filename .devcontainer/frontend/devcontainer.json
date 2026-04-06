@@ -1,0 +1,22 @@
+{
+  "dockerComposeFile": [
+    "../../compose.yaml",
+    "../../compose.dev.yaml",
+    "../compose.development.yaml"
+  ],
+  "service": "devcontainer-frontend",
+  "workspaceFolder": "/workspace/frontend",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "shutdownAction": "none",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "svelte.svelte-vscode",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  }
+}

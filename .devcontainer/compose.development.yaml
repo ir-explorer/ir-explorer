@@ -1,0 +1,18 @@
+services:
+  devcontainer-backend:
+    image: mcr.microsoft.com/devcontainers/base:ubuntu
+    command: sleep infinity
+
+    # location is relative to first compose file
+    # use :z to avoid SELinux complications
+    volumes:
+      - .:/workspace:z
+
+  devcontainer-frontend:
+    image: mcr.microsoft.com/devcontainers/base:ubuntu
+    command: sleep infinity
+
+    # location is relative to first compose file
+    # use :z to avoid SELinux complications
+    volumes:
+      - .:/workspace:z

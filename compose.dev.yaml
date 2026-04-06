@@ -43,7 +43,7 @@ services:
           path: frontend/package.json
     ports:
       - "8104:5173"
-    command: [ "npm", "run", "dev" ]
+    command: ["npm", "run", "dev"]
 
 volumes:
   pgdata:

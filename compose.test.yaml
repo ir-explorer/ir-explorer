@@ -5,4 +5,13 @@ services:
     ports:
       - "8203:8000"
 
+    # join the same network as the devcontainer for testing
+    networks:
+      - testing-network
+      - default
+
   frontend: !reset null
+
+networks:
+  testing-network:
+    name: ir-explorer-testing-network
