@@ -22,7 +22,6 @@ from models import (
 # litestar needs the type outside of the type checking block
 from openai import AsyncOpenAI  # noqa: TC002
 from sqlalchemy import (
-    VARCHAR,
     Integer,
     SQLColumnExpression,
     and_,
@@ -67,25 +66,10 @@ class SearchController(Controller):
             ORMDocument.text.bool_op("@@@")(escape_search_query(q))
         ]
         if corpus_name is not None:
-            corpus_cte = (
-                select(ORMCorpus.pkey).where(ORMCorpus.name.in_(corpus_name)).cte()
+            corpus_pkeys_sq = select(ORMCorpus.pkey).where(
+                ORMCorpus.name.in_(corpus_name)
             )
-
-            # use ParadeDB's set filter: https://docs.paradedb.com/documentation/full-text/filtering#set-filter
-            corpus_pkey_agg = select(
-                func.concat(
-                    "IN [",
-                    func.string_agg(
-                        func.cast(corpus_cte.c.pkey, VARCHAR), literal_column("' '")
-                    ),
-                    "]",
-                )
-            )
-            where_clause.append(
-                ORMDocument.corpus_pkey.bool_op("@@@")(
-                    corpus_pkey_agg.scalar_subquery()
-                )
-            )
+            where_clause.append(ORMDocument.corpus_pkey.in_(corpus_pkeys_sq))
 
         # count the total number of hits
         sql_count = select(func.count(ORMDocument.pkey)).where(and_(*where_clause))
@@ -105,7 +89,7 @@ class SearchController(Controller):
             )
             .where(and_(*where_clause))
             .order_by(desc("score"))
-            .order_by(ORMDocument.id)
+            .order_by(ORMDocument.pkey)
             .offset(offset)
             .limit(num_results)
         ).subquery()
