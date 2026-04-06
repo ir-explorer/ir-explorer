@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Literal
 
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
-from db.util import escape_search_query
+from db.util import escape_search_query, to_column_element
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
@@ -27,6 +27,7 @@ from models import (
 
 # litestar needs the type outside of the type checking block
 from openai import AsyncOpenAI  # noqa: TC002
+from paradedb.sqlalchemy import pdb, search
 from sqlalchemy import (
     and_,
     asc,
@@ -62,10 +63,6 @@ class BrowseController(Controller):
         sq_documents = (
             select(ORMDocument.corpus_pkey, func.count().label("count"))
             .group_by(ORMDocument.corpus_pkey)
-            # this where clause is a hack to have ParadeDB perform the count aggregation
-            # rather than postgres
-            # TODO: remove once no longer necessary
-            .where(ORMDocument.corpus_pkey.bool_op("@@@")(">0"))
             .subquery()
         )
         sq_datasets = (
@@ -162,7 +159,9 @@ class BrowseController(Controller):
             where_clause.append(ORMDataset.name == dataset_name)
         if match is not None:
             where_clause.append(
-                ORMQuery.text.bool_op("@@@")(escape_search_query(match))
+                search.parse(
+                    to_column_element(ORMQuery.text), escape_search_query(match)
+                )
             )
 
         order_by_op = desc if order_by_desc else asc
@@ -175,7 +174,9 @@ class BrowseController(Controller):
             )
         elif order_by == "match_score":
             order_by_clause = (
-                order_by_op(func.paradedb.score(ORMQuery.pkey)),
+                order_by_op(
+                    to_column_element(pdb.score(to_column_element(ORMQuery.pkey)))
+                ),
                 ORMQuery.pkey,
             )
         else:
@@ -370,7 +371,9 @@ class BrowseController(Controller):
         where_clause = [ORMDocument.corpus_pkey == sq_corpus_pkey]
         if match is not None:
             where_clause.append(
-                ORMDocument.text.bool_op("@@@")(escape_search_query(match))
+                search.parse(
+                    to_column_element(ORMDocument.text), escape_search_query(match)
+                )
             )
 
         # count all matching docoments
@@ -391,7 +394,9 @@ class BrowseController(Controller):
             order_by_clause = [order_by_op(text("text_length"))]
         elif order_by == "match_score":
             select_clause_sq.append(
-                func.paradedb.score(ORMDocument.pkey).label("score")
+                to_column_element(pdb.score(to_column_element(ORMDocument.pkey))).label(
+                    "score"
+                )
             )
             order_by_clause = [order_by_op(text("score"))]
         else:
@@ -497,11 +502,16 @@ class BrowseController(Controller):
             where_clause.append(ORMQuery.id == query_id)
         if match_query is not None:
             where_clause.append(
-                ORMQuery.text.bool_op("@@@")(escape_search_query(match_query))
+                search.parse(
+                    to_column_element(ORMQuery.text), escape_search_query(match_query)
+                )
             )
         if match_document is not None:
             where_clause.append(
-                ORMDocument.text.bool_op("@@@")(escape_search_query(match_document))
+                search.parse(
+                    to_column_element(ORMDocument.text),
+                    escape_search_query(match_document),
+                )
             )
 
         sql_count = (
@@ -535,13 +545,17 @@ class BrowseController(Controller):
             )
         elif order_by == "query_match_score":
             order_by_clause = (
-                order_by_op(func.paradedb.score(ORMQuery.pkey)),
+                order_by_op(
+                    to_column_element(pdb.score(to_column_element(ORMQuery.pkey)))
+                ),
                 ORMQRel.query_pkey,
                 ORMQRel.document_pkey,
             )
         elif order_by == "document_match_score":
             order_by_clause = (
-                order_by_op(func.paradedb.score(ORMDocument.pkey)),
+                order_by_op(
+                    to_column_element(pdb.score(to_column_element(ORMDocument.pkey)))
+                ),
                 ORMQRel.query_pkey,
                 ORMQRel.document_pkey,
             )

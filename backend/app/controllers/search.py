@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDocument
-from db.util import escape_search_query
+from db.util import escape_search_query, to_column_element
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
@@ -21,13 +21,11 @@ from models import (
 
 # litestar needs the type outside of the type checking block
 from openai import AsyncOpenAI  # noqa: TC002
+from paradedb.sqlalchemy import pdb, search
 from sqlalchemy import (
-    Integer,
-    SQLColumnExpression,
     and_,
     desc,
     func,
-    literal_column,
     select,
     tuple_,
 )
@@ -62,8 +60,8 @@ class SearchController(Controller):
         :param offset: Offset for pagination.
         :return: Paginated list of results, ordered by score.
         """
-        where_clause: list[SQLColumnExpression] = [
-            ORMDocument.text.bool_op("@@@")(escape_search_query(q))
+        where_clause = [
+            search.parse(to_column_element(ORMDocument.text), escape_search_query(q))
         ]
         if corpus_name is not None:
             corpus_pkeys_sq = select(ORMCorpus.pkey).where(
@@ -79,12 +77,16 @@ class SearchController(Controller):
             select(
                 ORMDocument.id,
                 ORMDocument.corpus_pkey,
-                func.paradedb.score(ORMDocument.pkey).label("score"),
-                func.paradedb.snippet(
-                    ORMDocument.text,
-                    literal_column("'<b>'"),
-                    literal_column("'</b>'"),
-                    literal_column("500", Integer),
+                to_column_element(pdb.score(to_column_element(ORMDocument.pkey))).label(
+                    "score"
+                ),
+                to_column_element(
+                    pdb.snippet(
+                        to_column_element(ORMDocument.text),
+                        start_tag="<b>",
+                        end_tag="</b>",
+                        max_num_chars=500,
+                    )
                 ),
             )
             .where(and_(*where_clause))

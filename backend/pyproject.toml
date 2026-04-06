@@ -11,6 +11,7 @@ dependencies = [
     "litestar>=2.14.0",
     "openai>=1.101.0",
     "sqlalchemy>=2.0.37",
+    "sqlalchemy-paradedb>=0.2.0",
     "uvicorn>=0.34.0",
 ]
 
