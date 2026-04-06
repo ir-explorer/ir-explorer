@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Literal
 
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDataset, ORMDocument, ORMQRel, ORMQuery
-from db.util import escape_search_query, to_column_element
+from db.util import escape_search_query
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
@@ -41,6 +41,8 @@ from sqlalchemy.orm import joinedload
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
+
+# TODO: remove pyright ignores once sqlalchemy-paradedb matures
 
 
 class BrowseController(Controller):
@@ -158,11 +160,7 @@ class BrowseController(Controller):
         if dataset_name is not None:
             where_clause.append(ORMDataset.name == dataset_name)
         if match is not None:
-            where_clause.append(
-                search.parse(
-                    to_column_element(ORMQuery.text), escape_search_query(match)
-                )
-            )
+            where_clause.append(search.parse(ORMQuery.text, escape_search_query(match)))  # pyright: ignore[reportArgumentType]
 
         order_by_op = desc if order_by_desc else asc
         if order_by == "relevant_documents":
@@ -174,9 +172,7 @@ class BrowseController(Controller):
             )
         elif order_by == "match_score":
             order_by_clause = (
-                order_by_op(
-                    to_column_element(pdb.score(to_column_element(ORMQuery.pkey)))
-                ),
+                order_by_op(pdb.score(ORMQuery.pkey)),  # pyright: ignore[reportArgumentType]
                 ORMQuery.pkey,
             )
         else:
@@ -371,9 +367,7 @@ class BrowseController(Controller):
         where_clause = [ORMDocument.corpus_pkey == sq_corpus_pkey]
         if match is not None:
             where_clause.append(
-                search.parse(
-                    to_column_element(ORMDocument.text), escape_search_query(match)
-                )
+                search.parse(ORMDocument.text, escape_search_query(match))  # pyright: ignore[reportArgumentType]
             )
 
         # count all matching docoments
@@ -393,11 +387,7 @@ class BrowseController(Controller):
             select_clause_sq.append(ORMDocument.text_length.label("text_length"))
             order_by_clause = [order_by_op(text("text_length"))]
         elif order_by == "match_score":
-            select_clause_sq.append(
-                to_column_element(pdb.score(to_column_element(ORMDocument.pkey))).label(
-                    "score"
-                )
-            )
+            select_clause_sq.append(pdb.score(ORMDocument.pkey).label("score"))  # pyright: ignore[reportAttributeAccessIssue, reportArgumentType]
             order_by_clause = [order_by_op(text("score"))]
         else:
             order_by_clause = []
@@ -502,16 +492,11 @@ class BrowseController(Controller):
             where_clause.append(ORMQuery.id == query_id)
         if match_query is not None:
             where_clause.append(
-                search.parse(
-                    to_column_element(ORMQuery.text), escape_search_query(match_query)
-                )
+                search.parse(ORMQuery.text, escape_search_query(match_query))  # pyright: ignore[reportArgumentType]
             )
         if match_document is not None:
             where_clause.append(
-                search.parse(
-                    to_column_element(ORMDocument.text),
-                    escape_search_query(match_document),
-                )
+                search.parse(ORMDocument.text, escape_search_query(match_document))  # pyright: ignore[reportArgumentType]
             )
 
         sql_count = (
@@ -545,17 +530,13 @@ class BrowseController(Controller):
             )
         elif order_by == "query_match_score":
             order_by_clause = (
-                order_by_op(
-                    to_column_element(pdb.score(to_column_element(ORMQuery.pkey)))
-                ),
+                order_by_op(pdb.score(ORMQuery.pkey)),  # pyright: ignore[reportArgumentType]
                 ORMQRel.query_pkey,
                 ORMQRel.document_pkey,
             )
         elif order_by == "document_match_score":
             order_by_clause = (
-                order_by_op(
-                    to_column_element(pdb.score(to_column_element(ORMDocument.pkey)))
-                ),
+                order_by_op(pdb.score(ORMDocument.pkey)),  # pyright: ignore[reportArgumentType]
                 ORMQRel.query_pkey,
                 ORMQRel.document_pkey,
             )

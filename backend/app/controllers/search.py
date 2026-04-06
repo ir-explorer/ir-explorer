@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from db import provide_transaction
 from db.schema import ORMCorpus, ORMDocument
-from db.util import escape_search_query, to_column_element
+from db.util import escape_search_query
 from litestar import Controller, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException
@@ -33,6 +33,8 @@ from sqlalchemy import (
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
+# TODO: remove pyright ignores once sqlalchemy-paradedb matures
+
 
 class SearchController(Controller):
     """Controller that handles search-related API endpoints."""
@@ -60,9 +62,7 @@ class SearchController(Controller):
         :param offset: Offset for pagination.
         :return: Paginated list of results, ordered by score.
         """
-        where_clause = [
-            search.parse(to_column_element(ORMDocument.text), escape_search_query(q))
-        ]
+        where_clause = [search.parse(ORMDocument.text, escape_search_query(q))]  # pyright: ignore[reportArgumentType]
         if corpus_name is not None:
             corpus_pkeys_sq = select(ORMCorpus.pkey).where(
                 ORMCorpus.name.in_(corpus_name)
@@ -74,19 +74,15 @@ class SearchController(Controller):
 
         # results for the current page only
         sql_results_sq = (
-            select(
+            select(  # pyright: ignore[reportCallIssue]
                 ORMDocument.id,
                 ORMDocument.corpus_pkey,
-                to_column_element(pdb.score(to_column_element(ORMDocument.pkey))).label(
-                    "score"
-                ),
-                to_column_element(
-                    pdb.snippet(
-                        to_column_element(ORMDocument.text),
-                        start_tag="<b>",
-                        end_tag="</b>",
-                        max_num_chars=500,
-                    )
+                pdb.score(ORMDocument.pkey).label("score"),  # pyright: ignore[reportArgumentType,reportAttributeAccessIssue]
+                pdb.snippet(
+                    ORMDocument.text,  # pyright: ignore[reportArgumentType]
+                    start_tag="<b>",
+                    end_tag="</b>",
+                    max_num_chars=500,
                 ),
             )
             .where(and_(*where_clause))
