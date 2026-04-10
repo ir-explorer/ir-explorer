@@ -10,7 +10,7 @@
     "ghcr.io/devcontainers/features/node:1": {}
   },
   "shutdownAction": "none",
-  "postCreateCommand": "npm install",
+  "postCreateCommand": "bash -i -c 'npm install'",
   "customizations": {
     "vscode": {
       "extensions": [
