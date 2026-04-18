@@ -18,6 +18,7 @@
     "@sveltejs/kit": "^2.53.4",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "@tailwindcss/vite": "^4.2.1",
+    "@types/node": "^24.12.2",
     "@types/nprogress": "^0.2.3",
     "daisyui": "^5.5.19",
     "nprogress": "^0.2.0",

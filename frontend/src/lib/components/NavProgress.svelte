@@ -5,7 +5,7 @@
 
   NProgress.configure({ showSpinner: false });
 
-  let timeout: number;
+  let timeout: ReturnType<typeof setTimeout>;
   beforeNavigate(() => {
     timeout = setTimeout(NProgress.start, 200);
   });
