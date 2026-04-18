@@ -20,7 +20,7 @@
     <div class="flex items-center justify-between gap-4">
       <div class="flex flex-col gap-2">
         <div class="text-lg">
-          <IconWithText icon={corpusIcon} text={c.name} iconWidth={6} />
+          <IconWithText icon={corpusIcon} text={c.name} wide />
         </div>
         <p>{c.numDatasets} {c.numDatasets == 1 ? "dataset" : "datasets"}</p>
       </div>

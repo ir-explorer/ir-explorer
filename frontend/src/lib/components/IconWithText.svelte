@@ -9,12 +9,10 @@
     text: string;
     /** Whether to display the icon on the right of the text. */
     iconRight?: boolean;
-    /** Override fixed icon width. */
-    iconWidth?: number | null;
+    /** Use the wider icon slot. */
+    wide?: boolean;
   }
-  const { icon, text, iconRight = false, iconWidth = null }: Props = $props();
-
-  const wClass = iconWidth === null ? "w-fit" : `w-${iconWidth}`;
+  const { icon, text, iconRight = false, wide = false }: Props = $props();
 </script>
 
 <!--
@@ -25,7 +23,7 @@ A fixed-width icon with accompanying text.
   {#if iconRight}
     {text}
   {/if}
-  <span class="{wClass} flex flex-row justify-center">
+  <span class={["flex flex-row justify-center", wide ? "w-6" : "w-4"]}>
     <Fa {icon} />
   </span>
   {#if !iconRight}

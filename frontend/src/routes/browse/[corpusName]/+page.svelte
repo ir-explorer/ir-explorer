@@ -167,13 +167,10 @@
         <div class="flex items-center justify-between gap-4">
           <div class="flex flex-col gap-2">
             <div class="text-lg">
-              <IconWithText icon={datasetIcon} text={d.name} iconWidth={6} />
+              <IconWithText icon={datasetIcon} text={d.name} wide />
             </div>
             <div class="text-sm">
-              <IconWithText
-                icon={corpusIcon}
-                text={d.corpusName}
-                iconWidth={6} />
+              <IconWithText icon={corpusIcon} text={d.corpusName} wide />
             </div>
           </div>
           <SizeIndicator
