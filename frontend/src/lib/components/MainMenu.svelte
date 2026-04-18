@@ -1,10 +1,10 @@
 <script lang="ts">
   import { page } from "$app/state";
   import {
-    PUBLIC_MAX_ITEMS_PER_PAGE,
-    PUBLIC_MAX_RAG_DOCUMENTS,
-    PUBLIC_MAX_SNIPPET_LENGTH,
-  } from "$env/static/public";
+    MAX_ITEMS_PER_PAGE,
+    MAX_RAG_DOCUMENTS,
+    MAX_SNIPPET_LENGTH,
+  } from "$lib/config";
   import { browseIcon, closeMenuIcon, menuIcon, searchIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type { AvailableOptions } from "$lib/types";
@@ -119,7 +119,7 @@ The main menu drawer.
           <input
             type="range"
             min="1"
-            max={PUBLIC_MAX_ITEMS_PER_PAGE}
+            max={MAX_ITEMS_PER_PAGE}
             bind:value={selectedOptions.itemsPerPage}
             class="range range-sm" />
         </label>
@@ -132,7 +132,7 @@ The main menu drawer.
           <input
             type="range"
             min="0"
-            max={PUBLIC_MAX_SNIPPET_LENGTH}
+            max={MAX_SNIPPET_LENGTH}
             bind:value={selectedOptions.snippetLength}
             class="range range-sm" />
         </label>
@@ -160,7 +160,7 @@ The main menu drawer.
               <input
                 type="range"
                 min="1"
-                max={PUBLIC_MAX_RAG_DOCUMENTS}
+                max={MAX_RAG_DOCUMENTS}
                 bind:value={selectedOptions.numRagDocuments}
                 class="range range-sm" />
             </label>

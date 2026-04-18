@@ -1,4 +1,4 @@
-import { PUBLIC_MAX_RAG_DOCUMENTS } from "$env/static/public";
+import { MAX_RAG_DOCUMENTS } from "$lib/config";
 import { getAnswer } from "$lib/server/backend";
 import { error } from "@sveltejs/kit";
 
@@ -19,7 +19,7 @@ export async function GET({ url }) {
   if (
     corpusNames.length != documentIds.length ||
     documentIds.length == 0 ||
-    documentIds.length > Number(PUBLIC_MAX_RAG_DOCUMENTS)
+    documentIds.length > MAX_RAG_DOCUMENTS
   ) {
     error(400);
   }

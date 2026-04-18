@@ -1,9 +1,9 @@
 <script lang="ts">
   import { afterNavigate } from "$app/navigation";
-  import { PUBLIC_MAX_SEARCH_RESULT_PAGES } from "$env/static/public";
   import Alert from "$lib/components/Alert.svelte";
   import BlinkingCursor from "$lib/components/BlinkingCursor.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
+  import { MAX_SEARCH_RESULT_PAGES } from "$lib/config";
   import {
     corpusIcon,
     documentIcon,
@@ -161,10 +161,10 @@
               Page {data.pageNum} of {toHumanReadable(data.totalPages)}
             </p>
           </div>
-          {#if data.pageNum == Number(PUBLIC_MAX_SEARCH_RESULT_PAGES)}
+          {#if data.pageNum == MAX_SEARCH_RESULT_PAGES}
             <div
               class="tooltip tooltip-info"
-              data-tip="Only {PUBLIC_MAX_SEARCH_RESULT_PAGES} pages are shown.">
+              data-tip="Only {MAX_SEARCH_RESULT_PAGES} pages are shown.">
               <btn disabled class="btn join-item btn-sm btn-primary">
                 <Fa icon={nextPageIcon} />
               </btn>

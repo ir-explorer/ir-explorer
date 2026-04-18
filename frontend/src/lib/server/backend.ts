@@ -1,5 +1,5 @@
-import { BACKEND_HOST, BACKEND_PORT } from "$env/static/private";
-import { PUBLIC_MAX_QUERY_LENGTH } from "$env/static/public";
+import { env } from "$env/dynamic/private";
+import { MAX_QUERY_LENGTH } from "$lib/config";
 import type {
   AvailableOptions,
   Corpus,
@@ -12,6 +12,8 @@ import type {
   RelevantQuery,
 } from "$lib/types";
 
+const BACKEND_HOST = env.BACKEND_HOST?.trim() || "localhost";
+const BACKEND_PORT = env.BACKEND_PORT?.trim() || "8000";
 const BACKEND_REST_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}`;
 
 /**
@@ -289,7 +291,7 @@ export async function searchDocuments(
 ): Promise<Paginated<DocumentSearchHit>> {
   const offset = (page - 1) * numResults;
   const searchParams = new URLSearchParams({
-    q: q.slice(0, Number(PUBLIC_MAX_QUERY_LENGTH)),
+    q: q.slice(0, MAX_QUERY_LENGTH),
     num_results: numResults.toString(),
     offset: offset.toString(),
   });
@@ -481,7 +483,7 @@ export async function getAnswer(
   documentIds: string[],
 ): Promise<Response> {
   const searchParams = new URLSearchParams({
-    q: q.slice(0, Number(PUBLIC_MAX_QUERY_LENGTH)),
+    q: q.slice(0, MAX_QUERY_LENGTH),
     model_name: modelName,
   });
   for (const corpusName of corpusNames) {

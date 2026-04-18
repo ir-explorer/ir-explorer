@@ -1,8 +1,8 @@
 import {
-  PUBLIC_MAX_QUERY_LENGTH,
-  PUBLIC_MAX_SEARCH_RESULT_PAGES,
-  PUBLIC_SEARCH_RESULTS_PER_PAGE,
-} from "$env/static/public";
+  MAX_QUERY_LENGTH,
+  MAX_SEARCH_RESULT_PAGES,
+  SEARCH_RESULTS_PER_PAGE,
+} from "$lib/config";
 import { getAvailableLanguages, searchDocuments } from "$lib/server/backend";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ url }) => {
   if (
     !Number.isInteger(pageNum) ||
     pageNum < 1 ||
-    pageNum > Number(PUBLIC_MAX_SEARCH_RESULT_PAGES)
+    pageNum > MAX_SEARCH_RESULT_PAGES
   ) {
     pageNum = 1;
   }
@@ -34,12 +34,12 @@ export const load: PageServerLoad = async ({ url }) => {
   const result = await searchDocuments(
     q,
     language,
-    Number(PUBLIC_SEARCH_RESULTS_PER_PAGE),
+    SEARCH_RESULTS_PER_PAGE,
     pageNum,
     corpusNames,
   );
   const totalPages = Math.ceil(
-    result.totalNumItems / Number(PUBLIC_SEARCH_RESULTS_PER_PAGE),
+    result.totalNumItems / SEARCH_RESULTS_PER_PAGE,
   );
 
   if (totalPages == 0) {
@@ -71,7 +71,7 @@ export const load: PageServerLoad = async ({ url }) => {
   }
 
   return {
-    q: q.slice(0, Number(PUBLIC_MAX_QUERY_LENGTH)),
+    q: q.slice(0, MAX_QUERY_LENGTH),
     corpusNames: corpusNames,
     result: result,
     pageNum: pageNum,

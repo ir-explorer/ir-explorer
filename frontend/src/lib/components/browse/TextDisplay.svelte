@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PUBLIC_MIN_DOCUMENT_LENGTH_SUMMARY } from "$env/static/public";
+  import { MIN_DOCUMENT_LENGTH_SUMMARY } from "$lib/config";
   import { summaryIcon, textIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import IconWithText from "../IconWithText.svelte";
@@ -52,7 +52,7 @@ Display a query or document text and (optionally) summary in scrollable componen
     </div>
   </div>
 
-  {#if getSummary !== null && text.length >= Number(PUBLIC_MIN_DOCUMENT_LENGTH_SUMMARY) && selectedOptions.modelName !== null}
+  {#if getSummary !== null && text.length >= MIN_DOCUMENT_LENGTH_SUMMARY && selectedOptions.modelName !== null}
     <label class="tab flex flex-row gap-2">
       <input
         type="radio"

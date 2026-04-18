@@ -1,4 +1,4 @@
-import { PUBLIC_MAX_ITEMS_PER_PAGE } from "$env/static/public";
+import { MAX_ITEMS_PER_PAGE } from "$lib/config";
 import { getDocuments } from "$lib/server/backend";
 import { error, json } from "@sveltejs/kit";
 
@@ -18,7 +18,7 @@ export async function GET({ url }) {
   const numResultsParsed = numResults ? Number(numResults) : 1;
   const offsetParsed = offset ? Number(offset) : 0;
 
-  if (numResultsParsed > Number(PUBLIC_MAX_ITEMS_PER_PAGE)) {
+  if (numResultsParsed > MAX_ITEMS_PER_PAGE) {
     error(400);
   }
 
