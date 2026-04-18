@@ -1,10 +1,22 @@
 <script lang="ts">
   import IconWithText from "$lib/components/IconWithText.svelte";
   import NavProgress from "$lib/components/NavProgress.svelte";
+  import { selectedOptions } from "$lib/options.svelte";
   import { faGithub } from "@fortawesome/free-brands-svg-icons";
   import "../app.css";
+  import { untrack } from "svelte";
+  import type { LayoutProps } from "./$types";
 
-  const { children } = $props();
+  const { data, children }: LayoutProps = $props();
+  const defaultOptions = untrack(() => data.defaultOptions);
+
+  // if values are missing, fall back to defaults
+  if (selectedOptions.queryLanguage === null) {
+    selectedOptions.queryLanguage = defaultOptions.queryLanguage;
+  }
+  if (selectedOptions.modelName === null) {
+    selectedOptions.modelName = defaultOptions.modelName;
+  }
 </script>
 
 <svelte:head>

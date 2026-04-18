@@ -18,17 +18,6 @@
   }
   const { availableOptions }: Props = $props();
 
-  // assign missing values
-  if (selectedOptions.queryLanguage === null) {
-    selectedOptions.queryLanguage = availableOptions.queryLanguages[0];
-  }
-  if (
-    selectedOptions.modelName === null &&
-    availableOptions.modelNames.length > 0
-  ) {
-    selectedOptions.modelName = availableOptions.modelNames[0];
-  }
-
   const atSearch: boolean = $derived(
     page.url.pathname.startsWith("/search") || page.url.pathname == "/",
   );
