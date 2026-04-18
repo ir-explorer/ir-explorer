@@ -32,8 +32,6 @@
     item: Snippet<[T]>;
     /** Return the target for a specific item. */
     getTargetLink: (listItem: T) => string;
-    /** Whether to load the first page on mount. */
-    loadFirstPage?: boolean;
     /** A list of options the items can be ordered by. */
     orderByOptions?: OrderByOption[];
     /** Target for the 'go to' form. */
@@ -47,7 +45,6 @@
     headTitle,
     item,
     getTargetLink,
-    loadFirstPage = true,
     orderByOptions = [],
     goToTarget = null,
     goToName = null,
@@ -55,11 +52,11 @@
 
   let listItems: T[] = $state([]);
   let working = $state(false);
-  let numItemsDisplayed = $derived(listItems.length);
+  const numItemsDisplayed = $derived(listItems.length);
   let totalNumItems = $state(0);
   let loaded = $state(false);
   let match = $state("");
-  let matchTrimmed = $derived(match.trim());
+  const matchTrimmed = $derived(match.trim());
 
   let promiseNextPage: Promise<Paginated<T>> | null = null;
   let abortToken = { abort: function () {} };
@@ -111,9 +108,8 @@
     await showNextPage(waitTime);
   }
 
-  if (loadFirstPage) {
-    onMount(showNextPage);
-  }
+  // load first page
+  onMount(showNextPage);
 </script>
 
 <!--
@@ -211,7 +207,7 @@ Render items as a list with pagination.
   </List>
 
   <!-- number of items and "more" button -->
-  <div class="mx-auto join rounded-t-none">
+  <div class="join mx-auto rounded-t-none">
     {#if loaded}
       <p
         class="join-item flex h-6 items-center rounded-t-none bg-neutral px-2 text-sm text-neutral-content shadow">

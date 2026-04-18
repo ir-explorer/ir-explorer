@@ -6,7 +6,7 @@
     items: Map<string, string | null>;
   }
 
-  let { title = "Metadata", items }: Props = $props();
+  const { title = "Metadata", items }: Props = $props();
 </script>
 
 <!--

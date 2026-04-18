@@ -33,7 +33,7 @@
     }
 
     const searchParams = new URLSearchParams({
-      corpusName: page.params.corpusName,
+      corpusName: String(page.params.corpusName),
       documentId: data.document.id,
       modelName: selectedOptions.modelName,
     });
@@ -53,7 +53,7 @@
     offset: number,
   ) {
     const searchParams = new URLSearchParams({
-      corpusName: page.params.corpusName,
+      corpusName: String(page.params.corpusName),
       desc: desc.toString(),
       numResults: numItems.toString(),
       offset: offset.toString(),
@@ -83,7 +83,7 @@
     offset: number,
   ) {
     const searchParams = new URLSearchParams({
-      corpusName: page.params.corpusName,
+      corpusName: String(page.params.corpusName),
       documentId: data.document !== null ? data.document.id : "",
       numResults: numItems.toString(),
       offset: offset.toString(),

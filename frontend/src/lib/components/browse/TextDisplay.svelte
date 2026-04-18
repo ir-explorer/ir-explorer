@@ -12,7 +12,7 @@
     /** A function to generate a summary. */
     getSummary?: (() => Promise<ReadableStream<string>>) | null;
   }
-  let { title = "Text", text, getSummary = null }: Props = $props();
+  const { title = "Text", text, getSummary = null }: Props = $props();
 
   let summary = $state("");
   let summaryLoaded = false;

@@ -7,9 +7,8 @@
   import type { PageProps } from "./$types";
 
   const { data }: PageProps = $props();
-  const totalNumDocs = data.corpusList.reduce(
-    (acc, corpus) => acc + corpus.numDocuments,
-    0,
+  const totalNumDocs = $derived(
+    data.corpusList.reduce((acc, corpus) => acc + corpus.numDocuments, 0),
   );
 </script>
 

@@ -10,7 +10,7 @@
     getTargetLink: (gridItem: T) => string;
   }
 
-  let { gridItems, item, getTargetLink }: Props = $props();
+  const { gridItems, item, getTargetLink }: Props = $props();
 </script>
 
 <!--

@@ -16,7 +16,7 @@
   import { truncate } from "$lib/util";
   import type { PageProps } from "./$types";
 
-  let { data }: PageProps = $props();
+  const { data }: PageProps = $props();
 
   // query list
   async function getQueriesPage(
@@ -27,8 +27,8 @@
     offset: number,
   ) {
     const searchParams = new URLSearchParams({
-      corpusName: page.params.corpusName,
-      datasetName: page.params.datasetName,
+      corpusName: String(page.params.corpusName),
+      datasetName: String(page.params.datasetName),
       desc: desc.toString(),
       numResults: numItems.toString(),
       offset: offset.toString(),
@@ -59,8 +59,8 @@
   ) {
     const searchParams = new URLSearchParams({
       queryId: data.query !== null ? data.query.id : "",
-      datasetName: page.params.datasetName,
-      corpusName: page.params.corpusName,
+      datasetName: String(page.params.datasetName),
+      corpusName: String(page.params.corpusName),
       numResults: numItems.toString(),
       offset: offset.toString(),
       desc: desc.toString(),

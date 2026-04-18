@@ -16,7 +16,7 @@
     /** All available options. */
     availableOptions: AvailableOptions;
   }
-  let { availableOptions }: Props = $props();
+  const { availableOptions }: Props = $props();
 
   // assign missing values
   if (selectedOptions.queryLanguage === null) {
@@ -29,10 +29,10 @@
     selectedOptions.modelName = availableOptions.modelNames[0];
   }
 
-  let atSearch: boolean = $derived(
+  const atSearch: boolean = $derived(
     page.url.pathname.startsWith("/search") || page.url.pathname == "/",
   );
-  let atBrowse: boolean = $derived(page.url.pathname.startsWith("/browse"));
+  const atBrowse: boolean = $derived(page.url.pathname.startsWith("/browse"));
 </script>
 
 <!--
@@ -62,14 +62,14 @@ The main menu drawer.
       <ul class="menu w-full p-0">
         <li>
           <a
-            class={[atSearch && "menu-active pointer-events-none"]}
+            class={[atSearch && "pointer-events-none menu-active"]}
             href="/search">
             <IconWithText icon={searchIcon} text="Search" wide />
           </a>
         </li>
         <li>
           <a
-            class={[atBrowse && "menu-active pointer-events-none"]}
+            class={[atBrowse && "pointer-events-none menu-active"]}
             href="/browse">
             <IconWithText icon={browseIcon} text="Browse" wide />
           </a>

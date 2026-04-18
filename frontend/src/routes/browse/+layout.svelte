@@ -11,7 +11,7 @@
     queryIcon,
   } from "$lib/icons.js";
 
-  let { data, children } = $props();
+  const { data, children } = $props();
 </script>
 
 <Header>

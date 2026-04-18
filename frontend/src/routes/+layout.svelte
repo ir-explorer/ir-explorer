@@ -4,7 +4,7 @@
   import { faGithub } from "@fortawesome/free-brands-svg-icons";
   import "../app.css";
 
-  let { children } = $props();
+  const { children } = $props();
 </script>
 
 <svelte:head>

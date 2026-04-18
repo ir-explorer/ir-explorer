@@ -8,7 +8,12 @@ export async function GET({ url }) {
   const corpusNames: string[] = url.searchParams.getAll("corpusName");
   const documentIds: string[] = url.searchParams.getAll("documentId");
 
-  if (corpusNames === null || documentIds === null || modelName === null) {
+  if (
+    corpusNames === null ||
+    documentIds === null ||
+    modelName === null ||
+    question === null
+  ) {
     error(400);
   }
   if (

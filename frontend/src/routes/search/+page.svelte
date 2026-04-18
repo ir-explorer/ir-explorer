@@ -16,7 +16,7 @@
   import Fa from "svelte-fa";
   import type { PageProps } from "./$types";
 
-  let { data }: PageProps = $props();
+  const { data }: PageProps = $props();
 
   let generatedAnswer = $state("");
   let answerGenerationStarted = $state(false);

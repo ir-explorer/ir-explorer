@@ -6,8 +6,8 @@
   import SearchBar from "$lib/components/search/SearchBar.svelte";
   import type { LayoutProps } from "./$types";
 
-  let { data, children }: LayoutProps = $props();
-  let searchInit = page.url.searchParams.get("q");
+  const { data, children }: LayoutProps = $props();
+  const searchInit = page.url.searchParams.get("q");
 </script>
 
 <Header>

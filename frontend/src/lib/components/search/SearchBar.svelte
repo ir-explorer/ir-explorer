@@ -9,7 +9,7 @@
     searchInit?: string | null;
   }
 
-  let { searchInit = null }: Props = $props();
+  const { searchInit = null }: Props = $props();
 </script>
 
 <!--

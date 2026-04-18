@@ -16,3 +16,5 @@ The app requires the following environment variables to be set:
 - `PUBLIC_MAX_ITEMS_PER_PAGE`: Maximum number of items that can be loaded at once when browsing.
 - `PUBLIC_MAX_SNIPPET_LENGTH`: Maximum configurable snippet length when browsing.
 - `PUBLIC_MIN_DOCUMENT_LENGTH_SUMMARY`: The minimum length of a document for the summary button to be displayed.
+- `PUBLIC_MAX_QUERY_LENGTH`: Maximum query length.
+- `PUBLIC_MAX_RAG_DOCUMENTS`: Maximum number of documents that can be used as context for RAG.

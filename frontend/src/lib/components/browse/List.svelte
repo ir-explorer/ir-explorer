@@ -16,7 +16,7 @@
     getTargetLink: (listItem: T) => string;
   }
 
-  let {
+  const {
     listItems = $bindable(),
     headTitle,
     headItems,

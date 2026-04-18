@@ -15,7 +15,7 @@
   const { value, total, desc, isEstimate = false }: Props = $props();
 
   // avoid a division by 0
-  const pct = total == 0 ? 100 : (value / total) * 100;
+  const pct = $derived(total == 0 ? 100 : (value / total) * 100);
 </script>
 
 <!--
