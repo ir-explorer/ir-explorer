@@ -1,0 +1,29 @@
+{
+  "dockerComposeFile": "compose.devcontainer.yaml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "enableNonRootDocker": "true",
+      "moby": "false"
+    },
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainer-community/devcontainer-features/astral.sh-uv:1": {},
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "shutdownAction": "none",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "njpwerner.autodocstring",
+        "charliermarsh.ruff",
+        "tamasfe.even-better-toml",
+        "esbenp.prettier-vscode",
+        "svelte.svelte-vscode",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  }
+}

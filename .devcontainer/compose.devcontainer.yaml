@@ -1,9 +1,9 @@
 services:
-  devcontainer-tests:
+  devcontainer:
     image: mcr.microsoft.com/devcontainers/base:ubuntu
     command: sleep infinity
 
-    # location is relative to first compose file
+    # location is relative to compose file
     # use :z to avoid SELinux complications
     volumes:
       - ..:/workspace:z
