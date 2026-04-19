@@ -1,12 +1,10 @@
-name: backend-ci
+name: Backend CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   check-format:
@@ -17,7 +15,7 @@ jobs:
         working-directory: backend
 
     steps:
-      - name: Check out repository
+      - name: Check out ${{ github.ref_name }}
         uses: actions/checkout@v4
 
       - name: Install uv
@@ -42,7 +40,7 @@ jobs:
         working-directory: backend
 
     steps:
-      - name: Check out repository
+      - name: Check out ${{ github.ref_name }}
         uses: actions/checkout@v4
 
       - name: Install uv
@@ -67,7 +65,7 @@ jobs:
         working-directory: backend
 
     steps:
-      - name: Check out repository
+      - name: Check out ${{ github.ref_name }}
         uses: actions/checkout@v4
 
       - name: Install uv
