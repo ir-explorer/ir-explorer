@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import Header from "$lib/components/Header.svelte";
   import Logo from "$lib/components/Logo.svelte";
@@ -14,7 +15,7 @@
   {#snippet start()}
     <div class="flex flex-row items-center gap-4">
       <MainMenu availableOptions={data.availableOptions} />
-      <a class="hidden md:block" href="/"><Logo small /></a>
+      <a class="hidden md:block" href={resolve("/")}><Logo small /></a>
     </div>
   {/snippet}
 

@@ -7,6 +7,19 @@ import { getAvailableLanguages, searchDocuments } from "$lib/server/backend";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
+/**
+ * Return a typed, app-relative search page URL with the requested page number.
+ *
+ * @param url - The current request URL whose search parameters should be kept.
+ * @param pageNum - The search result page number to set in the URL.
+ * @returns The app-relative search URL.
+ */
+function pageLink(url: URL, pageNum: number): `/search?${string}` {
+  const searchParams = new URLSearchParams(url.searchParams);
+  searchParams.set("p", pageNum.toString());
+  return `/search?${searchParams}`;
+}
+
 export const load: PageServerLoad = async ({ url }) => {
   const q = url.searchParams.get("q");
   const corpusNames = url.searchParams.getAll("corpus");
@@ -54,18 +67,14 @@ export const load: PageServerLoad = async ({ url }) => {
     redirect(307, "/");
   }
 
-  let prevPageLink = null;
+  let prevPageLink: `/search?${string}` | null = null;
   if (pageNum > 1) {
-    const prevPageUrl = new URL(url);
-    prevPageUrl.searchParams.set("p", (pageNum - 1).toString());
-    prevPageLink = prevPageUrl.toString();
+    prevPageLink = pageLink(url, pageNum - 1);
   }
 
-  let nextPageLink = null;
+  let nextPageLink: `/search?${string}` | null = null;
   if (pageNum < totalPages) {
-    const nextPageUrl = new URL(url);
-    nextPageUrl.searchParams.set("p", (pageNum + 1).toString());
-    nextPageLink = nextPageUrl.toString();
+    nextPageLink = pageLink(url, pageNum + 1);
   }
 
   return {

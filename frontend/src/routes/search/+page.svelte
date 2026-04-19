@@ -1,5 +1,6 @@
 <script lang="ts">
   import { afterNavigate } from "$app/navigation";
+  import { resolve } from "$app/paths";
   import Alert from "$lib/components/Alert.svelte";
   import BlinkingCursor from "$lib/components/BlinkingCursor.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
@@ -130,7 +131,7 @@
                 {data.result.offset + index + 1}
               </span>
             </p>
-            <a href="/browse/{hit.corpusName}?documentId={hit.id}">
+            <a href={resolve(`/browse/${hit.corpusName}?documentId=${hit.id}`)}>
               <div class="join max-w-full overflow-auto text-nowrap">
                 <div class="join-item badge">
                   <IconWithText icon={documentIcon} text={hit.id} />
@@ -159,7 +160,7 @@
         <div class="join">
           {#if data.prevPageLink != null}
             <a
-              href={data.prevPageLink}
+              href={resolve(data.prevPageLink)}
               class="btn join-item btn-sm btn-primary">
               <Fa icon={prevPageIcon} />
             </a>
@@ -180,7 +181,7 @@
             </div>
           {:else if data.nextPageLink != null}
             <a
-              href={data.nextPageLink}
+              href={resolve(data.nextPageLink)}
               class="btn join-item btn-sm btn-primary">
               <Fa icon={nextPageIcon} />
             </a>

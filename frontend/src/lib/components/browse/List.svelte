@@ -1,5 +1,7 @@
 <script lang="ts" generics="T">
+  import { resolve } from "$app/paths";
   import { listArrowIcon } from "$lib/icons";
+  import type { BrowseLink } from "$lib/types";
   import type { Snippet } from "svelte";
   import Fa from "svelte-fa";
 
@@ -13,7 +15,7 @@
     /** Render a single list item. */
     item: Snippet<[T]>;
     /** Return the target for a specific item. */
-    getTargetLink: (listItem: T) => string;
+    getTargetLink: (listItem: T) => BrowseLink;
   }
 
   const {
@@ -42,7 +44,7 @@ Render items as a list.
   </li>
 
   {#each listItems as listItem (getTargetLink(listItem))}
-    <a href={getTargetLink(listItem)}>
+    <a href={resolve(getTargetLink(listItem) as `/browse/${string}`)}>
       <li class="list-row hover:bg-base-300">
         <div class="list-col-grow">
           {@render item(listItem)}

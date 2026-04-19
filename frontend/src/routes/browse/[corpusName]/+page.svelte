@@ -128,7 +128,7 @@
     <PaginatedList
       getPage={getQueriesPage}
       getTargetLink={(q: RelevantQuery) =>
-        `/browse/${page.params.corpusName}/${q.datasetName}?queryId=${q.id}`}
+        `/browse/${page.params.corpusName}/${q.datasetName}?queryId=${q.id}` as const}
       orderByOptions={orderRelevantQueriesOptions}>
       {#snippet headTitle()}
         <p class="my-auto">Relevant queries</p>
@@ -163,7 +163,7 @@
     <CardGrid
       gridItems={data.datasetList}
       getTargetLink={(d: Dataset) =>
-        `/browse/${page.params.corpusName}/${d.name}`}>
+        `/browse/${page.params.corpusName}/${d.name}` as const}>
       {#snippet item(d: Dataset)}
         <div class="flex items-center justify-between gap-4">
           <div class="flex flex-col gap-2">
@@ -187,7 +187,7 @@
   <PaginatedList
     getPage={getDocumentsPage}
     getTargetLink={(d: Document) =>
-      `/browse/${page.params.corpusName}?documentId=${d.id}`}
+      `/browse/${page.params.corpusName}?documentId=${d.id}` as const}
     orderByOptions={orderDocumentsOptions}
     goToTarget={`/browse/${page.params.corpusName}`}
     goToName="documentId">

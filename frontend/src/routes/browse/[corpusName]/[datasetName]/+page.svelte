@@ -105,7 +105,7 @@
     <PaginatedList
       getPage={getDocumentsPage}
       getTargetLink={(d: RelevantDocument) =>
-        `/browse/${page.params.corpusName}?${new URLSearchParams({ documentId: d.id })}`}
+        `/browse/${page.params.corpusName}?${new URLSearchParams({ documentId: d.id })}` as const}
       orderByOptions={orderRelevantDocumentsOptions}>
       {#snippet headTitle()}
         <p class="my-auto">Relevant documents</p>
@@ -130,7 +130,7 @@
   <PaginatedList
     getPage={getQueriesPage}
     getTargetLink={(q: Query) =>
-      `/browse/${page.params.corpusName}/${page.params.datasetName}?${new URLSearchParams({ queryId: q.id })}`}
+      `/browse/${page.params.corpusName}/${page.params.datasetName}?${new URLSearchParams({ queryId: q.id })}` as const}
     orderByOptions={orderQueriesOptions}
     goToTarget={`/browse/${page.params.corpusName}/${page.params.datasetName}`}
     goToName="queryId">

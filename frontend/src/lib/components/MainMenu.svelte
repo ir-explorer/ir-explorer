@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import {
     MAX_ITEMS_PER_PAGE,
@@ -52,14 +53,14 @@ The main menu drawer.
         <li>
           <a
             class={[atSearch && "pointer-events-none menu-active"]}
-            href="/search">
+            href={resolve("/search")}>
             <IconWithText icon={searchIcon} text="Search" wide />
           </a>
         </li>
         <li>
           <a
             class={[atBrowse && "pointer-events-none menu-active"]}
-            href="/browse">
+            href={resolve("/browse")}>
             <IconWithText icon={browseIcon} text="Browse" wide />
           </a>
         </li>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import BusyIndicator from "$lib/components/BusyIndicator.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
   import Logo from "$lib/components/Logo.svelte";
@@ -15,7 +16,7 @@
     <div class="w-fit">
       <MainMenu availableOptions={data.availableOptions} />
     </div>
-    <a href="/browse" class="text-sm link-hover">
+    <a href={resolve("/browse")} class="text-sm link-hover">
       <IconWithText icon={browseIcon} text="Browse" />
     </a>
   </div>

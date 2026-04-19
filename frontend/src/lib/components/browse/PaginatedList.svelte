@@ -1,7 +1,7 @@
 <script lang="ts" generics="T">
   import { goToIcon, matchIcon, orderAscIcon, orderDescIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
-  import type { OrderByOption, Paginated } from "$lib/types";
+  import type { BrowseLink, OrderByOption, Paginated } from "$lib/types";
   import { toHumanReadable } from "$lib/util";
   import { onMount, type Snippet } from "svelte";
   import Fa from "svelte-fa";
@@ -31,7 +31,7 @@
     /** Render a single list item. */
     item: Snippet<[T]>;
     /** Return the target for a specific item. */
-    getTargetLink: (listItem: T) => string;
+    getTargetLink: (listItem: T) => BrowseLink;
     /** A list of options the items can be ordered by. */
     orderByOptions?: OrderByOption[];
     /** Target for the 'go to' form. */

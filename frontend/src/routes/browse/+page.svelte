@@ -14,7 +14,7 @@
 
 <CardGrid
   gridItems={data.corpusList}
-  getTargetLink={(c: Corpus) => `/browse/${c.name}`}>
+  getTargetLink={(c: Corpus) => `/browse/${c.name}` as const}>
   {#snippet item(c: Corpus)}
     <div class="flex items-center justify-between gap-4">
       <div class="flex flex-col gap-2">

@@ -21,9 +21,6 @@ export default ts.config(
         ...globals.node,
       },
     },
-    rules: {
-      "svelte/no-navigation-without-resolve": "off",
-    },
   },
   {
     files: ["**/*.svelte", "**/*.svelte.js", "**/*.svelte.ts"],

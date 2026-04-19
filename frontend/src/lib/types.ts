@@ -1,3 +1,7 @@
+import type { PathnameWithSearchOrHash } from "$app/types";
+
+export type BrowseLink = Extract<PathnameWithSearchOrHash, `/browse/${string}`>;
+
 export interface AvailableOptions {
   queryLanguages: string[];
   corpusNames: string[];

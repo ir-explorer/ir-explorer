@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import Header from "$lib/components/Header.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
   import Logo from "$lib/components/Logo.svelte";
@@ -18,7 +19,7 @@
   {#snippet start()}
     <div class="flex flex-row items-center gap-4">
       <MainMenu availableOptions={data.availableOptions} />
-      <a class="hidden md:block" href="/"><Logo small /></a>
+      <a class="hidden md:block" href={resolve("/")}><Logo small /></a>
     </div>
   {/snippet}
   {#snippet center()}
@@ -26,13 +27,13 @@
       <div class="breadcrumbs text-sm">
         <ul>
           <li>
-            <a href="/browse">
+            <a href={resolve("/browse")}>
               <IconWithText icon={browseIcon} text="Browse" />
             </a>
           </li>
           {#if data.corpusName}
             <li>
-              <a href="/browse/{data.corpusName}">
+              <a href={resolve(`/browse/${data.corpusName}`)}>
                 <IconWithText icon={corpusIcon} text={data.corpusName} />
               </a>
             </li>
@@ -40,21 +41,26 @@
 
           {#if data.datasetName}
             <li>
-              <a href="/browse/{data.corpusName}/{data.datasetName}">
+              <a href={resolve(`/browse/${data.corpusName}/${data.datasetName}`)}>
                 <IconWithText icon={datasetIcon} text={data.datasetName} />
               </a>
             </li>
             {#if data.queryId}
               <li>
                 <a
-                  href="/browse/{data.corpusName}/{data.datasetName}?queryId={data.queryId}">
+                  href={resolve(
+                    `/browse/${data.corpusName}/${data.datasetName}?queryId=${data.queryId}`,
+                  )}>
                   <IconWithText icon={queryIcon} text={data.queryId} />
                 </a>
               </li>
             {/if}
           {:else if data.documentId}
             <li>
-              <a href="/browse/{data.corpusName}?documentId={data.documentId}">
+              <a
+                href={resolve(
+                  `/browse/${data.corpusName}?documentId=${data.documentId}`,
+                )}>
                 <IconWithText icon={documentIcon} text={data.documentId} />
               </a>
             </li>
