@@ -56,14 +56,14 @@ export const load: PageServerLoad = async ({ url }) => {
 
   let prevPageLink = null;
   if (pageNum > 1) {
-    let prevPageUrl = new URL(url);
+    const prevPageUrl = new URL(url);
     prevPageUrl.searchParams.set("p", (pageNum - 1).toString());
     prevPageLink = prevPageUrl.toString();
   }
 
   let nextPageLink = null;
   if (pageNum < totalPages) {
-    let nextPageUrl = new URL(url);
+    const nextPageUrl = new URL(url);
     nextPageUrl.searchParams.set("p", (pageNum + 1).toString());
     nextPageLink = nextPageUrl.toString();
   }

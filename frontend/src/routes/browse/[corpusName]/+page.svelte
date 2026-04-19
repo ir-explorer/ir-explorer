@@ -107,7 +107,7 @@
 </script>
 
 {#if page.url.searchParams.get("documentId") !== null && data.document === null}
-  <Alert text={"Document not found."} />
+  <Alert text="Document not found." />
 {:else if data.document !== null}
   <!-- display selected document -->
   <MetaDisplay
@@ -176,7 +176,7 @@
           <SizeIndicator
             value={d.numQueries}
             total={totalNumQueries}
-            desc={"queries"} />
+            desc="queries" />
         </div>
       {/snippet}
     </CardGrid>

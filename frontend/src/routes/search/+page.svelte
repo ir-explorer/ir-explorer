@@ -93,7 +93,7 @@
 {/if}
 
 {#if data.result.totalNumItems == 0}
-  <Alert text={"No results found."} />
+  <Alert text="No results found." />
 {:else}
   <ul class="list">
     <li

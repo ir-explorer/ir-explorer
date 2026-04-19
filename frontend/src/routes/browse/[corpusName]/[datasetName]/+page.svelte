@@ -83,7 +83,7 @@
 </script>
 
 {#if page.url.searchParams.get("queryId") !== null && data.query === null}
-  <Alert text={"Query not found."} />
+  <Alert text="Query not found." />
 {:else if data.query !== null}
   <!-- display selected query -->
   <MetaDisplay

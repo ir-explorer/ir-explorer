@@ -26,7 +26,7 @@
       <SizeIndicator
         value={c.numDocuments}
         total={totalNumDocs}
-        desc={"documents"} />
+        desc="documents" />
     </div>
   {/snippet}
 </CardGrid>

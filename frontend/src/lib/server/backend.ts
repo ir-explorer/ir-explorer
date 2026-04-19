@@ -53,7 +53,7 @@ export async function getCorpora(): Promise<Corpus[]> {
   const res = await fetch(`${BACKEND_REST_URL}/get_corpora`);
   const resJson = await res.json();
 
-  let corpora: Corpus[] = [];
+  const corpora: Corpus[] = [];
   for (const item of resJson) {
     corpora.push({
       name: item["name"],
@@ -77,7 +77,7 @@ export async function getDatasets(corpusName: string): Promise<Dataset[]> {
   const res = await fetch(`${BACKEND_REST_URL}/get_datasets?${params}`);
   const resJson = await res.json();
 
-  let datasets: Dataset[] = [];
+  const datasets: Dataset[] = [];
   for (const item of resJson) {
     datasets.push({
       name: item["name"],
@@ -147,7 +147,7 @@ export async function getQueries(
   numResults: number,
   offset: number = 0,
 ): Promise<Paginated<Query>> {
-  let searchParams = new URLSearchParams({
+  const searchParams = new URLSearchParams({
     corpus_name: corpusName,
     num_results: numResults.toString(),
     offset: offset.toString(),
@@ -166,7 +166,7 @@ export async function getQueries(
   const res = await fetch(`${BACKEND_REST_URL}/get_queries?${searchParams}`);
   const resJson = await res.json();
 
-  let queries: Query[] = [];
+  const queries: Query[] = [];
   for (const item of resJson["items"]) {
     queries.push({
       id: item["id"],
@@ -236,7 +236,7 @@ export async function getDocuments(
   numResults: number,
   offset: number,
 ): Promise<Paginated<Document>> {
-  let searchParams = new URLSearchParams({
+  const searchParams = new URLSearchParams({
     corpus_name: corpusName,
     num_results: numResults.toString(),
     offset: offset.toString(),
@@ -252,7 +252,7 @@ export async function getDocuments(
   const res = await fetch(`${BACKEND_REST_URL}/get_documents?${searchParams}`);
   const resJson = await res.json();
 
-  let documents: Document[] = [];
+  const documents: Document[] = [];
   for (const item of resJson["items"]) {
     documents.push({
       id: item["id"],
@@ -309,7 +309,7 @@ export async function searchDocuments(
   );
   const resJson = await res.json();
 
-  let hits: DocumentSearchHit[] = [];
+  const hits: DocumentSearchHit[] = [];
   for (const item of resJson["items"]) {
     hits.push({
       score: item["score"],
@@ -363,7 +363,7 @@ export async function getRelevantQueries(
 
   const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);
   const resJson = await res.json();
-  let queries: RelevantQuery[] = [];
+  const queries: RelevantQuery[] = [];
   for (const item of resJson["items"]) {
     queries.push({
       id: item["query_info"]["id"],
@@ -421,7 +421,7 @@ export async function getRelevantDocuments(
 
   const res = await fetch(`${BACKEND_REST_URL}/get_qrels?${searchParams}`);
   const resJson = await res.json();
-  let documents: RelevantDocument[] = [];
+  const documents: RelevantDocument[] = [];
   for (const item of resJson["items"]) {
     documents.push({
       id: item["document_info"]["id"],

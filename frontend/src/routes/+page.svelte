@@ -16,7 +16,7 @@
       <MainMenu availableOptions={data.availableOptions} />
     </div>
     <a href="/browse" class="text-sm link-hover">
-      <IconWithText icon={browseIcon} text={"Browse"} />
+      <IconWithText icon={browseIcon} text="Browse" />
     </a>
   </div>
   <div class="navbar-end">
