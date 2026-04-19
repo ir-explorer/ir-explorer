@@ -41,7 +41,10 @@
 
           {#if data.datasetName}
             <li>
-              <a href={resolve(`/browse/${data.corpusName}/${data.datasetName}`)}>
+              <a
+                href={resolve(
+                  `/browse/${data.corpusName}/${data.datasetName}`,
+                )}>
                 <IconWithText icon={datasetIcon} text={data.datasetName} />
               </a>
             </li>
