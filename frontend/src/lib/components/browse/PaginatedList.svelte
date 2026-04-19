@@ -71,27 +71,29 @@
       abortToken.abort();
     }
 
-    promiseNextPage = new Promise<Paginated<T>>(async (resolve, reject) => {
+    promiseNextPage = new Promise<Paginated<T>>((resolve, reject) => {
       let aborted = false;
       abortToken.abort = function () {
         reject();
         aborted = true;
       };
 
-      // wait for a specified time so we can abort before fetching the results
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
-      if (aborted) {
-        return;
-      }
+      void (async () => {
+        // wait for a specified time so we can abort before fetching the results
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        if (aborted) {
+          return;
+        }
 
-      const nextPage = await getPage(
-        matchTrimmed.length > 0 ? matchTrimmed : null,
-        orderByValue,
-        desc,
-        selectedOptions.itemsPerPage,
-        listItems.length,
-      );
-      resolve(nextPage);
+        const nextPage = await getPage(
+          matchTrimmed.length > 0 ? matchTrimmed : null,
+          orderByValue,
+          desc,
+          selectedOptions.itemsPerPage,
+          listItems.length,
+        );
+        resolve(nextPage);
+      })().catch(reject);
     });
 
     promiseNextPage.then((nextPage) => {

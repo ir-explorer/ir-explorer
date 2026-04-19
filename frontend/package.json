@@ -1,17 +1,21 @@
 {
   "name": "frontend",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "@sveltejs/adapter-node": "^5.5.4",
@@ -21,6 +25,10 @@
     "@types/node": "^24.12.2",
     "@types/nprogress": "^0.2.3",
     "daisyui": "^5.5.19",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-svelte": "^3.17.0",
+    "globals": "^17.5.0",
     "nprogress": "^0.2.0",
     "prettier": "^3.8.1",
     "prettier-plugin-svelte": "^3.5.0",
@@ -30,6 +38,7 @@
     "svelte-fa": "^4.0.4",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.58.2",
     "vite": "^7.3.1"
   }
 }
