@@ -60,6 +60,10 @@ export interface DocumentSearchHit {
   snippet: string;
   corpusName: string;
 }
+export interface SnippetPart {
+  text: string;
+  highlighted: boolean;
+}
 
 export interface Paginated<T> {
   totalNumItems: number;

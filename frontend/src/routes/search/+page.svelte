@@ -12,7 +12,7 @@
     ragIcon,
   } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
-  import { toHumanReadable } from "$lib/util";
+  import { snippetParts, toHumanReadable } from "$lib/util";
   import Fa from "svelte-fa";
   import { SvelteURLSearchParams } from "svelte/reactivity";
   import type { PageProps } from "./$types";
@@ -141,7 +141,15 @@
               </div>
             </a>
           </div>
-          <p>{@html hit.snippet}</p>
+          <p>
+            {#each snippetParts(hit.snippet) as part}
+              {#if part.highlighted}
+                <b>{part.text}</b>
+              {:else}
+                {part.text}
+              {/if}
+            {/each}
+          </p>
         </div>
       </li>
     {/each}

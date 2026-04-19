@@ -81,8 +81,8 @@ class SearchController(Controller):
                 pdb.score(ORMDocument.pkey).label("score"),  # pyright: ignore[reportArgumentType,reportAttributeAccessIssue]
                 pdb.snippet(
                     ORMDocument.text,  # pyright: ignore[reportArgumentType]
-                    start_tag="<b>",
-                    end_tag="</b>",
+                    start_tag="\x1eHIGHLIGHT_START\x1f",
+                    end_tag="\x1eHIGHLIGHT_END\x1f",
                     max_num_chars=500,
                 ),
             )

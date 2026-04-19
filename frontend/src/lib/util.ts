@@ -1,3 +1,5 @@
+import type { SnippetPart } from "$lib/types";
+
 /**
  * Convert an integer to a human-readable string.
  *
@@ -29,4 +31,35 @@ export function toHumanReadable(n: number): string {
 export function truncate(text: string, maxLen: number): string {
   if (text.length > maxLen) return text.substring(0, maxLen - 3) + "...";
   return text;
+}
+
+/**
+ * Split a search result snippet into plain text and highlighted text parts.
+ *
+ * @param snippet - The snippet to split.
+ * @param startMarker - Regex-safe marker indicating the start of highlighted text.
+ * @param endMarker - Regex-safe marker indicating the end of highlighted text.
+ * @returns Text parts with highlight information.
+ */
+export function snippetParts(
+  snippet: string,
+  startMarker = "\x1eHIGHLIGHT_START\x1f",
+  endMarker = "\x1eHIGHLIGHT_END\x1f",
+): SnippetPart[] {
+  const markerPattern = new RegExp(`(${startMarker}|${endMarker})`, "g");
+
+  const parts: SnippetPart[] = [];
+  let highlighted = false;
+
+  for (const part of snippet.split(markerPattern)) {
+    if (part === startMarker) {
+      highlighted = true;
+    } else if (part === endMarker) {
+      highlighted = false;
+    } else if (part.length > 0) {
+      parts.push({ text: part, highlighted });
+    }
+  }
+
+  return parts;
 }
