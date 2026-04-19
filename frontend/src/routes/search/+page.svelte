@@ -14,6 +14,7 @@
   import { selectedOptions } from "$lib/options.svelte";
   import { toHumanReadable } from "$lib/util";
   import Fa from "svelte-fa";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
   import type { PageProps } from "./$types";
 
   const { data }: PageProps = $props();
@@ -45,7 +46,7 @@
       throw new Error("Failed to generate answer.");
     }
 
-    const searchParams = new URLSearchParams({
+    const searchParams = new SvelteURLSearchParams({
       q: data.q,
       modelName: selectedOptions.modelName,
     });

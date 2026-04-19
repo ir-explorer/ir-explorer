@@ -14,6 +14,7 @@
     RelevantDocument,
   } from "$lib/types";
   import { truncate } from "$lib/util";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
   import type { PageProps } from "./$types";
 
   const { data }: PageProps = $props();
@@ -26,7 +27,7 @@
     numItems: number,
     offset: number,
   ) {
-    const searchParams = new URLSearchParams({
+    const searchParams = new SvelteURLSearchParams({
       corpusName: String(page.params.corpusName),
       datasetName: String(page.params.datasetName),
       desc: desc.toString(),
@@ -57,7 +58,7 @@
     numItems: number,
     offset: number,
   ) {
-    const searchParams = new URLSearchParams({
+    const searchParams = new SvelteURLSearchParams({
       queryId: data.query !== null ? data.query.id : "",
       datasetName: String(page.params.datasetName),
       corpusName: String(page.params.corpusName),

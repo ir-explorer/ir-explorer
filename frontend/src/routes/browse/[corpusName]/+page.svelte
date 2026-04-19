@@ -23,6 +23,7 @@
     RelevantQuery,
   } from "$lib/types";
   import { truncate } from "$lib/util";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
   import type { PageProps } from "./$types";
 
   const { data }: PageProps = $props();
@@ -32,7 +33,7 @@
       throw new Error("Failed to summarize document.");
     }
 
-    const searchParams = new URLSearchParams({
+    const searchParams = new SvelteURLSearchParams({
       corpusName: String(page.params.corpusName),
       documentId: data.document.id,
       modelName: selectedOptions.modelName,
@@ -52,7 +53,7 @@
     numItems: number,
     offset: number,
   ) {
-    const searchParams = new URLSearchParams({
+    const searchParams = new SvelteURLSearchParams({
       corpusName: String(page.params.corpusName),
       desc: desc.toString(),
       numResults: numItems.toString(),
@@ -82,7 +83,7 @@
     numItems: number,
     offset: number,
   ) {
-    const searchParams = new URLSearchParams({
+    const searchParams = new SvelteURLSearchParams({
       corpusName: String(page.params.corpusName),
       documentId: data.document !== null ? data.document.id : "",
       numResults: numItems.toString(),
