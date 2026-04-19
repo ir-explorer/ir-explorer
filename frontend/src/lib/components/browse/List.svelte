@@ -41,7 +41,7 @@ Render items as a list.
     </div>
   </li>
 
-  {#each listItems as listItem}
+  {#each listItems as listItem (getTargetLink(listItem))}
     <a href={getTargetLink(listItem)}>
       <li class="list-row hover:bg-base-300">
         <div class="list-col-grow">

@@ -119,7 +119,7 @@
       {/if}
     </li>
 
-    {#each data.result.items as hit, index}
+    {#each data.result.items as hit, index (`${hit.corpusName}:${hit.id}`)}
       <li class="list-row">
         <div class="flex flex-col gap-2">
           <div class="flex flex-col gap-2">
@@ -142,7 +142,7 @@
             </a>
           </div>
           <p>
-            {#each snippetParts(hit.snippet) as part}
+            {#each snippetParts(hit.snippet) as part, index (index)}
               {#if part.highlighted}
                 <b>{part.text}</b>
               {:else}

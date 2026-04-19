@@ -77,7 +77,7 @@ The main menu drawer.
             class="select w-full select-sm"
             name="language"
             bind:value={selectedOptions.queryLanguage}>
-            {#each availableOptions.queryLanguages as language}
+            {#each availableOptions.queryLanguages as language (language)}
               <option value={language}>{language}</option>
             {/each}
           </select>
@@ -89,7 +89,7 @@ The main menu drawer.
             <div
               id="filter-corpora"
               class="menu w-full gap-2 rounded-box border border-base-300 bg-base-100 text-sm">
-              {#each availableOptions.corpusNames as corpusName}
+              {#each availableOptions.corpusNames as corpusName (corpusName)}
                 <label>
                   <input
                     type="checkbox"
@@ -146,7 +146,7 @@ The main menu drawer.
                 class="select w-full select-sm"
                 name="model"
                 bind:value={selectedOptions.modelName}>
-                {#each availableOptions.modelNames as modelName}
+                {#each availableOptions.modelNames as modelName (modelName)}
                   <option value={modelName}>{modelName}</option>
                 {/each}
               </select>

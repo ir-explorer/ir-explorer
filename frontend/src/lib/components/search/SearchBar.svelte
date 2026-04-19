@@ -39,7 +39,7 @@ A search bar.
           </span>
         </div>
       {/if}
-      {#each selectedOptions.corpusNames as corpusName}
+      {#each selectedOptions.corpusNames as corpusName (corpusName)}
         <input type="hidden" name="corpus" value={corpusName} />
       {/each}
       <input

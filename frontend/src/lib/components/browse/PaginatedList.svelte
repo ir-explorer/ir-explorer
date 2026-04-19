@@ -148,7 +148,7 @@ Render items as a list with pagination.
                 await reset();
               }}>
               <option value={null} selected>Order by...</option>
-              {#each orderByOptions as orderByOption}
+              {#each orderByOptions as orderByOption (orderByOption.name)}
                 <option value={orderByOption.option}
                   >{orderByOption.name}</option>
               {/each}

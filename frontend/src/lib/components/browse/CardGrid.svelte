@@ -18,7 +18,7 @@
 Render items as cards in a grid.
 -->
 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-  {#each gridItems as gridItem}
+  {#each gridItems as gridItem (getTargetLink(gridItem))}
     <div class="card border border-base-300 shadow hover:bg-base-300">
       <a href={getTargetLink(gridItem)}>
         <div class="card-body">

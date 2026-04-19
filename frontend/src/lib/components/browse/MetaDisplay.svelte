@@ -15,7 +15,7 @@ Display arbitrary metadata.
 -->
 <fieldset class="fieldset rounded-box border border-base-300 px-4 pb-2 shadow">
   <legend class="fieldset-legend mb-0 p-0">{title}</legend>
-  {#each [...items] as [key, value]}
+  {#each [...items] as [key, value] (key)}
     {#if value !== null}
       <div>
         <label for={key} class="label">{key}</label>
