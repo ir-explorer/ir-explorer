@@ -4,8 +4,7 @@
   import MetaDisplay from "$lib/components/browse/MetaDisplay.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
-  import IconWithText from "$lib/components/IconWithText.svelte";
-  import { documentIcon, queryIcon, relevanceIcon } from "$lib/icons";
+  import { relevanceIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
     OrderByOption,
@@ -14,6 +13,7 @@
     RelevantDocument,
   } from "$lib/types";
   import { truncate } from "$lib/util";
+  import Fa from "svelte-fa";
   import { SvelteURLSearchParams } from "svelte/reactivity";
   import type { PageProps } from "./$types";
 
@@ -111,16 +111,20 @@
         <p class="my-auto">Relevant documents</p>
       {/snippet}
       {#snippet item(d: RelevantDocument)}
-        <div class="flex flex-col gap-2">
-          <div class="flex flex-row justify-between">
-            <div class="badge">
-              <IconWithText icon={documentIcon} text={d.id} />
-            </div>
-            <p class="badge badge-sm badge-secondary">
-              <IconWithText icon={relevanceIcon} text={String(d.relevance)} />
+        <div class="min-w-0">
+          <div class="flex min-w-0 items-center gap-x-3">
+            <p class="min-w-0 text-sm leading-5 font-medium text-secondary">
+              {d.id}
+            </p>
+            <p
+              class="flex shrink-0 items-center gap-1 text-xs text-base-content/60">
+              <span class="text-success"><Fa icon={relevanceIcon} /></span>
+              {d.relevance}
             </p>
           </div>
-          <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
+          <p class="mt-1 text-sm">
+            {truncate(d.text, selectedOptions.snippetLength)}
+          </p>
         </div>
       {/snippet}
     </PaginatedList>
@@ -138,21 +142,18 @@
       <p class="my-auto">Queries</p>
     {/snippet}
     {#snippet item(q: Query)}
-      <div class="flex flex-col gap-2">
-        <div class="flex flex-row items-center justify-between">
-          <div class="badge">
-            <IconWithText icon={queryIcon} text={q.id} />
-          </div>
-          {#if q.numRelevantDocuments > 0}
-            <div class="badge badge-sm badge-secondary">
-              <IconWithText
-                icon={documentIcon}
-                text={String(q.numRelevantDocuments)}
-                iconRight />
-            </div>
-          {/if}
-        </div>
-        <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
+      <div class="min-w-0">
+        <p class="text-sm font-medium text-secondary">
+          {q.id}
+        </p>
+        {#if q.numRelevantDocuments > 0}
+          <p class="text-xs text-base-content/60">
+            {q.numRelevantDocuments} relevant documents
+          </p>
+        {/if}
+        <p class="mt-1 text-sm">
+          {truncate(q.text, selectedOptions.snippetLength)}
+        </p>
       </div>
     {/snippet}
   </PaginatedList>

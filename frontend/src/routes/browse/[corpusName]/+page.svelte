@@ -7,13 +7,7 @@
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
-  import {
-    corpusIcon,
-    datasetIcon,
-    documentIcon,
-    queryIcon,
-    relevanceIcon,
-  } from "$lib/icons";
+  import { corpusIcon, datasetIcon, relevanceIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
     Dataset,
@@ -23,6 +17,7 @@
     RelevantQuery,
   } from "$lib/types";
   import { truncate } from "$lib/util";
+  import Fa from "svelte-fa";
   import { SvelteURLSearchParams } from "svelte/reactivity";
   import type { PageProps } from "./$types";
 
@@ -134,21 +129,22 @@
         <p class="my-auto">Relevant queries</p>
       {/snippet}
       {#snippet item(q: RelevantQuery)}
-        <div class="flex flex-col gap-2">
-          <div class="flex flex-row items-center justify-between">
-            <div class="join">
-              <div class="join-item badge">
-                <IconWithText icon={datasetIcon} text={q.datasetName} />
-              </div>
-              <div class="join-item badge">
-                <IconWithText icon={queryIcon} text={q.id} />
-              </div>
-            </div>
-            <div class="badge badge-sm badge-secondary">
-              <IconWithText icon={relevanceIcon} text={String(q.relevance)} />
-            </div>
+        <div class="min-w-0">
+          <div class="flex min-w-0 items-center gap-x-3">
+            <p class="min-w-0 text-sm font-medium text-secondary">
+              {q.id}
+            </p>
+            <p class="flex items-center gap-1 text-xs text-base-content/60">
+              <span class="text-success"><Fa icon={relevanceIcon} /></span>
+              {q.relevance}
+            </p>
           </div>
-          <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
+          <p class="text-xs text-base-content/60">
+            {q.datasetName}
+          </p>
+          <p class="mt-1 text-sm leading-relaxed">
+            {truncate(q.text, selectedOptions.snippetLength)}
+          </p>
         </div>
       {/snippet}
     </PaginatedList>
@@ -196,26 +192,23 @@
     {/snippet}
 
     {#snippet item(d: Document)}
-      <div class="flex flex-col gap-2">
-        <div class="flex flex-row items-center justify-between">
-          <div class="badge">
-            <IconWithText icon={documentIcon} text={d.id} />
-          </div>
-          {#if d.numRelevantQueries > 0}
-            <div class="badge badge-sm badge-secondary">
-              <IconWithText
-                icon={queryIcon}
-                text={String(d.numRelevantQueries)}
-                iconRight />
-            </div>
-          {/if}
-        </div>
+      <div class="min-w-0">
+        <p class="truncate text-sm font-medium text-secondary">
+          {d.id}
+        </p>
+        {#if d.numRelevantQueries > 0}
+          <p class="text-xs text-base-content/60">
+            {d.numRelevantQueries} relevant queries
+          </p>
+        {/if}
         {#if d.title !== null}
-          <p class="font-bold">
+          <p class="mt-1 font-bold">
             {truncate(d.title, selectedOptions.snippetLength)}
           </p>
         {/if}
-        <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
+        <p class="mt-1 text-sm">
+          {truncate(d.text, selectedOptions.snippetLength)}
+        </p>
       </div>
     {/snippet}
   </PaginatedList>
