@@ -175,9 +175,9 @@
             <div
               class="tooltip tooltip-info"
               data-tip="Only {MAX_SEARCH_RESULT_PAGES} pages are shown.">
-              <btn disabled class="btn join-item btn-sm btn-primary">
+              <button disabled class="btn join-item btn-sm btn-primary">
                 <Fa icon={nextPageIcon} />
-              </btn>
+              </button>
             </div>
           {:else if data.nextPageLink != null}
             <a
