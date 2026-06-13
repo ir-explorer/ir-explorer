@@ -13,7 +13,8 @@
 @component
 Display arbitrary metadata.
 -->
-<fieldset class="fieldset rounded-box border border-base-300 px-4 pb-2 shadow">
+<fieldset
+  class="fieldset rounded-box border border-base-300 bg-base-100 px-4 pb-2 shadow-sm">
   <legend class="fieldset-legend mb-0 p-0">{title}</legend>
   {#each [...items] as [key, value] (key)}
     {#if value !== null}

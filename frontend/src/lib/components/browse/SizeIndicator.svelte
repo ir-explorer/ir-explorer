@@ -29,9 +29,9 @@ A visual indicator of a fraction in relation to the total.
   ]}
   data-tip="estimated value">
   <div
-    class="radial-progress border-3 border-neutral bg-neutral text-primary"
+    class="radial-progress border-3 border-base-300 bg-base-100 text-primary"
     style="--size:4.5em; --value:{pct}; --thickness: 0.25em;">
     <span class="text-lg">{toHumanReadable(value)}</span>
   </div>
-  <span class="text-xs">{desc}</span>
+  <span class="text-xs text-base-content">{desc}</span>
 </div>

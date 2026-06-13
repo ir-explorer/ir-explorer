@@ -22,9 +22,9 @@ Render items as cards in a grid.
 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
   {#each gridItems as gridItem (getTargetLink(gridItem))}
     <div
-      class="card border border-base-300 bg-base-100 shadow-sm hover:bg-base-200">
+      class="card border border-base-300 bg-base-100 shadow-sm transition-colors hover:border-primary hover:bg-base-200">
       <a href={resolve(getTargetLink(gridItem) as `/browse/${string}`)}>
-        <div class="card-body">
+        <div class="card-body p-5">
           {@render item(gridItem)}
         </div>
       </a>
