@@ -137,24 +137,16 @@
     @apply bg-base-100 text-base-content;
     background-image:
       radial-gradient(
-        circle at 12% -8%,
-        color-mix(in oklch, var(--color-primary) 10%, transparent),
+        circle at 12% -12%,
+        color-mix(in oklch, var(--color-primary) 6%, transparent),
         transparent 28rem
       ),
       radial-gradient(
-        circle at 88% 6%,
-        color-mix(in oklch, var(--color-secondary) 8%, transparent),
+        circle at 68% 76%,
+        color-mix(in oklch, var(--color-secondary) 2%, transparent),
         transparent 24rem
-      ),
-      radial-gradient(
-        circle,
-        color-mix(in oklch, var(--color-base-content) 2.2%, transparent) 0 1px,
-        transparent 1.2px
-      ),
-      radial-gradient(
-        circle,
-        color-mix(in oklch, var(--color-primary) 1.8%, transparent) 0 1px,
-        transparent 1.2px
       );
+    background-attachment: fixed;
+    background-size: auto;
   }
 }
