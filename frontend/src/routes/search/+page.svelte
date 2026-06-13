@@ -3,15 +3,8 @@
   import { resolve } from "$app/paths";
   import Alert from "$lib/components/Alert.svelte";
   import BlinkingCursor from "$lib/components/BlinkingCursor.svelte";
-  import IconWithText from "$lib/components/IconWithText.svelte";
   import { MAX_SEARCH_RESULT_PAGES } from "$lib/config";
-  import {
-    corpusIcon,
-    documentIcon,
-    nextPageIcon,
-    prevPageIcon,
-    ragIcon,
-  } from "$lib/icons";
+  import { nextPageIcon, prevPageIcon, ragIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import { snippetParts, toHumanReadable } from "$lib/util";
   import Fa from "svelte-fa";
@@ -121,28 +114,31 @@
     </li>
 
     {#each data.result.items as hit, index (`${hit.corpusName}:${hit.id}`)}
-      <li class="list-row">
-        <div class="flex flex-col gap-2">
-          <div class="flex flex-col gap-2">
-            <p
-              class="tooltip tooltip-right badge badge-soft tooltip-secondary badge-secondary"
-              data-tip="Score: {hit.score}">
-              #<span class="-ml-1 font-bold">
-                {data.result.offset + index + 1}
-              </span>
-            </p>
-            <a href={resolve(`/browse/${hit.corpusName}?documentId=${hit.id}`)}>
-              <div class="join max-w-full overflow-auto text-nowrap">
-                <div class="join-item badge">
-                  <IconWithText icon={documentIcon} text={hit.id} />
-                </div>
-                <div class="join-item badge">
-                  <IconWithText icon={corpusIcon} text={hit.corpusName} />
-                </div>
-              </div>
+      <li class="list-row px-2">
+        <div
+          class="grid min-w-0 grid-cols-[1.5rem_minmax(0,1fr)] gap-x-3 gap-y-1">
+          <p
+            class="text-right text-sm leading-5 font-medium text-base-content/50">
+            {data.result.offset + index + 1}
+          </p>
+          <div class="min-w-0">
+            <a
+              href={resolve(`/browse/${hit.corpusName}?documentId=${hit.id}`)}
+              class="inline-block max-w-full truncate align-top text-sm font-medium text-secondary">
+              {hit.id}
             </a>
+            <div
+              class="flex min-w-0 items-center gap-x-1 overflow-hidden text-xs text-base-content/60">
+              <span class="min-w-0">
+                {hit.corpusName}
+              </span>
+              <span class="shrink-0">·</span>
+              <span class="shrink-0">
+                score {hit.score}
+              </span>
+            </div>
           </div>
-          <p>
+          <p class="col-start-2">
             {#each snippetParts(hit.snippet) as part, index (index)}
               {#if part.highlighted}
                 <b>{part.text}</b>
