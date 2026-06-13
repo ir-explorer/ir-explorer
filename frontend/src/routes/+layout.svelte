@@ -31,7 +31,7 @@
   </div>
 
   <footer
-    class="flex w-full flex-col justify-center gap-2 border-t border-base-300 bg-base-200 px-4 py-2 text-sm md:flex-row md:items-center">
+    class="flex w-full flex-col justify-center gap-2 border-t border-base-300 bg-base-100 px-4 py-2 text-sm md:flex-row md:items-center">
     <a
       class="badge font-mono text-xs text-neutral-content badge-neutral"
       href="https://github.com/ir-explorer">

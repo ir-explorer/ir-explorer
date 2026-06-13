@@ -21,7 +21,7 @@ A fixed full-width header bar.
 If `end` is not provided, a `BusyIndicator` is is rendered.
 -->
 <div
-  class="navbar fixed top-0 z-1 border-b border-base-300 bg-base-200 px-4 shadow-sm">
+  class="navbar fixed top-0 z-1 border-b border-base-300 bg-base-100 px-4 shadow-sm">
   <div class="navbar-start w-1/6">
     {#if start}
       {@render start()}
