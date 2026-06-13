@@ -83,7 +83,7 @@
 
 {#if answerGenerationStarted}
   <div
-    class="m-4 rounded border border-secondary bg-secondary/10 p-2 text-sm shadow">
+    class="m-4 rounded-box border border-secondary bg-base-100 p-2 text-sm shadow-sm">
     <div
       class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
       {generatedAnswer}

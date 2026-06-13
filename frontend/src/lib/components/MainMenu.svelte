@@ -49,7 +49,8 @@ The main menu drawer.
       <div class="divider my-2"></div>
 
       <!-- navigation -->
-      <ul class="menu w-full p-0">
+      <ul
+        class="menu w-full p-0 [--menu-active-bg:var(--color-primary)] [--menu-active-fg:var(--color-primary-content)]">
         <li>
           <a
             class={[atSearch && "pointer-events-none menu-active"]}

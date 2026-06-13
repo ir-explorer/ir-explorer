@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @theme {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+
   --animate-blink: blink 1s step-start 0s infinite;
   @keyframes blink {
     50% {
@@ -34,38 +38,38 @@
   prefersdark: false;
   color-scheme: light;
 
-  --color-base-100: oklch(98% 0 0);
-  --color-base-200: oklch(92% 0 0);
-  --color-base-300: oklch(87% 0 0);
-  --color-base-content: oklch(0.2794 0.0543 278.072);
+  --color-base-100: oklch(95.5% 0.009 247.858);
+  --color-base-200: oklch(92.5% 0.012 247.858);
+  --color-base-300: oklch(84.5% 0.018 247.858);
+  --color-base-content: oklch(27% 0.025 264.364);
 
-  --color-primary: oklch(0.5993 0.1316 135.43);
-  --color-primary-content: oklch(95% 0 0);
+  --color-primary: oklch(55% 0.115 145);
+  --color-primary-content: oklch(99% 0.003 145);
 
-  --color-secondary: oklch(0.6441 0.0691 247.22);
-  --color-secondary-content: oklch(95% 0 0);
+  --color-secondary: oklch(56% 0.075 245);
+  --color-secondary-content: oklch(98% 0.004 245);
 
-  --color-accent: oklch(0.74 0.08 46);
-  --color-accent-content: oklch(95% 0 0);
+  --color-accent: oklch(69% 0.105 70);
+  --color-accent-content: oklch(24% 0.04 70);
 
-  --color-neutral: oklch(95% 0 0);
-  --color-neutral-content: oklch(20% 0 0);
+  --color-neutral: oklch(90.5% 0.012 247.858);
+  --color-neutral-content: oklch(31% 0.026 264.364);
 
-  --color-info: oklch(0.6 0.1 224);
-  --color-info-content: oklch(95% 0 0);
+  --color-info: oklch(58% 0.11 230);
+  --color-info-content: oklch(98% 0.004 230);
 
-  --color-success: oklch(0.6257 0.185 147.112);
-  --color-success-content: oklch(95% 0 0);
+  --color-success: oklch(58% 0.13 150);
+  --color-success-content: oklch(98% 0.004 150);
 
-  --color-warning: oklch(0.8442 0.172159 84.9338);
-  --color-warning-content: oklch(95% 0 0);
+  --color-warning: oklch(76% 0.135 82);
+  --color-warning-content: oklch(25% 0.04 82);
 
-  --color-error: oklch(0.4968 0.1797 26.81);
-  --color-error-content: oklch(95% 0 0);
+  --color-error: oklch(54% 0.17 28);
+  --color-error-content: oklch(98% 0.004 28);
 
-  --radius-selector: 0.25rem;
-  --radius-field: 0.25rem;
-  --radius-box: 0.25rem;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.5rem;
 
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
@@ -80,38 +84,38 @@
   prefersdark: true;
   color-scheme: dark;
 
-  --color-base-100: oklch(25% 0 0);
-  --color-base-200: oklch(22% 0 0);
-  --color-base-300: oklch(20% 0 0);
-  --color-base-content: oklch(0.85 0 0);
+  --color-base-100: oklch(25% 0.018 264.364);
+  --color-base-200: oklch(21.5% 0.018 264.364);
+  --color-base-300: oklch(31% 0.02 264.364);
+  --color-base-content: oklch(91% 0.006 247.858);
 
-  --color-primary: oklch(0.5993 0.1316 135.43);
-  --color-primary-content: oklch(95% 0 0);
+  --color-primary: oklch(68% 0.12 145);
+  --color-primary-content: oklch(18% 0.035 145);
 
-  --color-secondary: oklch(0.6441 0.0691 247.22);
-  --color-secondary-content: oklch(95% 0 0);
+  --color-secondary: oklch(70% 0.085 245);
+  --color-secondary-content: oklch(18% 0.025 245);
 
-  --color-accent: oklch(0.74 0.08 46);
-  --color-accent-content: oklch(95% 0 0);
+  --color-accent: oklch(76% 0.1 70);
+  --color-accent-content: oklch(20% 0.04 70);
 
-  --color-neutral: oklch(0.27 0.013 253.041);
-  --color-neutral-content: oklch(0.85 0.002 253.041);
+  --color-neutral: oklch(32% 0.02 264.364);
+  --color-neutral-content: oklch(90% 0.006 247.858);
 
-  --color-info: oklch(0.6 0.1 224);
-  --color-info-content: oklch(95% 0 0);
+  --color-info: oklch(70% 0.1 230);
+  --color-info-content: oklch(18% 0.03 230);
 
-  --color-success: oklch(0.6257 0.185 147.112);
-  --color-success-content: oklch(95% 0 0);
+  --color-success: oklch(70% 0.13 150);
+  --color-success-content: oklch(18% 0.04 150);
 
-  --color-warning: oklch(0.8442 0.172159 84.9338);
-  --color-warning-content: oklch(95% 0 0);
+  --color-warning: oklch(78% 0.13 82);
+  --color-warning-content: oklch(20% 0.04 82);
 
-  --color-error: oklch(0.4968 0.1797 26.81);
-  --color-error-content: oklch(95% 0 0);
+  --color-error: oklch(68% 0.16 28);
+  --color-error-content: oklch(18% 0.035 28);
 
-  --radius-selector: 0.25rem;
-  --radius-field: 0.25rem;
-  --radius-box: 0.25rem;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.5rem;
 
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
@@ -119,4 +123,38 @@
 
   --depth: 0;
   --noise: 0;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-base-100 text-base-content;
+    background-image:
+      radial-gradient(
+        circle at 12% -8%,
+        color-mix(in oklch, var(--color-primary) 10%, transparent),
+        transparent 28rem
+      ),
+      radial-gradient(
+        circle at 88% 6%,
+        color-mix(in oklch, var(--color-secondary) 8%, transparent),
+        transparent 24rem
+      ),
+      radial-gradient(
+        circle,
+        color-mix(in oklch, var(--color-base-content) 2.2%, transparent) 0 1px,
+        transparent 1.2px
+      ),
+      radial-gradient(
+        circle,
+        color-mix(in oklch, var(--color-primary) 1.8%, transparent) 0 1px,
+        transparent 1.2px
+      );
+  }
 }
