@@ -40,7 +40,7 @@
 @component
 Display a query or document text and (optionally) summary in scrollable components.
 -->
-<div class="tabs-border tabs rounded-box bg-base-100 text-sm shadow-sm">
+<div class="tabs-border tabs text-sm">
   <label class="tab flex flex-row gap-2">
     <input type="radio" name="tabs-text" checked={true} />
     <IconWithText icon={textIcon} text={title} />
