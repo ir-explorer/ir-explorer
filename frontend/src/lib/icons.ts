@@ -16,6 +16,7 @@ import {
   faMagnifyingGlass,
   faMoon,
   faQuoteRight,
+  faRankingStar,
   faSun,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
@@ -50,3 +51,4 @@ export const summaryIcon = faBrain;
 export const ragIcon = faBrain;
 
 export const relevanceIcon = faCheck;
+export const scoreIcon = faRankingStar;

@@ -6,10 +6,12 @@
   import IconWithText from "$lib/components/IconWithText.svelte";
   import { MAX_SEARCH_RESULT_PAGES } from "$lib/config";
   import {
+    corpusIcon,
     documentIcon,
     nextPageIcon,
     prevPageIcon,
     ragIcon,
+    scoreIcon,
   } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import { snippetParts, toHumanReadable } from "$lib/util";
@@ -127,21 +129,20 @@
             class="text-right text-sm leading-5 font-medium text-base-content/50">
             {data.result.offset + index + 1}
           </p>
-          <div class="min-w-0">
+          <div
+            class="flex min-w-0 flex-col items-start gap-y-0.5 overflow-hidden sm:flex-row sm:items-center sm:gap-x-4 sm:gap-y-0">
             <a
               href={resolve(`/browse/${hit.corpusName}?documentId=${hit.id}`)}
-              class="inline-block max-w-full truncate align-top text-sm font-medium text-secondary">
+              class="inline-flex max-w-full items-center truncate text-sm leading-5 font-medium text-secondary">
               <IconWithText icon={documentIcon} text={hit.id} />
             </a>
-            <div
-              class="flex min-w-0 items-center gap-x-1 overflow-hidden text-xs text-base-content/60">
-              <span class="min-w-0">
-                {hit.corpusName}
-              </span>
-              <span class="shrink-0">·</span>
-              <span class="shrink-0">
-                score {hit.score}
-              </span>
+            <a
+              href={resolve(`/browse/${hit.corpusName}`)}
+              class="inline-flex max-w-full items-center truncate text-xs leading-5 text-base-content/60 hover:underline">
+              <IconWithText icon={corpusIcon} text={hit.corpusName} />
+            </a>
+            <div class="flex h-5 items-center text-xs text-base-content/60">
+              <IconWithText icon={scoreIcon} text={String(hit.score)} />
             </div>
           </div>
           <p class="col-start-2">
