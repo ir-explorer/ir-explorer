@@ -8,16 +8,22 @@ import {
   faDatabase,
   faEye,
   faFileLines,
+  faDesktop,
   faFolderOpen,
   faInfo,
   faLongArrowDown,
   faLongArrowUp,
   faMagnifyingGlass,
+  faMoon,
   faQuoteRight,
+  faSun,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
 export const menuIcon = faBars;
+export const systemThemeIcon = faDesktop;
+export const lightThemeIcon = faSun;
+export const darkThemeIcon = faMoon;
 export const closeMenuIcon = faXmark;
 export const infoIcon = faInfo;
 

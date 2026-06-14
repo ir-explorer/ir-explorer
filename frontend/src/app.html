@@ -4,6 +4,16 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%sveltekit.assets%/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      try {
+        const themeMode = localStorage.getItem("irx-theme-mode");
+        if (themeMode === "light" || themeMode === "dark") {
+          document.documentElement.dataset.theme = `irx-${themeMode}`;
+        }
+      } catch {
+        // storage unavailable, keep system theme
+      }
+    </script>
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

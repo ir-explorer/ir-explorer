@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { browser } from "$app/environment";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import {
@@ -6,7 +7,15 @@
     MAX_RAG_DOCUMENTS,
     MAX_SNIPPET_LENGTH,
   } from "$lib/config";
-  import { browseIcon, closeMenuIcon, menuIcon, searchIcon } from "$lib/icons";
+  import {
+    browseIcon,
+    closeMenuIcon,
+    darkThemeIcon,
+    lightThemeIcon,
+    menuIcon,
+    searchIcon,
+    systemThemeIcon,
+  } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type { AvailableOptions } from "$lib/types";
   import Fa from "svelte-fa";
@@ -23,6 +32,52 @@
     page.url.pathname.startsWith("/search") || page.url.pathname == "/",
   );
   const atBrowse: boolean = $derived(page.url.pathname.startsWith("/browse"));
+
+  type ThemeMode = "system" | "light" | "dark";
+
+  const themeStorageKey = "irx-theme-mode";
+  const themeModes: {
+    mode: ThemeMode;
+    label: string;
+    icon: typeof systemThemeIcon;
+  }[] = [
+    { mode: "system", label: "System", icon: systemThemeIcon },
+    { mode: "light", label: "Light", icon: lightThemeIcon },
+    { mode: "dark", label: "Dark", icon: darkThemeIcon },
+  ];
+
+  let themeMode = $state<ThemeMode>("system");
+
+  function applyTheme(mode: ThemeMode) {
+    if (!browser) {
+      return;
+    }
+
+    if (mode === "system") {
+      document.documentElement.removeAttribute("data-theme");
+    } else {
+      document.documentElement.dataset.theme = `irx-${mode}`;
+    }
+  }
+
+  function setThemeMode(mode: ThemeMode) {
+    themeMode = mode;
+    applyTheme(mode);
+
+    if (mode === "system") {
+      localStorage.removeItem(themeStorageKey);
+    } else {
+      localStorage.setItem(themeStorageKey, mode);
+    }
+  }
+
+  if (browser) {
+    const storedThemeMode = localStorage.getItem(themeStorageKey);
+    if (storedThemeMode === "light" || storedThemeMode === "dark") {
+      themeMode = storedThemeMode;
+      applyTheme(storedThemeMode);
+    }
+  }
 </script>
 
 <!--
@@ -44,6 +99,22 @@ The main menu drawer.
           <Fa icon={closeMenuIcon} />
         </label>
         <Logo small />
+
+        <div class="join ml-auto" aria-label="Theme mode">
+          {#each themeModes as theme (theme.mode)}
+            <button
+              type="button"
+              class={[
+                "btn join-item btn-square border-base-300 btn-sm",
+                themeMode === theme.mode
+                  ? "btn-primary"
+                  : "bg-base-100 btn-ghost",
+              ]}
+              onclick={() => setThemeMode(theme.mode)}>
+              <Fa icon={theme.icon} />
+            </button>
+          {/each}
+        </div>
       </div>
 
       <div class="divider my-2"></div>

@@ -11,13 +11,22 @@
 Render the logo.
 -->
 {#if small}
-  <img
-    src="/logo-sm.svg"
-    alt="IR explorer"
-    class="h-6 dark:hue-rotate-180 dark:invert" />
+  <img src="/logo-sm.svg" alt="IR explorer" class="irx-logo h-6" />
 {:else}
   <img
     src="/logo.svg"
     alt="IR explorer"
-    class="h-16 md:h-20 lg:h-24 dark:hue-rotate-180 dark:invert" />
+    class="irx-logo h-16 md:h-20 lg:h-24" />
 {/if}
+
+<style>
+  :global(html[data-theme="irx-dark"]) .irx-logo {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme])) .irx-logo {
+      filter: invert(1) hue-rotate(180deg);
+    }
+  }
+</style>
