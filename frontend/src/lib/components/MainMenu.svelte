@@ -3,21 +3,22 @@
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import {
-    MAX_ITEMS_PER_PAGE,
-    MAX_RAG_DOCUMENTS,
-    MAX_SNIPPET_LENGTH,
+      MAX_ITEMS_PER_PAGE,
+      MAX_RAG_DOCUMENTS,
+      MAX_SNIPPET_LENGTH,
   } from "$lib/config";
   import {
-    browseIcon,
-    closeMenuIcon,
-    darkThemeIcon,
-    lightThemeIcon,
-    menuIcon,
-    searchIcon,
-    systemThemeIcon,
+      browseIcon,
+      closeMenuIcon,
+      darkThemeIcon,
+      lightThemeIcon,
+      menuIcon,
+      searchIcon,
+      systemThemeIcon,
   } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type { AvailableOptions } from "$lib/types";
+  import { faGithub } from "@fortawesome/free-brands-svg-icons";
   import Fa from "svelte-fa";
   import IconWithText from "./IconWithText.svelte";
   import Logo from "./Logo.svelte";
@@ -93,7 +94,8 @@ The main menu drawer.
   </div>
   <div class="drawer-side z-99">
     <label for="main-menu" class="drawer-overlay"></label>
-    <div class="menu min-h-full w-80 bg-base-200 p-4 text-base-content">
+    <div
+      class="menu flex min-h-full w-80 flex-col bg-base-200 p-4 text-base-content">
       <div class="flex w-full items-center gap-4">
         <label for="main-menu" class="drawer-button btn btn-ghost btn-sm">
           <Fa icon={closeMenuIcon} />
@@ -240,6 +242,14 @@ The main menu drawer.
           </fieldset>
         {/if}
       </fieldset>
+
+      <div class="mt-auto text-sm text-base-content/65">
+        <a
+          class="inline-flex w-fit items-center text-base-content/75 hover:text-base-content"
+          href="https://github.com/ir-explorer">
+          <IconWithText icon={faGithub} text="ir-explorer" />
+        </a>
+      </div>
     </div>
   </div>
 </div>
