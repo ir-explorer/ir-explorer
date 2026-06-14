@@ -63,7 +63,7 @@ Display a query or document text and (optionally) summary in scrollable componen
       <div
         class={[
           summaryBusy && // hacky way of replacing the icon (inside the span)
-            "[&_div_span]:loading [&_div_span]:loading-xs [&_div_span]:loading-ball",
+            "[&>div>span:first-child]:loading [&>div>span:first-child]:loading-xs [&>div>span:first-child]:loading-ball",
         ]}>
         <IconWithText icon={summaryIcon} text="Summary" />
       </div>
