@@ -19,7 +19,7 @@
     <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
       <div class="flex min-w-0 flex-col gap-1">
         <div class="text-lg">
-          <IconWithText icon={corpusIcon} text={c.name} wide />
+          <IconWithText icon={corpusIcon} text={c.name} />
         </div>
         <p class="text-sm text-base-content/60">
           {c.numDatasets}

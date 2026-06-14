@@ -165,7 +165,7 @@
       {#snippet item(d: Dataset)}
         <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <div class="min-w-0 text-lg">
-            <IconWithText icon={datasetIcon} text={d.name} wide />
+            <IconWithText icon={datasetIcon} text={d.name} />
           </div>
           <SizeIndicator
             value={d.numQueries}

@@ -9,21 +9,19 @@
     text: string;
     /** Whether to display the icon on the right of the text. */
     iconRight?: boolean;
-    /** Use the wider icon slot. */
-    wide?: boolean;
   }
-  const { icon, text, iconRight = false, wide = false }: Props = $props();
+  const { icon, text, iconRight = false }: Props = $props();
 </script>
 
 <!--
 @component
 A fixed-width icon with accompanying text.
 -->
-<div class="flex min-w-0 items-center gap-2">
+<div class="flex min-w-0 items-center gap-[0.5em]">
   {#if iconRight}
     <span class="min-w-0 truncate">{text}</span>
   {/if}
-  <span class={["flex flex-row justify-center", wide ? "w-6" : "w-4"]}>
+  <span class="flex w-[1em] flex-row justify-center">
     <Fa {icon} />
   </span>
   {#if !iconRight}

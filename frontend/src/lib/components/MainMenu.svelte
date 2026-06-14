@@ -128,14 +128,14 @@ The main menu drawer.
           <a
             class={[atSearch && "pointer-events-none menu-active"]}
             href={resolve("/search")}>
-            <IconWithText icon={searchIcon} text="Search" wide />
+            <IconWithText icon={searchIcon} text="Search" />
           </a>
         </li>
         <li>
           <a
             class={[atBrowse && "pointer-events-none menu-active"]}
             href={resolve("/browse")}>
-            <IconWithText icon={browseIcon} text="Browse" wide />
+            <IconWithText icon={browseIcon} text="Browse" />
           </a>
         </li>
       </ul>
