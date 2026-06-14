@@ -4,7 +4,8 @@
   import MetaDisplay from "$lib/components/browse/MetaDisplay.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
-  import { relevanceIcon } from "$lib/icons";
+  import IconWithText from "$lib/components/IconWithText.svelte";
+  import { documentIcon, queryIcon, relevanceIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
     OrderByOption,
@@ -114,7 +115,7 @@
         <div class="min-w-0">
           <div class="flex min-w-0 items-center gap-x-3">
             <p class="min-w-0 text-sm leading-5 font-medium text-secondary">
-              {d.id}
+              <IconWithText icon={documentIcon} text={d.id} />
             </p>
             <p
               class="flex shrink-0 items-center gap-1 text-xs text-base-content/60">
@@ -144,7 +145,7 @@
     {#snippet item(q: Query)}
       <div class="min-w-0">
         <p class="text-sm font-medium text-secondary">
-          {q.id}
+          <IconWithText icon={queryIcon} text={q.id} />
         </p>
         {#if q.numRelevantDocuments > 0}
           <p class="text-xs text-base-content/60">

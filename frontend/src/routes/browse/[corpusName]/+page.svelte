@@ -7,7 +7,13 @@
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
-  import { corpusIcon, datasetIcon, relevanceIcon } from "$lib/icons";
+  import {
+    corpusIcon,
+    datasetIcon,
+    documentIcon,
+    queryIcon,
+    relevanceIcon,
+  } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
     Dataset,
@@ -132,7 +138,7 @@
         <div class="min-w-0">
           <div class="flex min-w-0 items-center gap-x-3">
             <p class="min-w-0 text-sm font-medium text-secondary">
-              {q.id}
+              <IconWithText icon={queryIcon} text={q.id} />
             </p>
             <p class="flex items-center gap-1 text-xs text-base-content/60">
               <span class="text-success"><Fa icon={relevanceIcon} /></span>
@@ -194,7 +200,7 @@
     {#snippet item(d: Document)}
       <div class="min-w-0">
         <p class="truncate text-sm font-medium text-secondary">
-          {d.id}
+          <IconWithText icon={documentIcon} text={d.id} />
         </p>
         {#if d.numRelevantQueries > 0}
           <p class="text-xs text-base-content/60">

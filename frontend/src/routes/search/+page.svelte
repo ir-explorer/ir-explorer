@@ -3,8 +3,14 @@
   import { resolve } from "$app/paths";
   import Alert from "$lib/components/Alert.svelte";
   import BlinkingCursor from "$lib/components/BlinkingCursor.svelte";
+  import IconWithText from "$lib/components/IconWithText.svelte";
   import { MAX_SEARCH_RESULT_PAGES } from "$lib/config";
-  import { nextPageIcon, prevPageIcon, ragIcon } from "$lib/icons";
+  import {
+    documentIcon,
+    nextPageIcon,
+    prevPageIcon,
+    ragIcon,
+  } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import { snippetParts, toHumanReadable } from "$lib/util";
   import Fa from "svelte-fa";
@@ -125,7 +131,7 @@
             <a
               href={resolve(`/browse/${hit.corpusName}?documentId=${hit.id}`)}
               class="inline-block max-w-full truncate align-top text-sm font-medium text-secondary">
-              {hit.id}
+              <IconWithText icon={documentIcon} text={hit.id} />
             </a>
             <div
               class="flex min-w-0 items-center gap-x-1 overflow-hidden text-xs text-base-content/60">
