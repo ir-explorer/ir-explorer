@@ -167,8 +167,8 @@
       getTargetLink={(d: Dataset) =>
         `/browse/${page.params.corpusName}/${d.name}` as const}>
       {#snippet item(d: Dataset)}
-        <div class="flex items-center justify-between gap-4">
-          <div class="flex flex-col gap-2">
+        <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div class="flex min-w-0 flex-col gap-1">
             <div class="text-lg">
               <IconWithText icon={datasetIcon} text={d.name} wide />
             </div>

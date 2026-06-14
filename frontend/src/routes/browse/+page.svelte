@@ -16,12 +16,15 @@
   gridItems={data.corpusList}
   getTargetLink={(c: Corpus) => `/browse/${c.name}` as const}>
   {#snippet item(c: Corpus)}
-    <div class="flex items-center justify-between gap-4">
-      <div class="flex flex-col gap-2">
+    <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+      <div class="flex min-w-0 flex-col gap-1">
         <div class="text-lg">
           <IconWithText icon={corpusIcon} text={c.name} wide />
         </div>
-        <p>{c.numDatasets} {c.numDatasets == 1 ? "dataset" : "datasets"}</p>
+        <p class="text-sm text-base-content/60">
+          {c.numDatasets}
+          {c.numDatasets == 1 ? "dataset" : "datasets"}
+        </p>
       </div>
       <SizeIndicator
         value={c.numDocuments}
