@@ -8,7 +8,6 @@
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
   import {
-    corpusIcon,
     datasetIcon,
     documentIcon,
     queryIcon,
@@ -168,13 +167,8 @@
         `/browse/${page.params.corpusName}/${d.name}` as const}>
       {#snippet item(d: Dataset)}
         <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-          <div class="flex min-w-0 flex-col gap-1">
-            <div class="text-lg">
-              <IconWithText icon={datasetIcon} text={d.name} wide />
-            </div>
-            <div class="text-sm">
-              <IconWithText icon={corpusIcon} text={d.corpusName} wide />
-            </div>
+          <div class="min-w-0 text-lg">
+            <IconWithText icon={datasetIcon} text={d.name} wide />
           </div>
           <SizeIndicator
             value={d.numQueries}
