@@ -75,7 +75,7 @@
 </Header>
 
 <div class="mx-auto mt-20 mb-4 max-w-5xl">
-  <div class="mx-4 flex flex-col gap-4">
+  <div class="mx-4 flex flex-col gap-3">
     {@render children()}
   </div>
 </div>

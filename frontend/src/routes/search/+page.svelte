@@ -126,7 +126,7 @@
         <div
           class="grid min-w-0 grid-cols-[1.5rem_minmax(0,1fr)] gap-x-3 gap-y-1">
           <p
-            class="text-right text-sm leading-5 font-medium text-base-content/50">
+            class="text-right text-sm leading-5 font-medium text-base-content/60">
             {data.result.offset + index + 1}
           </p>
           <div

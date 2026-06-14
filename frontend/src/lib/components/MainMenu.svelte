@@ -3,18 +3,18 @@
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import {
-      MAX_ITEMS_PER_PAGE,
-      MAX_RAG_DOCUMENTS,
-      MAX_SNIPPET_LENGTH,
+    MAX_ITEMS_PER_PAGE,
+    MAX_RAG_DOCUMENTS,
+    MAX_SNIPPET_LENGTH,
   } from "$lib/config";
   import {
-      browseIcon,
-      closeMenuIcon,
-      darkThemeIcon,
-      lightThemeIcon,
-      menuIcon,
-      searchIcon,
-      systemThemeIcon,
+    browseIcon,
+    closeMenuIcon,
+    darkThemeIcon,
+    lightThemeIcon,
+    menuIcon,
+    searchIcon,
+    systemThemeIcon,
   } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type { AvailableOptions } from "$lib/types";
@@ -143,7 +143,7 @@ The main menu drawer.
       <div class="divider my-2"></div>
 
       <!-- search settings -->
-      <fieldset class="fieldset gap-4">
+      <fieldset class="fieldset gap-3">
         <legend class="fieldset-legend">Search</legend>
 
         <label class="fieldset-label flex flex-col items-start">
@@ -183,7 +183,7 @@ The main menu drawer.
       <div class="my-2"></div>
 
       <!-- browse settings -->
-      <fieldset class="fieldset gap-4">
+      <fieldset class="fieldset gap-3">
         <legend class="fieldset-legend">Browse</legend>
 
         <label class="fieldset-label flex flex-col items-start">
@@ -213,7 +213,7 @@ The main menu drawer.
         </label>
 
         {#if availableOptions.modelNames.length > 0}
-          <fieldset class="fieldset gap-4">
+          <fieldset class="fieldset gap-3">
             <legend class="fieldset-legend">Generation</legend>
             <label class="fieldset-label flex flex-col items-start">
               LLM
@@ -243,7 +243,7 @@ The main menu drawer.
         {/if}
       </fieldset>
 
-      <div class="mt-auto text-sm text-base-content/65">
+      <div class="mt-auto text-sm text-base-content/60">
         <a
           class="inline-flex w-fit items-center text-base-content/75 hover:text-base-content"
           href="https://github.com/ir-explorer">

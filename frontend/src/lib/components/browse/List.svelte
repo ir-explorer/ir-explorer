@@ -33,8 +33,8 @@ Render items as a list.
 -->
 <ul class="list rounded-box border border-base-300 bg-base-100 shadow-sm">
   <li
-    class="rounded-t-box border-b border-base-300 bg-base-200 px-4 py-4 md:py-2">
-    <div class="flex flex-col gap-4 md:flex-row md:justify-between md:gap-2">
+    class="rounded-t-box border-b border-base-300 bg-base-200 px-4 py-3 md:py-2">
+    <div class="flex flex-col gap-3 md:flex-row md:justify-between md:gap-2">
       {#if headTitle != null}
         {@render headTitle()}
       {/if}
