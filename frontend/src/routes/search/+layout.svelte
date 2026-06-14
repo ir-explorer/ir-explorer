@@ -26,7 +26,7 @@
   {/snippet}
 </Header>
 
-<div class="mx-auto mt-20 mb-4 max-w-5xl">
+<div class="mx-auto mb-4 max-w-5xl pt-20">
   <div class="mx-4">
     {@render children()}
   </div>
