@@ -3,8 +3,8 @@
   import NavProgress from "$lib/components/NavProgress.svelte";
   import { selectedOptions } from "$lib/options.svelte";
   import { faGithub } from "@fortawesome/free-brands-svg-icons";
-  import "../app.css";
   import { untrack } from "svelte";
+  import "../app.css";
   import type { LayoutProps } from "./$types";
 
   const { data, children }: LayoutProps = $props();
@@ -31,17 +31,29 @@
   </div>
 
   <footer
-    class="flex w-full flex-col justify-center gap-2 border-t border-base-300 bg-base-100 px-4 py-2 text-sm md:flex-row md:items-center">
+    class="flex w-full flex-col justify-between gap-2 border-t border-base-300 bg-base-100 px-4 py-2 text-sm text-base-content/65 md:flex-row md:items-center">
     <a
-      class="badge font-mono text-xs text-neutral-content badge-neutral"
+      class="inline-flex w-fit items-center text-base-content/75 hover:text-base-content"
       href="https://github.com/ir-explorer">
       <IconWithText icon={faGithub} text="ir-explorer" />
     </a>
-    <p class="hidden md:block">&bull;</p>
     <p>
-      Made with <a class="link" href="https://www.paradedb.com/">ParadeDB</a>,
-      <a class="link" href="https://litestar.dev/">Litestar</a>, and
-      <a class="link" href="https://svelte.dev/">SvelteKit</a>.
+      Made with
+      <a
+        class="link text-base-content/75 link-hover"
+        href="https://www.paradedb.com/">
+        ParadeDB</a
+      >,
+      <a
+        class="link text-base-content/75 link-hover"
+        href="https://litestar.dev/">
+        Litestar</a
+      >, and
+      <a
+        class="link text-base-content/75 link-hover"
+        href="https://svelte.dev/">
+        SvelteKit</a
+      >.
     </p>
   </footer>
 </div>
