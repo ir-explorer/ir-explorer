@@ -124,9 +124,9 @@
     {#each data.result.items as hit, index (`${hit.corpusName}:${hit.id}`)}
       <li class="list-row px-2">
         <div
-          class="grid min-w-0 grid-cols-[1.5rem_minmax(0,1fr)] gap-x-3 gap-y-1">
+          class="grid min-w-0 grid-cols-[2.5rem_minmax(0,1fr)] gap-x-3 gap-y-1">
           <p
-            class="text-right text-sm leading-5 font-medium text-base-content/60">
+            class="text-right text-sm leading-5 font-medium text-base-content/60 tabular-nums">
             {data.result.offset + index + 1}
           </p>
           <div
