@@ -245,7 +245,7 @@ The main menu drawer.
 
       <div class="mt-auto text-sm text-base-content/60">
         <a
-          class="inline-flex w-fit items-center text-base-content/75 hover:text-base-content"
+          class="inline-flex w-fit items-center font-mono text-xs text-base-content/75 hover:text-base-content"
           href="https://github.com/ir-explorer">
           <IconWithText icon={faGithub} text="ir-explorer" />
         </a>
