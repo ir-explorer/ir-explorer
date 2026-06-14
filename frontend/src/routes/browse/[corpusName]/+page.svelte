@@ -22,7 +22,6 @@
     RelevantQuery,
   } from "$lib/types";
   import { truncate } from "$lib/util";
-  import Fa from "svelte-fa";
   import { SvelteURLSearchParams } from "svelte/reactivity";
   import type { PageProps } from "./$types";
 
@@ -139,14 +138,15 @@
             <p class="min-w-0 text-sm font-medium text-secondary">
               <IconWithText icon={queryIcon} text={q.id} />
             </p>
-            <p class="flex items-center gap-1 text-xs text-base-content/60">
-              <span class="text-success"><Fa icon={relevanceIcon} /></span>
-              {q.relevance}
+            <p class="min-w-0 text-xs text-base-content/60">
+              <IconWithText icon={datasetIcon} text={q.datasetName} />
+            </p>
+            <p class="shrink-0 text-xs text-base-content/60">
+              <IconWithText
+                icon={relevanceIcon}
+                text={q.relevance.toString()} />
             </p>
           </div>
-          <p class="text-xs text-base-content/60">
-            {q.datasetName}
-          </p>
           <p class="mt-1 text-sm leading-relaxed">
             {truncate(q.text, selectedOptions.snippetLength)}
           </p>
@@ -193,14 +193,17 @@
 
     {#snippet item(d: Document)}
       <div class="min-w-0">
-        <p class="truncate text-sm font-medium text-secondary">
-          <IconWithText icon={documentIcon} text={d.id} />
-        </p>
-        {#if d.numRelevantQueries > 0}
-          <p class="text-xs text-base-content/60">
-            {d.numRelevantQueries} relevant queries
+        <div class="flex min-w-0 items-center gap-x-3">
+          <p class="min-w-0 text-sm font-medium text-secondary">
+            <IconWithText icon={documentIcon} text={d.id} />
           </p>
-        {/if}
+          {#if d.numRelevantQueries > 0}
+            <p class="shrink-0 text-xs text-base-content/60">
+              {d.numRelevantQueries}
+              {d.numRelevantQueries === 1 ? "query" : "queries"}
+            </p>
+          {/if}
+        </div>
         {#if d.title !== null}
           <p class="mt-1 font-bold">
             {truncate(d.title, selectedOptions.snippetLength)}

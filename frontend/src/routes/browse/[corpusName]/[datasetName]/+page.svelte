@@ -14,7 +14,6 @@
     RelevantDocument,
   } from "$lib/types";
   import { truncate } from "$lib/util";
-  import Fa from "svelte-fa";
   import { SvelteURLSearchParams } from "svelte/reactivity";
   import type { PageProps } from "./$types";
 
@@ -117,10 +116,10 @@
             <p class="min-w-0 text-sm leading-5 font-medium text-secondary">
               <IconWithText icon={documentIcon} text={d.id} />
             </p>
-            <p
-              class="flex shrink-0 items-center gap-1 text-xs text-base-content/60">
-              <span class="text-success"><Fa icon={relevanceIcon} /></span>
-              {d.relevance}
+            <p class="shrink-0 text-xs text-base-content/60">
+              <IconWithText
+                icon={relevanceIcon}
+                text={d.relevance.toString()} />
             </p>
           </div>
           <p class="mt-1 text-sm">
@@ -144,14 +143,17 @@
     {/snippet}
     {#snippet item(q: Query)}
       <div class="min-w-0">
-        <p class="text-sm font-medium text-secondary">
-          <IconWithText icon={queryIcon} text={q.id} />
-        </p>
-        {#if q.numRelevantDocuments > 0}
-          <p class="text-xs text-base-content/60">
-            {q.numRelevantDocuments} relevant documents
+        <div class="flex min-w-0 items-center gap-x-3">
+          <p class="min-w-0 text-sm font-medium text-secondary">
+            <IconWithText icon={queryIcon} text={q.id} />
           </p>
-        {/if}
+          {#if q.numRelevantDocuments > 0}
+            <p class="shrink-0 text-xs text-base-content/60">
+              {q.numRelevantDocuments}
+              {q.numRelevantDocuments === 1 ? "document" : "documents"}
+            </p>
+          {/if}
+        </div>
         <p class="mt-1 text-sm">
           {truncate(q.text, selectedOptions.snippetLength)}
         </p>
