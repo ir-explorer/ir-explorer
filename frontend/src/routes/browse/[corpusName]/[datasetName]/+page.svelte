@@ -93,10 +93,7 @@
       ["Dataset", data.query.datasetName],
       ["Query ID", data.query.id],
       ["Description", data.query.description],
-      [
-        "Number of relevant documents",
-        data.query.numRelevantDocuments.toString(),
-      ],
+      ["Relevant documents", data.query.numRelevantDocuments.toString()],
     ])} />
   <TextDisplay text={data.query.text} title="Text" />
 

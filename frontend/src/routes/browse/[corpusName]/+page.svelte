@@ -115,10 +115,7 @@
       ["Corpus", data.document.corpusName],
       ["Document ID", data.document.id],
       ["Title", data.document.title],
-      [
-        "Number of relevant queries",
-        data.document.numRelevantQueries.toString(),
-      ],
+      ["Relevant queries", data.document.numRelevantQueries.toString()],
     ])} />
   <TextDisplay text={data.document.text} getSummary={getDocumentSummary} />
 
