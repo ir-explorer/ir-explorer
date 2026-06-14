@@ -25,7 +25,7 @@
   </div>
 </div>
 
-<div class="flex h-full flex-col items-center justify-center">
+<div class="flex min-h-screen flex-col items-center justify-center">
   <div class="w-4/5 max-w-lg">
     <div class="mb-4">
       <Logo />

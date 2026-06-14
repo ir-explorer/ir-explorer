@@ -22,8 +22,8 @@
 </svelte:head>
 
 <NavProgress />
-<div class="grid max-h-full min-h-screen w-screen max-w-full grid-rows-[1fr]">
-  <div>
+<div class="min-h-screen w-screen max-w-full">
+  <div class="min-h-screen">
     {@render children()}
   </div>
 </div>
