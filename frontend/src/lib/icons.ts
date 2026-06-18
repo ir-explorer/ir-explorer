@@ -31,6 +31,7 @@ export const infoIcon = faInfo;
 
 export const searchIcon = faMagnifyingGlass;
 export const filterIcon = faFilter;
+export const clearFilterIcon = faXmark;
 export const browseIcon = faEye;
 
 export const nextPageIcon = faChevronRight;
