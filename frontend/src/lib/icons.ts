@@ -8,6 +8,7 @@ import {
   faDatabase,
   faEye,
   faFileLines,
+  faFilter,
   faDesktop,
   faFolderOpen,
   faInfo,
@@ -29,6 +30,7 @@ export const closeMenuIcon = faXmark;
 export const infoIcon = faInfo;
 
 export const searchIcon = faMagnifyingGlass;
+export const filterIcon = faFilter;
 export const browseIcon = faEye;
 
 export const nextPageIcon = faChevronRight;
