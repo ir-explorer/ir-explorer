@@ -11,6 +11,7 @@
     nextPageIcon,
     prevPageIcon,
     ragIcon,
+    scoreIcon,
   } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import { snippetParts, toHumanReadable } from "$lib/util";
@@ -83,7 +84,7 @@
 
 {#if answerGenerationStarted}
   <div
-    class="m-4 rounded border border-secondary bg-secondary/10 p-2 text-sm shadow">
+    class="m-4 rounded-box border border-secondary bg-base-100 p-2 text-sm shadow-sm">
     <div
       class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
       {generatedAnswer}
@@ -121,28 +122,30 @@
     </li>
 
     {#each data.result.items as hit, index (`${hit.corpusName}:${hit.id}`)}
-      <li class="list-row">
-        <div class="flex flex-col gap-2">
-          <div class="flex flex-col gap-2">
-            <p
-              class="tooltip tooltip-right badge badge-soft tooltip-secondary badge-secondary"
-              data-tip="Score: {hit.score}">
-              #<span class="-ml-1 font-bold">
-                {data.result.offset + index + 1}
-              </span>
-            </p>
-            <a href={resolve(`/browse/${hit.corpusName}?documentId=${hit.id}`)}>
-              <div class="join max-w-full overflow-auto text-nowrap">
-                <div class="join-item badge">
-                  <IconWithText icon={documentIcon} text={hit.id} />
-                </div>
-                <div class="join-item badge">
-                  <IconWithText icon={corpusIcon} text={hit.corpusName} />
-                </div>
-              </div>
+      <li class="list-row px-2">
+        <div
+          class="grid min-w-0 grid-cols-[2.5rem_minmax(0,1fr)] gap-x-3 gap-y-1">
+          <p
+            class="text-right text-sm leading-5 font-medium text-base-content/60 tabular-nums">
+            {data.result.offset + index + 1}
+          </p>
+          <div
+            class="flex min-w-0 flex-col items-start gap-y-0.5 overflow-hidden sm:flex-row sm:items-center sm:gap-x-4 sm:gap-y-0">
+            <a
+              href={resolve(`/browse/${hit.corpusName}?documentId=${hit.id}`)}
+              class="inline-flex max-w-full items-center truncate text-sm leading-5 font-medium text-secondary">
+              <IconWithText icon={documentIcon} text={hit.id} />
             </a>
+            <a
+              href={resolve(`/browse/${hit.corpusName}`)}
+              class="inline-flex max-w-full items-center truncate text-xs leading-5 text-base-content/60 hover:underline">
+              <IconWithText icon={corpusIcon} text={hit.corpusName} />
+            </a>
+            <div class="flex h-5 items-center text-xs text-base-content/60">
+              <IconWithText icon={scoreIcon} text={String(hit.score)} />
+            </div>
           </div>
-          <p>
+          <p class="col-start-2">
             {#each snippetParts(hit.snippet) as part, index (index)}
               {#if part.highlighted}
                 <b>{part.text}</b>
@@ -175,9 +178,9 @@
             <div
               class="tooltip tooltip-info"
               data-tip="Only {MAX_SEARCH_RESULT_PAGES} pages are shown.">
-              <btn disabled class="btn join-item btn-sm btn-primary">
+              <button disabled class="btn join-item btn-sm btn-primary">
                 <Fa icon={nextPageIcon} />
-              </btn>
+              </button>
             </div>
           {:else if data.nextPageLink != null}
             <a

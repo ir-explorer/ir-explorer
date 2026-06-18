@@ -31,9 +31,10 @@
 @component
 Render items as a list.
 -->
-<ul class="list rounded-box bg-base-100 shadow">
-  <li class="rounded-box bg-base-200 px-4 py-4 md:py-2">
-    <div class="flex flex-col gap-4 md:flex-row md:justify-between md:gap-2">
+<ul class="list rounded-box border border-base-300 bg-base-100 shadow-sm">
+  <li
+    class="rounded-t-box border-b border-base-300 bg-base-200 px-4 py-3 md:py-2">
+    <div class="flex flex-col gap-3 md:flex-row md:justify-between md:gap-2">
       {#if headTitle != null}
         {@render headTitle()}
       {/if}
@@ -45,11 +46,11 @@ Render items as a list.
 
   {#each listItems as listItem (getTargetLink(listItem))}
     <a href={resolve(getTargetLink(listItem) as `/browse/${string}`)}>
-      <li class="list-row hover:bg-base-300">
+      <li class="list-row transition-colors hover:bg-base-200">
         <div class="list-col-grow">
           {@render item(listItem)}
         </div>
-        <div class="my-auto">
+        <div class="my-auto text-base-content">
           <Fa icon={listArrowIcon} />
         </div>
       </li>

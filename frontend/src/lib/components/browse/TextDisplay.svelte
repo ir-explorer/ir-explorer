@@ -45,7 +45,7 @@ Display a query or document text and (optionally) summary in scrollable componen
     <input type="radio" name="tabs-text" checked={true} />
     <IconWithText icon={textIcon} text={title} />
   </label>
-  <div class="tab-content rounded rounded-box border-base-300 p-4 shadow">
+  <div class="tab-content rounded-box border border-base-300 bg-base-100 p-4">
     <div
       class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
       {text}
@@ -63,12 +63,12 @@ Display a query or document text and (optionally) summary in scrollable componen
       <div
         class={[
           summaryBusy && // hacky way of replacing the icon (inside the span)
-            "[&_div_span]:loading [&_div_span]:loading-xs [&_div_span]:loading-ball",
+            "[&>div>span:first-child]:loading [&>div>span:first-child]:loading-xs [&>div>span:first-child]:loading-ball",
         ]}>
         <IconWithText icon={summaryIcon} text="Summary" />
       </div>
     </label>
-    <div class="tab-content rounded rounded-box border-base-300 p-4 shadow">
+    <div class="tab-content rounded-box border border-base-300 bg-base-100 p-4">
       <div
         class="max-h-128 overflow-y-scroll leading-relaxed whitespace-pre-wrap">
         {summary}

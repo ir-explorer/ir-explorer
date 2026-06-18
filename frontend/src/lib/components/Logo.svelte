@@ -11,13 +11,7 @@
 Render the logo.
 -->
 {#if small}
-  <img
-    src="/logo-sm.svg"
-    alt="IR explorer"
-    class="h-6 dark:hue-rotate-180 dark:invert" />
+  <img src="/logo-sm.svg" alt="IR explorer" class="h-6 w-auto" />
 {:else}
-  <img
-    src="/logo.svg"
-    alt="IR explorer"
-    class="h-16 md:h-20 lg:h-24 dark:hue-rotate-180 dark:invert" />
+  <img src="/logo.svg" alt="IR explorer" class="h-16 w-auto md:h-20 lg:h-24" />
 {/if}

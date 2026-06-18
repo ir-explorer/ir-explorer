@@ -8,7 +8,6 @@
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
   import {
-    corpusIcon,
     datasetIcon,
     documentIcon,
     queryIcon,
@@ -116,10 +115,7 @@
       ["Corpus", data.document.corpusName],
       ["Document ID", data.document.id],
       ["Title", data.document.title],
-      [
-        "Number of relevant queries",
-        data.document.numRelevantQueries.toString(),
-      ],
+      ["Relevant queries", data.document.numRelevantQueries.toString()],
     ])} />
   <TextDisplay text={data.document.text} getSummary={getDocumentSummary} />
 
@@ -134,21 +130,23 @@
         <p class="my-auto">Relevant queries</p>
       {/snippet}
       {#snippet item(q: RelevantQuery)}
-        <div class="flex flex-col gap-2">
-          <div class="flex flex-row items-center justify-between">
-            <div class="join">
-              <div class="join-item badge">
-                <IconWithText icon={datasetIcon} text={q.datasetName} />
-              </div>
-              <div class="join-item badge">
-                <IconWithText icon={queryIcon} text={q.id} />
-              </div>
-            </div>
-            <div class="badge badge-sm badge-secondary">
-              <IconWithText icon={relevanceIcon} text={String(q.relevance)} />
-            </div>
+        <div class="min-w-0">
+          <div class="flex min-w-0 items-center gap-x-3">
+            <p class="min-w-0 text-sm font-medium text-secondary">
+              <IconWithText icon={queryIcon} text={q.id} />
+            </p>
+            <p class="min-w-0 text-xs text-base-content/60">
+              <IconWithText icon={datasetIcon} text={q.datasetName} />
+            </p>
+            <p class="shrink-0 text-xs text-base-content/60">
+              <IconWithText
+                icon={relevanceIcon}
+                text={q.relevance.toString()} />
+            </p>
           </div>
-          <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
+          <p class="mt-1 text-sm leading-relaxed">
+            {truncate(q.text, selectedOptions.snippetLength)}
+          </p>
         </div>
       {/snippet}
     </PaginatedList>
@@ -165,14 +163,9 @@
       getTargetLink={(d: Dataset) =>
         `/browse/${page.params.corpusName}/${d.name}` as const}>
       {#snippet item(d: Dataset)}
-        <div class="flex items-center justify-between gap-4">
-          <div class="flex flex-col gap-2">
-            <div class="text-lg">
-              <IconWithText icon={datasetIcon} text={d.name} wide />
-            </div>
-            <div class="text-sm">
-              <IconWithText icon={corpusIcon} text={d.corpusName} wide />
-            </div>
+        <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div class="min-w-0 text-lg">
+            <IconWithText icon={datasetIcon} text={d.name} />
           </div>
           <SizeIndicator
             value={d.numQueries}
@@ -196,26 +189,26 @@
     {/snippet}
 
     {#snippet item(d: Document)}
-      <div class="flex flex-col gap-2">
-        <div class="flex flex-row items-center justify-between">
-          <div class="badge">
+      <div class="min-w-0">
+        <div class="flex min-w-0 items-center gap-x-3">
+          <p class="min-w-0 text-sm font-medium text-secondary">
             <IconWithText icon={documentIcon} text={d.id} />
-          </div>
+          </p>
           {#if d.numRelevantQueries > 0}
-            <div class="badge badge-sm badge-secondary">
-              <IconWithText
-                icon={queryIcon}
-                text={String(d.numRelevantQueries)}
-                iconRight />
-            </div>
+            <p class="shrink-0 text-xs text-base-content/60">
+              {d.numRelevantQueries}
+              {d.numRelevantQueries === 1 ? "query" : "queries"}
+            </p>
           {/if}
         </div>
         {#if d.title !== null}
-          <p class="font-bold">
+          <p class="mt-1 font-bold">
             {truncate(d.title, selectedOptions.snippetLength)}
           </p>
         {/if}
-        <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
+        <p class="mt-1 text-sm">
+          {truncate(d.text, selectedOptions.snippetLength)}
+        </p>
       </div>
     {/snippet}
   </PaginatedList>

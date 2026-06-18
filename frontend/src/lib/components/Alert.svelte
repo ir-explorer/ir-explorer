@@ -16,7 +16,7 @@
 @component
 A small alert message with an icon.
 -->
-<div class="mx-auto alert w-fit alert-soft">
+<div class="mx-auto alert w-fit">
   <span class="text-info">
     <Fa {icon} />
   </span>

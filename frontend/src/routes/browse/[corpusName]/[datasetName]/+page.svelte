@@ -93,10 +93,7 @@
       ["Dataset", data.query.datasetName],
       ["Query ID", data.query.id],
       ["Description", data.query.description],
-      [
-        "Number of relevant documents",
-        data.query.numRelevantDocuments.toString(),
-      ],
+      ["Relevant documents", data.query.numRelevantDocuments.toString()],
     ])} />
   <TextDisplay text={data.query.text} title="Text" />
 
@@ -111,16 +108,20 @@
         <p class="my-auto">Relevant documents</p>
       {/snippet}
       {#snippet item(d: RelevantDocument)}
-        <div class="flex flex-col gap-2">
-          <div class="flex flex-row justify-between">
-            <div class="badge">
+        <div class="min-w-0">
+          <div class="flex min-w-0 items-center gap-x-3">
+            <p class="min-w-0 text-sm leading-5 font-medium text-secondary">
               <IconWithText icon={documentIcon} text={d.id} />
-            </div>
-            <p class="badge badge-sm badge-secondary">
-              <IconWithText icon={relevanceIcon} text={String(d.relevance)} />
+            </p>
+            <p class="shrink-0 text-xs text-base-content/60">
+              <IconWithText
+                icon={relevanceIcon}
+                text={d.relevance.toString()} />
             </p>
           </div>
-          <p>{truncate(d.text, selectedOptions.snippetLength)}</p>
+          <p class="mt-1 text-sm">
+            {truncate(d.text, selectedOptions.snippetLength)}
+          </p>
         </div>
       {/snippet}
     </PaginatedList>
@@ -138,21 +139,21 @@
       <p class="my-auto">Queries</p>
     {/snippet}
     {#snippet item(q: Query)}
-      <div class="flex flex-col gap-2">
-        <div class="flex flex-row items-center justify-between">
-          <div class="badge">
+      <div class="min-w-0">
+        <div class="flex min-w-0 items-center gap-x-3">
+          <p class="min-w-0 text-sm font-medium text-secondary">
             <IconWithText icon={queryIcon} text={q.id} />
-          </div>
+          </p>
           {#if q.numRelevantDocuments > 0}
-            <div class="badge badge-sm badge-secondary">
-              <IconWithText
-                icon={documentIcon}
-                text={String(q.numRelevantDocuments)}
-                iconRight />
-            </div>
+            <p class="shrink-0 text-xs text-base-content/60">
+              {q.numRelevantDocuments}
+              {q.numRelevantDocuments === 1 ? "document" : "documents"}
+            </p>
           {/if}
         </div>
-        <p>{truncate(q.text, selectedOptions.snippetLength)}</p>
+        <p class="mt-1 text-sm">
+          {truncate(q.text, selectedOptions.snippetLength)}
+        </p>
       </div>
     {/snippet}
   </PaginatedList>

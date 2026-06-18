@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { corpusIcon, searchIcon } from "$lib/icons";
+  import { clearFilterIcon, filterIcon, searchIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import { Fa } from "svelte-fa";
-  import IconWithText from "../IconWithText.svelte";
 
   interface Props {
     /** Initial value for the search query field. */
@@ -28,16 +27,18 @@ A search bar.
         value={searchInit ? searchInit : ""}
         name="q" />
       {#if selectedOptions.corpusNames.length > 0}
-        <div
-          class="tooltip tooltip-left"
-          data-tip={selectedOptions.corpusNames.join(", ")}>
-          <span class="badge text-xs badge-neutral">
-            <IconWithText
-              icon={corpusIcon}
-              text={String(selectedOptions.corpusNames.length)}
-              iconRight />
+        <button
+          class="group tooltip btn tooltip-left btn-circle text-base-content/50 btn-ghost btn-xs"
+          type="button"
+          data-tip={selectedOptions.corpusNames.join(", ")}
+          onclick={() => (selectedOptions.corpusNames = [])}>
+          <span class="block group-hover:hidden group-focus-visible:hidden">
+            <Fa icon={filterIcon} />
           </span>
-        </div>
+          <span class="hidden group-hover:block group-focus-visible:block">
+            <Fa icon={clearFilterIcon} />
+          </span>
+        </button>
       {/if}
       {#each selectedOptions.corpusNames as corpusName (corpusName)}
         <input type="hidden" name="corpus" value={corpusName} />

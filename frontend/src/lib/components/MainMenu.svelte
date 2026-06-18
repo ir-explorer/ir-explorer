@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { browser } from "$app/environment";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import {
@@ -6,9 +7,18 @@
     MAX_RAG_DOCUMENTS,
     MAX_SNIPPET_LENGTH,
   } from "$lib/config";
-  import { browseIcon, closeMenuIcon, menuIcon, searchIcon } from "$lib/icons";
+  import {
+    browseIcon,
+    closeMenuIcon,
+    darkThemeIcon,
+    lightThemeIcon,
+    menuIcon,
+    searchIcon,
+    systemThemeIcon,
+  } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type { AvailableOptions } from "$lib/types";
+  import { faGithub } from "@fortawesome/free-brands-svg-icons";
   import Fa from "svelte-fa";
   import IconWithText from "./IconWithText.svelte";
   import Logo from "./Logo.svelte";
@@ -23,6 +33,52 @@
     page.url.pathname.startsWith("/search") || page.url.pathname == "/",
   );
   const atBrowse: boolean = $derived(page.url.pathname.startsWith("/browse"));
+
+  type ThemeMode = "system" | "light" | "dark";
+
+  const themeStorageKey = "irx-theme-mode";
+  const themeModes: {
+    mode: ThemeMode;
+    label: string;
+    icon: typeof systemThemeIcon;
+  }[] = [
+    { mode: "system", label: "System", icon: systemThemeIcon },
+    { mode: "light", label: "Light", icon: lightThemeIcon },
+    { mode: "dark", label: "Dark", icon: darkThemeIcon },
+  ];
+
+  let themeMode = $state<ThemeMode>("system");
+
+  function applyTheme(mode: ThemeMode) {
+    if (!browser) {
+      return;
+    }
+
+    if (mode === "system") {
+      document.documentElement.removeAttribute("data-theme");
+    } else {
+      document.documentElement.dataset.theme = `irx-${mode}`;
+    }
+  }
+
+  function setThemeMode(mode: ThemeMode) {
+    themeMode = mode;
+    applyTheme(mode);
+
+    if (mode === "system") {
+      localStorage.removeItem(themeStorageKey);
+    } else {
+      localStorage.setItem(themeStorageKey, mode);
+    }
+  }
+
+  if (browser) {
+    const storedThemeMode = localStorage.getItem(themeStorageKey);
+    if (storedThemeMode === "light" || storedThemeMode === "dark") {
+      themeMode = storedThemeMode;
+      applyTheme(storedThemeMode);
+    }
+  }
 </script>
 
 <!--
@@ -38,30 +94,48 @@ The main menu drawer.
   </div>
   <div class="drawer-side z-99">
     <label for="main-menu" class="drawer-overlay"></label>
-    <div class="menu min-h-full w-80 bg-base-200 p-4 text-base-content">
+    <div
+      class="menu flex min-h-full w-80 flex-col bg-base-200 p-4 text-base-content">
       <div class="flex w-full items-center gap-4">
         <label for="main-menu" class="drawer-button btn btn-ghost btn-sm">
           <Fa icon={closeMenuIcon} />
         </label>
         <Logo small />
+
+        <div class="join ml-auto" aria-label="Theme mode">
+          {#each themeModes as theme (theme.mode)}
+            <button
+              type="button"
+              class={[
+                "btn join-item btn-square border-base-300 btn-sm",
+                themeMode === theme.mode
+                  ? "btn-primary"
+                  : "bg-base-100 btn-ghost",
+              ]}
+              onclick={() => setThemeMode(theme.mode)}>
+              <Fa icon={theme.icon} />
+            </button>
+          {/each}
+        </div>
       </div>
 
       <div class="divider my-2"></div>
 
       <!-- navigation -->
-      <ul class="menu w-full p-0">
+      <ul
+        class="menu w-full p-0 [--menu-active-bg:var(--color-primary)] [--menu-active-fg:var(--color-primary-content)]">
         <li>
           <a
             class={[atSearch && "pointer-events-none menu-active"]}
             href={resolve("/search")}>
-            <IconWithText icon={searchIcon} text="Search" wide />
+            <IconWithText icon={searchIcon} text="Search" />
           </a>
         </li>
         <li>
           <a
             class={[atBrowse && "pointer-events-none menu-active"]}
             href={resolve("/browse")}>
-            <IconWithText icon={browseIcon} text="Browse" wide />
+            <IconWithText icon={browseIcon} text="Browse" />
           </a>
         </li>
       </ul>
@@ -69,7 +143,7 @@ The main menu drawer.
       <div class="divider my-2"></div>
 
       <!-- search settings -->
-      <fieldset class="fieldset gap-4">
+      <fieldset class="fieldset gap-3">
         <legend class="fieldset-legend">Search</legend>
 
         <label class="fieldset-label flex flex-col items-start">
@@ -109,7 +183,7 @@ The main menu drawer.
       <div class="my-2"></div>
 
       <!-- browse settings -->
-      <fieldset class="fieldset gap-4">
+      <fieldset class="fieldset gap-3">
         <legend class="fieldset-legend">Browse</legend>
 
         <label class="fieldset-label flex flex-col items-start">
@@ -139,7 +213,7 @@ The main menu drawer.
         </label>
 
         {#if availableOptions.modelNames.length > 0}
-          <fieldset class="fieldset gap-4">
+          <fieldset class="fieldset gap-3">
             <legend class="fieldset-legend">Generation</legend>
             <label class="fieldset-label flex flex-col items-start">
               LLM
@@ -168,6 +242,14 @@ The main menu drawer.
           </fieldset>
         {/if}
       </fieldset>
+
+      <div class="mt-auto text-sm text-base-content/60">
+        <a
+          class="inline-flex w-fit items-center font-mono text-xs text-base-content/75 hover:text-base-content"
+          href="https://github.com/ir-explorer">
+          <IconWithText icon={faGithub} text="ir-explorer" />
+        </a>
+      </div>
     </div>
   </div>
 </div>

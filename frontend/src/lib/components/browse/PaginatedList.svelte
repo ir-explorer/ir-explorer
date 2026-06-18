@@ -123,7 +123,7 @@ Render items as a list with pagination.
     {#snippet headItems()}
       <div class="z-0 flex flex-col gap-2 md:flex-row">
         <!-- match -->
-        <label class="input input-sm w-full md:w-fit">
+        <label class="input input-sm w-full bg-base-100 shadow-sm md:w-fit">
           <span class="text-sm">
             <Fa icon={matchIcon} />
           </span>
@@ -142,7 +142,7 @@ Render items as a list with pagination.
           <!-- hide select if there are no options to order by -->
           {#if orderByOptions.length > 0}
             <select
-              class="select join-item w-full select-sm md:w-fit"
+              class="select join-item w-full bg-base-100 select-sm md:w-fit"
               bind:value={orderByValue}
               onchange={async () => {
                 await reset();
@@ -197,7 +197,7 @@ Render items as a list with pagination.
             <input
               type="text"
               name={goToName}
-              class="input input-sm join-item w-full md:w-24"
+              class="input input-sm join-item w-full bg-base-100 md:w-24"
               placeholder="Go to ID..." />
             <button class="btn join-item btn-sm btn-primary" type="submit">
               <Fa icon={goToIcon} />
@@ -212,7 +212,7 @@ Render items as a list with pagination.
   <div class="join mx-auto rounded-t-none">
     {#if loaded}
       <p
-        class="join-item flex h-6 items-center rounded-t-none bg-neutral px-2 text-sm text-neutral-content shadow">
+        class="join-item flex h-6 items-center rounded-t-none bg-base-200 px-2 text-sm text-base-content shadow-sm">
         Showing {toHumanReadable(numItemsDisplayed)} of {toHumanReadable(
           totalNumItems,
         )}
@@ -220,7 +220,7 @@ Render items as a list with pagination.
     {/if}
     {#if !working && numItemsDisplayed < totalNumItems}
       <button
-        class="btn join-item h-6 w-12 rounded-t-none shadow btn-sm btn-primary"
+        class="btn join-item h-6 w-12 rounded-t-none shadow-sm btn-sm btn-primary"
         disabled={working}
         onclick={async () => {
           await showNextPage();
@@ -230,7 +230,7 @@ Render items as a list with pagination.
     {/if}
     {#if working}
       <div
-        class="join-item flex h-6 w-12 items-center justify-center rounded-t-none bg-base-300 shadow">
+        class="join-item flex h-6 w-12 items-center justify-center rounded-t-none bg-base-200 shadow-sm">
         <span class={[working && "loading loading-xs"]}></span>
       </div>
     {/if}
