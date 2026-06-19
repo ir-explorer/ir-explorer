@@ -10,9 +10,8 @@ from litestar.status_codes import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
-    HTTP_503_SERVICE_UNAVAILABLE,
 )
-from llm import provide_client
+from llm import ensure_model_available, provide_client
 from llm.util import get_rag_prompt
 from models import (
     DocumentSearchHit,
@@ -135,7 +134,7 @@ class SearchController(Controller):
         :param q: The search query/question.
         :param corpus_name: Corpus identifiers for the corresponding documents.
         :param num_documents: IDs of documents to use for RAG.
-        :raises HTTPException: When the OpenAI API is not available.
+        :raises HTTPException: When the OpenAI API or requeted model is not available.
         :raises HTTPException: When the document identifiers are not properly provided.
         :raises HTTPException: When the answer could not be generated.
         :return: The answer stream.
@@ -169,12 +168,7 @@ class SearchController(Controller):
                 extra={"documents": missing_documents},
             )
 
-        if openai_client is None:
-            raise HTTPException(
-                "LLM services not available.",
-                status_code=HTTP_503_SERVICE_UNAVAILABLE,
-            )
-
+        openai_client = await ensure_model_available(openai_client, model_name)
         doc_inputs = [documents[key] for key in document_keys]
         try:
             stream = await openai_client.completions.create(

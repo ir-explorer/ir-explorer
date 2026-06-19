@@ -15,9 +15,8 @@ from litestar.response import Stream
 from litestar.status_codes import (
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
-    HTTP_503_SERVICE_UNAVAILABLE,
 )
-from llm import provide_client
+from llm import ensure_model_available, provide_client
 from llm.util import get_summary_prompt
 from models import (
     Corpus,
@@ -660,16 +659,11 @@ class BrowseController(Controller):
         :param corpus_name: The corpus name.
         :param document_id: The document ID.
         :param model_name: The model to use.
-        :raises HTTPException: When the OpenAI API is not available.
+        :raises HTTPException: When the OpenAI API or requested model is not available.
         :raises HTTPException: When the document does not exist.
         :raises HTTPException: When the document could not be summarized.
         :return: The document summary stream.
         """
-        if openai_client is None:
-            raise HTTPException(
-                "LLM services not available.",
-                status_code=HTTP_503_SERVICE_UNAVAILABLE,
-            )
 
         sql = (
             select(ORMDocument)
@@ -690,6 +684,7 @@ class BrowseController(Controller):
                 },
             )
 
+        openai_client = await ensure_model_available(openai_client, model_name)
         try:
             stream = await openai_client.completions.create(
                 model=model_name,
