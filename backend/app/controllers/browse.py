@@ -384,14 +384,7 @@ class BrowseController(Controller):
         :param order_by_desc: Whether to order in a descending or ascending fashion.
         :return: Paginated list of documents.
         """
-        # filtering by corpus pkey seems to be faster than filtering by name
-        sq_corpus_pkey = (
-            select(ORMCorpus.pkey)
-            .where(ORMCorpus.name == corpus_name)
-            .scalar_subquery()
-        )
-
-        where_clause = [ORMDocument.corpus_pkey == sq_corpus_pkey]
+        where_clause = [ORMCorpus.name == corpus_name]
         if match is not None:
             where_clause.append(
                 search.match_any(
@@ -400,7 +393,12 @@ class BrowseController(Controller):
                 )
             )
 
-        sql_count = select(func.count()).select_from(ORMDocument).where(*where_clause)
+        sql_count = (
+            select(func.count())
+            .select_from(ORMDocument)
+            .join(ORMCorpus, onclause=ORMDocument.corpus_pkey == ORMCorpus.pkey)
+            .where(*where_clause)
+        )
 
         document_pkey = ORMDocument.pkey
         score = None
@@ -414,6 +412,8 @@ class BrowseController(Controller):
                     ORMDocument.pkey,
                     pdb.score(ORMDocument.pkey).label("score"),  # pyright: ignore[reportAttributeAccessIssue, reportArgumentType]
                 )
+                .select_from(ORMDocument)
+                .join(ORMCorpus, onclause=ORMDocument.corpus_pkey == ORMCorpus.pkey)
                 .where(*where_clause)
                 .subquery()
             )
@@ -449,6 +449,7 @@ class BrowseController(Controller):
         sq_document_pkeys = (
             select(*select_clause_sq)
             .select_from(select_from)
+            .join(ORMCorpus, onclause=ORMDocument.corpus_pkey == ORMCorpus.pkey)
             .outerjoin(ORMQRel)
             .outerjoin(ORMQuery)
             .outerjoin(ORMDataset)
