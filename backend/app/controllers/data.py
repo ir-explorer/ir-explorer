@@ -7,6 +7,7 @@ from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.status_codes import (
     HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
     HTTP_409_CONFLICT,
 )
 
@@ -24,7 +25,7 @@ from sqlalchemy import (
     select,
 )
 from sqlalchemy import delete as delete_
-from sqlalchemy.exc import IntegrityError, ProgrammingError
+from sqlalchemy.exc import IntegrityError, NoResultFound, ProgrammingError
 from sqlalchemy.orm import joinedload
 
 if TYPE_CHECKING:
@@ -178,7 +179,7 @@ class DataController(Controller):
             await db_transaction.execute(sql)
         except IntegrityError as e:
             raise HTTPException(
-                "Failed to add Documents.",
+                "Failed to add documents.",
                 status_code=HTTP_409_CONFLICT,
                 extra={"error_code": e.code},
             )
@@ -282,7 +283,14 @@ class DataController(Controller):
             .options(joinedload(ORMCorpus.datasets))
             .filter_by(name=corpus_name)
         )
-        corpus = (await db_transaction.execute(sql_corpus)).unique().scalar_one()
+        try:
+            corpus = (await db_transaction.execute(sql_corpus)).unique().scalar_one()
+        except NoResultFound:
+            raise HTTPException(
+                "Could not find the requested corpus.",
+                status_code=HTTP_404_NOT_FOUND,
+                extra={"corpus_name": corpus_name},
+            )
         if len(corpus.datasets) > 0:
             raise HTTPException(
                 "Associated datasets must be removed first.",

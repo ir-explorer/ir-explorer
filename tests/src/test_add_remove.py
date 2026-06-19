@@ -44,6 +44,13 @@ def test_corpora(api):
     )
     assert len(requests.get(f"{api}/get_corpora").json()) == num_corpora
 
+    assert (
+        requests.delete(
+            f"{api}/remove_corpus", params={"corpus_name": "test_corpus"}
+        ).status_code
+        == 404
+    )
+
 
 def test_datasets(api):
     requests.post(
