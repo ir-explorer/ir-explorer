@@ -172,6 +172,14 @@ class BrowseController(Controller):
                 )
             )
 
+        sql_count = (
+            select(func.count())
+            .select_from(ORMQuery)
+            .join(ORMDataset)
+            .join(ORMCorpus)
+            .where(*where_clause)
+        )
+
         order_by_op = desc if order_by_desc else asc
         if order_by == "relevant_documents":
             order_by_clause = (order_by_op(text("count")), ORMQuery.pkey)
@@ -180,21 +188,36 @@ class BrowseController(Controller):
                 order_by_op(func.length(ORMQuery.text)),
                 ORMQuery.pkey,
             )
-        elif order_by == "match_score":
-            order_by_clause = (
-                order_by_op(pdb.score(ORMQuery.pkey)),  # pyright: ignore[reportArgumentType]
-                ORMQuery.pkey,
-            )
         else:
             order_by_clause = (ORMQuery.pkey,)
 
-        sql_count = (
-            select(func.count())
-            .select_from(ORMQuery)
-            .join(ORMDataset)
-            .join(ORMCorpus)
-            .where(*where_clause)
-        )
+        select_from = ORMQuery
+        group_by_clause = [
+            ORMQuery.pkey,
+            ORMQuery.id,
+            ORMQuery.description,
+            ORMQuery.text,
+            ORMDataset.name,
+        ]
+
+        # compute score before qrel joins/grouping so paradedb keeps the search context
+        if order_by == "match_score" and match is not None:
+            sq_query_scores = (
+                select(
+                    ORMQuery.pkey,
+                    pdb.score(ORMQuery.pkey).label("score"),  # pyright: ignore[reportAttributeAccessIssue, reportArgumentType]
+                )
+                .select_from(ORMQuery)
+                .join(ORMDataset, onclause=ORMQuery.dataset_pkey == ORMDataset.pkey)
+                .join(ORMCorpus, onclause=ORMDataset.corpus_pkey == ORMCorpus.pkey)
+                .where(*where_clause)
+                .subquery()
+            )
+            select_from = sq_query_scores.join(
+                ORMQuery, onclause=ORMQuery.pkey == sq_query_scores.c.pkey
+            )
+            group_by_clause.append(sq_query_scores.c.score)
+            order_by_clause = (order_by_op(sq_query_scores.c.score), ORMQuery.pkey)
 
         sql = (
             select(
@@ -206,18 +229,12 @@ class BrowseController(Controller):
                 .label("count"),
                 ORMDataset.name,
             )
-            .select_from(ORMQuery)
+            .select_from(select_from)
             .join(ORMDataset, onclause=ORMQuery.dataset_pkey == ORMDataset.pkey)
             .outerjoin(ORMQRel)
             .join(ORMCorpus, onclause=ORMDataset.corpus_pkey == ORMCorpus.pkey)
             .where(*where_clause)
-            .group_by(
-                ORMQuery.pkey,
-                ORMQuery.id,
-                ORMQuery.description,
-                ORMQuery.text,
-                ORMDataset.name,
-            )
+            .group_by(*group_by_clause)
             .order_by(*order_by_clause)
             .limit(num_results)
             .offset(offset)
@@ -383,15 +400,37 @@ class BrowseController(Controller):
                 )
             )
 
-        # count all matching docoments
         sql_count = select(func.count()).select_from(ORMDocument).where(*where_clause)
 
+        document_pkey = ORMDocument.pkey
+        score = None
+        select_from = ORMDocument
+        sq_where_clause = where_clause
+
+        # compute score before qrel joins/grouping so paradedb keeps the search context
+        if order_by == "match_score" and match is not None:
+            sq_document_scores = (
+                select(
+                    ORMDocument.pkey,
+                    pdb.score(ORMDocument.pkey).label("score"),  # pyright: ignore[reportAttributeAccessIssue, reportArgumentType]
+                )
+                .where(*where_clause)
+                .subquery()
+            )
+            document_pkey = sq_document_scores.c.pkey
+            score = sq_document_scores.c.score
+            select_from = sq_document_scores.join(
+                ORMDocument, onclause=ORMDocument.pkey == document_pkey
+            )
+            sq_where_clause = []
+
         select_clause_sq = [
-            ORMDocument.pkey,
+            document_pkey,
             func.count()
             .filter(ORMQRel.relevance >= ORMDataset.min_relevance)
             .label("count"),
         ]
+        group_by_clause = [document_pkey]
 
         order_by_op = desc if order_by_desc else asc
         if order_by == "relevant_queries":
@@ -399,8 +438,9 @@ class BrowseController(Controller):
         elif order_by == "length":
             select_clause_sq.append(ORMDocument.text_length.label("text_length"))
             order_by_clause = [order_by_op(text("text_length"))]
-        elif order_by == "match_score":
-            select_clause_sq.append(pdb.score(ORMDocument.pkey).label("score"))  # pyright: ignore[reportAttributeAccessIssue, reportArgumentType]
+        elif score is not None:
+            select_clause_sq.append(score)
+            group_by_clause.append(score)
             order_by_clause = [order_by_op(text("score"))]
         else:
             order_by_clause = []
@@ -408,23 +448,21 @@ class BrowseController(Controller):
         # select pkeys of matching documents in correct order
         sq_document_pkeys = (
             select(*select_clause_sq)
+            .select_from(select_from)
             .outerjoin(ORMQRel)
             .outerjoin(ORMQuery)
             .outerjoin(ORMDataset)
-            .where(*where_clause)
-            .group_by(ORMDocument.pkey)
-            .order_by(*order_by_clause, ORMDocument.pkey)
+            .where(*sq_where_clause)
+            .group_by(*group_by_clause)
+            .order_by(*order_by_clause, document_pkey)
             .limit(num_results)
             .offset(offset)
         ).subquery()
 
-        # join with full set of documents to get the other columns
-        sq_all_docs = select(ORMDocument).subquery()
-
         select_clause = [
-            sq_all_docs.c.id,
-            sq_all_docs.c.title,
-            sq_all_docs.c.text,
+            ORMDocument.id,
+            ORMDocument.title,
+            ORMDocument.text,
             sq_document_pkeys.c.count,
         ]
 
@@ -435,8 +473,8 @@ class BrowseController(Controller):
         sql = (
             select(*select_clause)
             .select_from(sq_document_pkeys)
-            .join(sq_all_docs, onclause=sq_document_pkeys.c.pkey == sq_all_docs.c.pkey)
-            .order_by(*order_by_clause, sq_all_docs.c.pkey)
+            .join(ORMDocument, onclause=sq_document_pkeys.c.pkey == ORMDocument.pkey)
+            .order_by(*order_by_clause, ORMDocument.pkey)
         )
 
         total_num_results = (await db_transaction.execute(sql_count)).scalar_one()
