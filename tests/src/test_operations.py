@@ -2,7 +2,6 @@
 
 import pytest
 import requests
-
 from util import list_of_dicts_equal
 
 
@@ -279,6 +278,17 @@ def test_get_documents(api):
         ],
     )
 
+    response = requests.get(
+        f"{api}/get_documents",
+        params={
+            "corpus_name": "c1",
+            "match": "abc def",
+            "order_by": "match_score",
+            "num_results": 3,
+        },
+    )
+    assert [item["id"] for item in response.json()["items"]] == ["c1-d1", "c1-d2"]
+
 
 def test_get_query(api):
     assert requests.get(
@@ -404,6 +414,21 @@ def test_get_queries(api):
             },
         ],
     )
+
+    response = requests.get(
+        f"{api}/get_queries",
+        params={
+            "corpus_name": "c1",
+            "dataset_name": "c1-ds1",
+            "match": "abc def",
+            "order_by": "match_score",
+            "num_results": 3,
+        },
+    )
+    assert [item["id"] for item in response.json()["items"]] == [
+        "c1-ds1-q1",
+        "c1-ds1-q2",
+    ]
 
 
 def test_get_qrels(api):
@@ -573,6 +598,25 @@ def test_get_qrels(api):
         ],
     )
 
+    response = requests.get(
+        f"{api}/get_qrels",
+        params={
+            "corpus_name": "c1",
+            "match_query": "abc def",
+            "order_by": "query_match_score",
+            "num_results": 8,
+        },
+    )
+    assert [item["query_info"]["id"] for item in response.json()["items"]] == [
+        "c1-ds1-q1",
+        "c1-ds1-q1",
+        "c1-ds1-q1",
+        "c1-ds2-q1",
+        "c1-ds1-q2",
+        "c1-ds1-q2",
+        "c1-ds2-q2",
+    ]
+
     assert list_of_dicts_equal(
         requests.get(
             f"{api}/get_qrels",
@@ -596,6 +640,21 @@ def test_get_qrels(api):
             },
         ],
     )
+
+    response = requests.get(
+        f"{api}/get_qrels",
+        params={
+            "corpus_name": "c1",
+            "match_document": "def ghi",
+            "order_by": "document_match_score",
+            "num_results": 4,
+        },
+    )
+    assert [item["document_info"]["id"] for item in response.json()["items"]] == [
+        "c1-d2",
+        "c1-d2",
+        "c1-d3",
+    ]
 
 
 def test_search_documents(api):
