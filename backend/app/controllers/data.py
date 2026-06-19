@@ -117,6 +117,9 @@ class DataController(Controller):
         :param data: The queries to insert.
         :raises HTTPException: When the queries cannot be added to the database.
         """
+        if not data:
+            return
+
         dataset_cte = (
             select(ORMDataset)
             .join(ORMCorpus)
@@ -162,6 +165,9 @@ class DataController(Controller):
         :param data: The documents to insert.
         :raises HTTPException: When the documents cannot be added to the database.
         """
+        if not data:
+            return
+
         corpus_cte = select(ORMCorpus).where(ORMCorpus.name == corpus_name).cte()
         sql = insert(ORMDocument).values(
             [
@@ -200,6 +206,9 @@ class DataController(Controller):
         :param data: The QRels to insert.
         :raises HTTPException: When the QRels cannot be added to the database.
         """
+        if not data:
+            return
+
         dataset_cte = (
             select(ORMDataset)
             .join(ORMCorpus)

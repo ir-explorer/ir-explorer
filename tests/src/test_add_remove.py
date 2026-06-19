@@ -144,6 +144,15 @@ def test_queries_documents(api):
             "min_relevance": 1,
         },
     )
+    assert (
+        requests.post(
+            f"{api}/add_documents",
+            params={"corpus_name": "test_corpus_queries_documents"},
+            json=[],
+        ).status_code
+        == 201
+    )
+
     requests.post(
         f"{api}/add_documents",
         params={"corpus_name": "test_corpus_queries_documents"},
@@ -158,6 +167,18 @@ def test_queries_documents(api):
         f"{api}/add_documents",
         params={"corpus_name": "test_corpus_queries_documents"},
         json=[{"id": "d1", "title": "title 1", "text": "text 1"}],
+    )
+
+    assert (
+        requests.post(
+            f"{api}/add_queries",
+            params={
+                "corpus_name": "test_corpus_queries_documents",
+                "dataset_name": "test_dataset",
+            },
+            json=[],
+        ).status_code
+        == 201
     )
 
     requests.post(
@@ -180,6 +201,18 @@ def test_queries_documents(api):
             "dataset_name": "test_dataset",
         },
         json=[{"id": "q1", "text": "text 1", "description": "description 1"}],
+    )
+
+    assert (
+        requests.post(
+            f"{api}/add_qrels",
+            params={
+                "corpus_name": "test_corpus_queries_documents",
+                "dataset_name": "test_dataset",
+            },
+            json=[],
+        ).status_code
+        == 201
     )
 
     requests.post(
