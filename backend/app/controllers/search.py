@@ -8,6 +8,7 @@ from litestar.exceptions import HTTPException
 from litestar.response import Stream
 from litestar.status_codes import (
     HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
     HTTP_503_SERVICE_UNAVAILABLE,
 )
@@ -139,12 +140,6 @@ class SearchController(Controller):
         :raises HTTPException: When the answer could not be generated.
         :return: The answer stream.
         """
-        if openai_client is None:
-            raise HTTPException(
-                "LLM services not available.",
-                status_code=HTTP_503_SERVICE_UNAVAILABLE,
-            )
-
         if len(corpus_name) != len(document_id) or len(document_id) == 0:
             raise HTTPException(
                 "Must provide at least one matching corpus-document pair.",
@@ -152,17 +147,35 @@ class SearchController(Controller):
                 extra={"corpus_name": corpus_name, "document_id": document_id},
             )
 
+        document_keys = list(zip(corpus_name, document_id))
         sql = (
-            select(ORMDocument.title, ORMDocument.text)
+            select(ORMCorpus.name, ORMDocument.id, ORMDocument.title, ORMDocument.text)
             .join(ORMCorpus)
-            .where(
-                tuple_(ORMCorpus.name, ORMDocument.id).in_(
-                    list(zip(corpus_name, document_id))
-                )
-            )
+            .where(tuple_(ORMCorpus.name, ORMDocument.id).in_(document_keys))
         )
-        documents = (await db_transaction.execute(sql)).all()
-        doc_inputs = [(title, text) for title, text in documents]
+        documents = {
+            (corpus, id): (title, text)
+            for corpus, id, title, text in (await db_transaction.execute(sql)).all()
+        }
+        missing_documents = [
+            {"corpus_name": corpus, "document_id": id}
+            for corpus, id in dict.fromkeys(document_keys)
+            if (corpus, id) not in documents
+        ]
+        if missing_documents:
+            raise HTTPException(
+                "Could not find all requested documents.",
+                status_code=HTTP_404_NOT_FOUND,
+                extra={"documents": missing_documents},
+            )
+
+        if openai_client is None:
+            raise HTTPException(
+                "LLM services not available.",
+                status_code=HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        doc_inputs = [documents[key] for key in document_keys]
         try:
             stream = await openai_client.completions.create(
                 model=model_name,

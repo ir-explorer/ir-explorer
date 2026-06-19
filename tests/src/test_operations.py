@@ -657,6 +657,49 @@ def test_get_qrels(api):
     ]
 
 
+def test_get_answer_validation(api):
+    base_params = {"model_name": "test-model", "q": "test question"}
+
+    # malformed parameters
+    assert (
+        requests.get(
+            f"{api}/get_answer",
+            params={
+                **base_params,
+                "corpus_name": ["c1", "c1"],
+                "document_id": ["c1-d1"],
+            },
+        ).status_code
+        == 400
+    )
+
+    # document does not exist
+    assert (
+        requests.get(
+            f"{api}/get_answer",
+            params={
+                **base_params,
+                "corpus_name": ["c1"],
+                "document_id": ["missing-document"],
+            },
+        ).status_code
+        == 404
+    )
+
+    # LLM unavailable in tests
+    assert (
+        requests.get(
+            f"{api}/get_answer",
+            params={
+                **base_params,
+                "corpus_name": ["c1"],
+                "document_id": ["c1-d1"],
+            },
+        ).status_code
+        == 503
+    )
+
+
 def test_search_documents(api):
     results_all_corpora = requests.get(
         f"{api}/search_documents",
