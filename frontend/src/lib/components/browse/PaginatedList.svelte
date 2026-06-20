@@ -1,3 +1,15 @@
+<script module lang="ts">
+  export interface PaginatedListSnapshot<T> {
+    listItems: T[];
+    totalNumItems: number;
+    loaded: boolean;
+    working: boolean;
+    match: string;
+    orderByValue: string | null;
+    desc: boolean;
+  }
+</script>
+
 <script lang="ts" generics="T">
   import { goToIcon, matchIcon, orderAscIcon, orderDescIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
@@ -74,6 +86,37 @@
       : orderByValue,
   );
 
+  /** Capture the user-visible state for SvelteKit's history snapshots. */
+  export function capture(): PaginatedListSnapshot<T> {
+    return {
+      listItems,
+      totalNumItems,
+      loaded,
+      working,
+      match,
+      orderByValue,
+      desc,
+    };
+  }
+
+  /** Restore a list without requesting data that is already displayed. */
+  export function restore(snapshot: PaginatedListSnapshot<T>) {
+    abortToken.abort();
+    promiseNextPage = null;
+    listItems = snapshot.listItems;
+    totalNumItems = snapshot.totalNumItems;
+    loaded = snapshot.loaded;
+    match = snapshot.match;
+    orderByValue = snapshot.orderByValue;
+    desc = snapshot.desc;
+    working = false;
+
+    // snapshot was captured before the next page arrived, resume request
+    if (snapshot.working) {
+      void showNextPage();
+    }
+  }
+
   async function showNextPage(waitTime: number = 0) {
     working = true;
 
@@ -106,12 +149,21 @@
       })().catch(reject);
     });
 
-    promiseNextPage.then((nextPage) => {
-      listItems = [...listItems, ...nextPage.items];
-      totalNumItems = nextPage.totalNumItems;
-      working = false;
-      loaded = true;
-    });
+    const pendingPage = promiseNextPage;
+    pendingPage
+      .then((nextPage) => {
+        // a reset or history restore may have superseded this request
+        if (promiseNextPage !== pendingPage) return;
+
+        listItems = [...listItems, ...nextPage.items];
+        totalNumItems = nextPage.totalNumItems;
+        working = false;
+        loaded = true;
+      })
+      .catch(() => {
+        // handle cancelled/stale requests without stopping a newer request
+        if (promiseNextPage === pendingPage) working = false;
+      });
   }
 
   async function reset(waitTime: number = 0) {

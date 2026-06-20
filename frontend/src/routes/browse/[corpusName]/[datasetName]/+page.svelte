@@ -2,6 +2,7 @@
   import { page } from "$app/state";
   import Alert from "$lib/components/Alert.svelte";
   import MetaDisplay from "$lib/components/browse/MetaDisplay.svelte";
+  import type { PaginatedListSnapshot } from "$lib/components/browse/PaginatedList.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
@@ -15,9 +16,29 @@
   } from "$lib/types";
   import { truncate } from "$lib/util";
   import { SvelteURLSearchParams } from "svelte/reactivity";
-  import type { PageProps } from "./$types";
+  import type { PageProps, Snapshot } from "./$types";
+
+  type PaginatedListHandle<T> = {
+    capture: () => PaginatedListSnapshot<T>;
+    restore: (snapshot: PaginatedListSnapshot<T>) => void;
+  };
 
   const { data }: PageProps = $props();
+  let queryList = $state<PaginatedListHandle<Query>>();
+  let relevantDocumentList = $state<PaginatedListHandle<RelevantDocument>>();
+
+  export const snapshot: Snapshot = {
+    capture: () => ({
+      queryList: queryList?.capture(),
+      relevantDocumentList: relevantDocumentList?.capture(),
+    }),
+    restore: (state) => {
+      if (state.queryList) queryList?.restore(state.queryList);
+      if (state.relevantDocumentList) {
+        relevantDocumentList?.restore(state.relevantDocumentList);
+      }
+    },
+  };
 
   // query list
   async function getQueriesPage(
@@ -100,6 +121,7 @@
   {#if data.query.numRelevantDocuments > 0}
     <!-- display relevant documents for selected query -->
     <PaginatedList
+      bind:this={relevantDocumentList}
       getPage={getDocumentsPage}
       getTargetLink={(d: RelevantDocument) =>
         `/browse/${page.params.corpusName}?${new URLSearchParams({ documentId: d.id })}` as const}
@@ -130,6 +152,7 @@
 {:else}
   <!-- display query list -->
   <PaginatedList
+    bind:this={queryList}
     getPage={getQueriesPage}
     getTargetLink={(q: Query) =>
       `/browse/${page.params.corpusName}/${page.params.datasetName}?${new URLSearchParams({ queryId: q.id })}` as const}

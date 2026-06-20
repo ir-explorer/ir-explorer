@@ -3,6 +3,7 @@
   import Alert from "$lib/components/Alert.svelte";
   import CardGrid from "$lib/components/browse/CardGrid.svelte";
   import MetaDisplay from "$lib/components/browse/MetaDisplay.svelte";
+  import type { PaginatedListSnapshot } from "$lib/components/browse/PaginatedList.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
@@ -23,9 +24,29 @@
   } from "$lib/types";
   import { truncate } from "$lib/util";
   import { SvelteURLSearchParams } from "svelte/reactivity";
-  import type { PageProps } from "./$types";
+  import type { PageProps, Snapshot } from "./$types";
+
+  type PaginatedListHandle<T> = {
+    capture: () => PaginatedListSnapshot<T>;
+    restore: (snapshot: PaginatedListSnapshot<T>) => void;
+  };
 
   const { data }: PageProps = $props();
+  let documentList = $state<PaginatedListHandle<Document>>();
+  let relevantQueryList = $state<PaginatedListHandle<RelevantQuery>>();
+
+  export const snapshot: Snapshot = {
+    capture: () => ({
+      documentList: documentList?.capture(),
+      relevantQueryList: relevantQueryList?.capture(),
+    }),
+    restore: (state) => {
+      if (state.documentList) documentList?.restore(state.documentList);
+      if (state.relevantQueryList) {
+        relevantQueryList?.restore(state.relevantQueryList);
+      }
+    },
+  };
 
   async function getDocumentSummary() {
     if (data.document === null || selectedOptions.modelName === null) {
@@ -122,6 +143,7 @@
   {#if data.document.numRelevantQueries > 0}
     <!-- display relevant queries for selected document -->
     <PaginatedList
+      bind:this={relevantQueryList}
       getPage={getQueriesPage}
       getTargetLink={(q: RelevantQuery) =>
         `/browse/${page.params.corpusName}/${q.datasetName}?queryId=${q.id}` as const}
@@ -179,6 +201,7 @@
 
   <!-- display document list -->
   <PaginatedList
+    bind:this={documentList}
     getPage={getDocumentsPage}
     getTargetLink={(d: Document) =>
       `/browse/${page.params.corpusName}?documentId=${d.id}` as const}
