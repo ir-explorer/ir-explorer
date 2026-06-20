@@ -103,7 +103,8 @@
       getPage={getDocumentsPage}
       getTargetLink={(d: RelevantDocument) =>
         `/browse/${page.params.corpusName}?${new URLSearchParams({ documentId: d.id })}` as const}
-      orderByOptions={orderRelevantDocumentsOptions}>
+      orderByOptions={orderRelevantDocumentsOptions}
+      matchDependentOrderByOptions={["document_match_score"]}>
       {#snippet headTitle()}
         <p class="my-auto">Relevant documents</p>
       {/snippet}
@@ -133,6 +134,7 @@
     getTargetLink={(q: Query) =>
       `/browse/${page.params.corpusName}/${page.params.datasetName}?${new URLSearchParams({ queryId: q.id })}` as const}
     orderByOptions={orderQueriesOptions}
+    matchDependentOrderByOptions={["match_score"]}
     goToTarget={`/browse/${page.params.corpusName}/${page.params.datasetName}`}
     goToName="queryId">
     {#snippet headTitle()}

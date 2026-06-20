@@ -34,6 +34,8 @@
     getTargetLink: (listItem: T) => BrowseLink;
     /** A list of options the items can be ordered by. */
     orderByOptions?: OrderByOption[];
+    /** Order-by options that require non-empty match text. */
+    matchDependentOrderByOptions?: string[];
     /** Target for the 'go to' form. */
     goToTarget?: string | null;
     /** Name for the 'go to' form. */
@@ -46,6 +48,7 @@
     item,
     getTargetLink,
     orderByOptions = [],
+    matchDependentOrderByOptions = [],
     goToTarget = null,
     goToName = null,
   }: Props = $props();
@@ -61,8 +64,15 @@
   let promiseNextPage: Promise<Paginated<T>> | null = null;
   let abortToken = { abort: function () {} };
 
-  let orderByValue = $state(null);
+  let orderByValue: string | null = $state(null);
   let desc = $state(true);
+  const effectiveOrderBy: string | null = $derived(
+    orderByValue !== null &&
+      matchDependentOrderByOptions.includes(orderByValue) &&
+      matchTrimmed.length === 0
+      ? null
+      : orderByValue,
+  );
 
   async function showNextPage(waitTime: number = 0) {
     working = true;
@@ -87,7 +97,7 @@
 
         const nextPage = await getPage(
           matchTrimmed.length > 0 ? matchTrimmed : null,
-          orderByValue,
+          effectiveOrderBy,
           desc,
           selectedOptions.itemsPerPage,
           listItems.length,

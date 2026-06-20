@@ -289,6 +289,15 @@ def test_get_documents(api):
     )
     assert [item["id"] for item in response.json()["items"]] == ["c1-d1", "c1-d2"]
 
+    # ordering by match score without a match specified
+    assert (
+        requests.get(
+            f"{api}/get_documents",
+            params={"corpus_name": "c1", "order_by": "match_score"},
+        ).status_code
+        == 400
+    )
+
 
 def test_get_query(api):
     assert requests.get(
@@ -429,6 +438,19 @@ def test_get_queries(api):
         "c1-ds1-q1",
         "c1-ds1-q2",
     ]
+
+    # ordering by match score without a match specified
+    assert (
+        requests.get(
+            f"{api}/get_queries",
+            params={
+                "corpus_name": "c1",
+                "dataset_name": "c1-ds1",
+                "order_by": "match_score",
+            },
+        ).status_code
+        == 400
+    )
 
 
 def test_get_qrels(api):
@@ -655,6 +677,22 @@ def test_get_qrels(api):
         "c1-d2",
         "c1-d3",
     ]
+
+    # ordering by match score without a match specified
+    assert (
+        requests.get(
+            f"{api}/get_qrels",
+            params={"corpus_name": "c1", "order_by": "query_match_score"},
+        ).status_code
+        == 400
+    )
+    assert (
+        requests.get(
+            f"{api}/get_qrels",
+            params={"corpus_name": "c1", "order_by": "document_match_score"},
+        ).status_code
+        == 400
+    )
 
 
 def test_get_answer(api):

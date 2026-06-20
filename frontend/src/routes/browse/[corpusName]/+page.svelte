@@ -125,7 +125,8 @@
       getPage={getQueriesPage}
       getTargetLink={(q: RelevantQuery) =>
         `/browse/${page.params.corpusName}/${q.datasetName}?queryId=${q.id}` as const}
-      orderByOptions={orderRelevantQueriesOptions}>
+      orderByOptions={orderRelevantQueriesOptions}
+      matchDependentOrderByOptions={["query_match_score"]}>
       {#snippet headTitle()}
         <p class="my-auto">Relevant queries</p>
       {/snippet}
@@ -182,6 +183,7 @@
     getTargetLink={(d: Document) =>
       `/browse/${page.params.corpusName}?documentId=${d.id}` as const}
     orderByOptions={orderDocumentsOptions}
+    matchDependentOrderByOptions={["match_score"]}
     goToTarget={`/browse/${page.params.corpusName}`}
     goToName="documentId">
     {#snippet headTitle()}

@@ -13,6 +13,7 @@ from litestar.di import Provide
 from litestar.exceptions import HTTPException
 from litestar.response import Stream
 from litestar.status_codes import (
+    HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
@@ -160,6 +161,13 @@ class BrowseController(Controller):
         :param order_by_desc: Whether to order in a descending or ascending fashion.
         :return: Paginated list of queries.
         """
+        if order_by == "match_score" and match is None:
+            raise HTTPException(
+                "Cannot order queries by match score without a match query.",
+                status_code=HTTP_400_BAD_REQUEST,
+                extra={"order_by": order_by, "match": match},
+            )
+
         where_clause = [ORMCorpus.name == corpus_name]
         if dataset_name is not None:
             where_clause.append(ORMDataset.name == dataset_name)
@@ -200,7 +208,7 @@ class BrowseController(Controller):
         ]
 
         # compute score before qrel joins/grouping so paradedb keeps the search context
-        if order_by == "match_score" and match is not None:
+        if order_by == "match_score":
             sq_query_scores = (
                 select(
                     ORMQuery.pkey,
@@ -383,6 +391,13 @@ class BrowseController(Controller):
         :param order_by_desc: Whether to order in a descending or ascending fashion.
         :return: Paginated list of documents.
         """
+        if order_by == "match_score" and match is None:
+            raise HTTPException(
+                "Cannot order documents by match score without a match query.",
+                status_code=HTTP_400_BAD_REQUEST,
+                extra={"order_by": order_by, "match": match},
+            )
+
         where_clause = [ORMCorpus.name == corpus_name]
         if match is not None:
             where_clause.append(
@@ -405,7 +420,7 @@ class BrowseController(Controller):
         sq_where_clause = where_clause
 
         # compute score before qrel joins/grouping so paradedb keeps the search context
-        if order_by == "match_score" and match is not None:
+        if order_by == "match_score":
             sq_document_scores = (
                 select(
                     ORMDocument.pkey,
@@ -531,6 +546,27 @@ class BrowseController(Controller):
         :param order_by_desc: Whether to order in a descending or ascending fashion.
         :return: Paginated list of QRels, ordered by relevance.
         """
+        score_order_matches: dict[str | None, tuple[str | None, str, str]] = {
+            "query_match_score": (
+                match_query,
+                "match_query",
+                "Cannot order QRels by query match score without a query match.",
+            ),
+            "document_match_score": (
+                match_document,
+                "match_document",
+                "Cannot order QRels by document match score without a document match.",
+            ),
+        }
+        score_order_match = score_order_matches.get(order_by)
+        if score_order_match is not None and score_order_match[0] is None:
+            _, match_param, message = score_order_match
+            raise HTTPException(
+                message,
+                status_code=HTTP_400_BAD_REQUEST,
+                extra={"order_by": order_by, match_param: None},
+            )
+
         where_clause = [
             ORMCorpus.name == corpus_name,
             ORMQRel.relevance >= ORMDataset.min_relevance,
@@ -664,7 +700,6 @@ class BrowseController(Controller):
         :raises HTTPException: When the document could not be summarized.
         :return: The document summary stream.
         """
-
         sql = (
             select(ORMDocument)
             .join(ORMCorpus)
