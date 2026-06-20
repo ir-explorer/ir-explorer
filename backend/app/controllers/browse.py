@@ -168,9 +168,7 @@ class BrowseController(Controller):
                 extra={"order_by": order_by, "match": match},
             )
 
-        where_clause = [ORMCorpus.name == corpus_name]
-        if dataset_name is not None:
-            where_clause.append(ORMDataset.name == dataset_name)
+        where_clause = [ORMCorpus.name == corpus_name, ORMDataset.name == dataset_name]
         if match is not None:
             where_clause.append(
                 search.match_any(

@@ -133,8 +133,8 @@ class SearchController(Controller):
         :param model_name: The model to use.
         :param q: The search query/question.
         :param corpus_name: Corpus identifiers for the corresponding documents.
-        :param num_documents: IDs of documents to use for RAG.
-        :raises HTTPException: When the OpenAI API or requeted model is not available.
+        :param document_id: IDs of documents to use for RAG.
+        :raises HTTPException: When the OpenAI API or requested model is not available.
         :raises HTTPException: When the document identifiers are not properly provided.
         :raises HTTPException: When the answer could not be generated.
         :return: The answer stream.
