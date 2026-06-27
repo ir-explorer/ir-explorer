@@ -1,11 +1,11 @@
-from collections.abc import MutableMapping
+from collections.abc import Mapping, Sequence, Set
 from typing import Union
 
-NestedDict = dict[str, Union[str, int, float, "NestedDict"]]
+NestedMapping = Mapping[str, Union[str, int, float, "NestedMapping"]]
 
 
 def flatten(
-    d: NestedDict, key_prefix: str | None = None
+    d: NestedMapping, key_prefix: str | None = None
 ) -> dict[str, str | int | float]:
     """Flatten a nested dictionary.
 
@@ -16,7 +16,7 @@ def flatten(
     result = []
     for k, v in d.items():
         k_ = key_prefix + "_" + k if key_prefix else k
-        if isinstance(v, MutableMapping):
+        if isinstance(v, Mapping):
             result.extend(flatten(v, k_).items())
         else:
             result.append((k_, v))
@@ -24,23 +24,23 @@ def flatten(
 
 
 def list_of_dicts_equal(
-    l1: list[NestedDict],
-    l2: list[NestedDict],
-    ignore_keys: set[str] = {},
+    l1: Sequence[NestedMapping],
+    l2: Sequence[NestedMapping],
+    ignore_keys: Set[str] = frozenset(),
 ) -> bool:
     """Check whether two lists contain the same dictionaries, disregarding the order.
 
     Flattens nested dictionaries.
 
-    :param d1: The first list.
-    :param d2: The seconds list.
+    :param l1: The first list.
+    :param l2: The seconds list.
     :param ignore_keys: Dictionary keys in this set will be ignored.
     :return: Whether they are equal.
     """
     l1_ = [flatten({k: v for k, v in x.items() if k not in ignore_keys}) for x in l1]
     l2_ = [flatten({k: v for k, v in x.items() if k not in ignore_keys}) for x in l2]
 
-    def sort_key(x):
-        return list(x.values())
+    def sort_key(x: Mapping[str, str | int | float]) -> str:
+        return repr(tuple(x.values()))
 
     return sorted(l1_, key=sort_key) == sorted(l2_, key=sort_key)

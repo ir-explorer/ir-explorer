@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Generic, TypeVar
 
 T = TypeVar("T")
@@ -35,17 +35,16 @@ class DatasetInfo:
 
     name: str
     corpus_name: str
-    relevance_threshold: int = 1
+    relevance_threshold: int
+    min_relevance: int | None = None
+    max_relevance: int | None = None
 
 
 @dataclass
-class Dataset:
-    """Dataset with attributes, associated corpus, and statistics."""
+class Dataset(DatasetInfo):
+    """Dataset with attributes and statistics."""
 
-    name: str
-    corpus_name: str
-    relevance_threshold: int
-    num_queries: int
+    num_queries: int = field(kw_only=True)
 
 
 @dataclass
@@ -108,8 +107,7 @@ class QRel:
 
     query_info: QueryInfo
     document_info: DocumentInfo
-    corpus_name: str
-    dataset_name: str
+    dataset_info: DatasetInfo
     relevance: int
 
 
