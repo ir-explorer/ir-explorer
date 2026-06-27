@@ -146,7 +146,7 @@
       bind:this={relevantQueryList}
       getPage={getQueriesPage}
       getTargetLink={(q: RelevantQuery) =>
-        `/browse/${page.params.corpusName}/${q.datasetName}?queryId=${q.id}` as const}
+        `/browse/${q.corpusName}/${q.datasetName}?queryId=${q.id}` as const}
       orderByOptions={orderRelevantQueriesOptions}
       matchDependentOrderByOptions={["query_match_score"]}>
       {#snippet headTitle()}
@@ -164,7 +164,7 @@
             <p class="shrink-0 text-xs text-base-content/60">
               <IconWithText
                 icon={relevanceIcon}
-                text={q.relevance.toString()} />
+                text={q.relevance.score.toString()} />
             </p>
           </div>
           <p class="mt-1 text-sm leading-relaxed">

@@ -26,7 +26,16 @@ export interface Dataset {
   name: string;
   corpusName: string;
   relevanceThreshold: number;
+  minRelevance: number | null;
+  maxRelevance: number | null;
   numQueries: number;
+}
+
+export interface RelevanceInfo {
+  score: number;
+  threshold: number;
+  min: number;
+  max: number;
 }
 
 export interface Query {
@@ -42,7 +51,7 @@ export interface RelevantQuery {
   text: string;
   corpusName: string;
   datasetName: string;
-  relevance: number;
+  relevance: RelevanceInfo;
 }
 
 export interface Document {
@@ -56,7 +65,7 @@ export interface RelevantDocument {
   id: string;
   text: string;
   corpusName: string;
-  relevance: number;
+  relevance: RelevanceInfo;
 }
 export interface DocumentSearchHit {
   score: number;

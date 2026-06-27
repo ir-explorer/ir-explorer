@@ -11,10 +11,13 @@ import type {
   RelevantDocument,
   RelevantQuery,
 } from "$lib/types";
+import { parseRelevance } from "$lib/util";
 
 const BACKEND_HOST = env.BACKEND_HOST?.trim() || "localhost";
 const BACKEND_PORT = env.BACKEND_PORT?.trim() || "8000";
 const BACKEND_REST_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}`;
+
+
 
 /**
  * Return a list of natural languages supported by the backend.
@@ -83,6 +86,8 @@ export async function getDatasets(corpusName: string): Promise<Dataset[]> {
       name: item["name"],
       corpusName: item["corpus_name"],
       relevanceThreshold: item["relevance_threshold"],
+      minRelevance: item["min_relevance"],
+      maxRelevance: item["max_relevance"],
       numQueries: item["num_queries"],
     } as Dataset);
   }
@@ -368,9 +373,9 @@ export async function getRelevantQueries(
     queries.push({
       id: item["query_info"]["id"],
       text: item["query_info"]["text"],
-      corpusName: item["corpus_name"],
-      datasetName: item["dataset_name"],
-      relevance: item["relevance"],
+      corpusName: item["dataset_info"]["corpus_name"],
+      datasetName: item["dataset_info"]["name"],
+      relevance: parseRelevance(item),
     } as RelevantQuery);
   }
   return {
@@ -426,8 +431,8 @@ export async function getRelevantDocuments(
     documents.push({
       id: item["document_info"]["id"],
       text: item["document_info"]["text"],
-      corpusName: item["corpus_name"],
-      relevance: item["relevance"],
+      corpusName: item["dataset_info"]["corpus_name"],
+      relevance: parseRelevance(item),
     } as RelevantDocument);
   }
   return {

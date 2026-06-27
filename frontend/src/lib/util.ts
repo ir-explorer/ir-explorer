@@ -1,4 +1,4 @@
-import type { SnippetPart } from "$lib/types";
+import type { RelevanceInfo, SnippetPart } from "$lib/types";
 
 /**
  * Convert an integer to a human-readable string.
@@ -62,4 +62,22 @@ export function snippetParts(
   }
 
   return parts;
+}
+
+/**
+ * Convert an unvalidated QRel response item to the frontend relevance model.
+ *
+ * @param item - A JSON object returned by the backend get_qrels endpoint.
+ *
+ * @returns The relevance information used by frontend views.
+ */
+export function parseRelevance(item: Record<string, unknown>): RelevanceInfo {
+  const datasetInfo = item["dataset_info"] as Record<string, unknown>;
+
+  return {
+    score: item["relevance"],
+    threshold: datasetInfo["relevance_threshold"],
+    min: datasetInfo["min_relevance"],
+    max: datasetInfo["max_relevance"],
+  } as RelevanceInfo;
 }

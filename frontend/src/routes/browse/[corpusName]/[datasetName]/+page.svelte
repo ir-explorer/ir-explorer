@@ -124,7 +124,7 @@
       bind:this={relevantDocumentList}
       getPage={getDocumentsPage}
       getTargetLink={(d: RelevantDocument) =>
-        `/browse/${page.params.corpusName}?${new URLSearchParams({ documentId: d.id })}` as const}
+        `/browse/${d.corpusName}?${new URLSearchParams({ documentId: d.id })}` as const}
       orderByOptions={orderRelevantDocumentsOptions}
       matchDependentOrderByOptions={["document_match_score"]}>
       {#snippet headTitle()}
@@ -139,7 +139,7 @@
             <p class="shrink-0 text-xs text-base-content/60">
               <IconWithText
                 icon={relevanceIcon}
-                text={d.relevance.toString()} />
+                text={d.relevance.score.toString()} />
             </p>
           </div>
           <p class="mt-1 text-sm">
