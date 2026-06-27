@@ -26,7 +26,7 @@ def setup_data(api):
         json={
             "name": "c1-ds1",
             "corpus_name": "c1",
-            "min_relevance": 1,
+            "relevance_threshold": 1,
         },
     )
     requests.post(
@@ -57,7 +57,7 @@ def setup_data(api):
         json={
             "name": "c1-ds2",
             "corpus_name": "c1",
-            "min_relevance": 3,
+            "relevance_threshold": 3,
         },
     )
     requests.post(
@@ -103,7 +103,7 @@ def setup_data(api):
         json={
             "name": "c2-ds1",
             "corpus_name": "c2",
-            "min_relevance": 1,
+            "relevance_threshold": 1,
         },
     )
     requests.post(
@@ -151,13 +151,13 @@ def test_get_datasets(api):
             {
                 "name": "c1-ds1",
                 "corpus_name": "c1",
-                "min_relevance": 1,
+                "relevance_threshold": 1,
                 "num_queries": 4,
             },
             {
                 "name": "c1-ds2",
                 "corpus_name": "c1",
-                "min_relevance": 3,
+                "relevance_threshold": 3,
                 "num_queries": 4,
             },
         ],
@@ -169,7 +169,7 @@ def test_get_datasets(api):
             {
                 "name": "c2-ds1",
                 "corpus_name": "c2",
-                "min_relevance": 1,
+                "relevance_threshold": 1,
                 "num_queries": 2,
             },
         ],

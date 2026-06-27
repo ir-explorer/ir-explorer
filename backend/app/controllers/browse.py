@@ -131,7 +131,7 @@ class BrowseController(Controller):
             Dataset(
                 name=dataset.name,
                 corpus_name=corpus_name,
-                min_relevance=dataset.min_relevance,
+                relevance_threshold=dataset.relevance_threshold,
                 num_queries=num_queries,
             )
             for dataset, num_queries in result
@@ -230,7 +230,7 @@ class BrowseController(Controller):
                 ORMQuery.text,
                 ORMQuery.description,
                 func.count()
-                .filter(ORMQRel.relevance >= ORMDataset.min_relevance)
+                .filter(ORMQRel.relevance >= ORMDataset.relevance_threshold)
                 .label("count"),
                 ORMDataset.name,
             )
@@ -284,7 +284,7 @@ class BrowseController(Controller):
             select(
                 ORMQuery,
                 func.count(ORMQRel.document_pkey).filter(
-                    ORMQRel.relevance >= ORMDataset.min_relevance
+                    ORMQRel.relevance >= ORMDataset.relevance_threshold
                 ),
             )
             .join(ORMDataset)
@@ -337,7 +337,7 @@ class BrowseController(Controller):
             select(
                 ORMDocument,
                 func.count(ORMQRel.query_pkey).filter(
-                    ORMQRel.relevance >= ORMDataset.min_relevance
+                    ORMQRel.relevance >= ORMDataset.relevance_threshold
                 ),
             )
             .join(ORMCorpus)
@@ -439,7 +439,7 @@ class BrowseController(Controller):
         select_clause_sq = [
             document_pkey,
             func.count()
-            .filter(ORMQRel.relevance >= ORMDataset.min_relevance)
+            .filter(ORMQRel.relevance >= ORMDataset.relevance_threshold)
             .label("count"),
         ]
         group_by_clause = [document_pkey]
@@ -567,7 +567,7 @@ class BrowseController(Controller):
 
         where_clause = [
             ORMCorpus.name == corpus_name,
-            ORMQRel.relevance >= ORMDataset.min_relevance,
+            ORMQRel.relevance >= ORMDataset.relevance_threshold,
         ]
         if document_id is not None:
             where_clause.append(ORMDocument.id == document_id)

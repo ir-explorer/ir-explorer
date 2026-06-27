@@ -35,7 +35,7 @@ class DatasetInfo:
 
     name: str
     corpus_name: str
-    min_relevance: int = 1
+    relevance_threshold: int = 1
 
 
 @dataclass
@@ -44,7 +44,7 @@ class Dataset:
 
     name: str
     corpus_name: str
-    min_relevance: int
+    relevance_threshold: int
     num_queries: int
 
 

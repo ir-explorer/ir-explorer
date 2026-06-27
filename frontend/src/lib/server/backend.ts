@@ -82,7 +82,7 @@ export async function getDatasets(corpusName: string): Promise<Dataset[]> {
     datasets.push({
       name: item["name"],
       corpusName: item["corpus_name"],
-      minRelevance: item["min_relevance"],
+      relevanceThreshold: item["relevance_threshold"],
       numQueries: item["num_queries"],
     } as Dataset);
   }

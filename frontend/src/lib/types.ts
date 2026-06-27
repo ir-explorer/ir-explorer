@@ -25,7 +25,7 @@ export interface Corpus {
 export interface Dataset {
   name: string;
   corpusName: string;
-  minRelevance: number;
+  relevanceThreshold: number;
   numQueries: number;
 }
 

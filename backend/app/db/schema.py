@@ -38,7 +38,7 @@ class ORMDataset(ORMBase):
 
     name: Mapped[str] = mapped_column()
     corpus_pkey: Mapped[int] = mapped_column(ForeignKey("corpora.pkey"))
-    min_relevance: Mapped[int] = mapped_column()
+    relevance_threshold: Mapped[int] = mapped_column()
 
     corpus: Mapped[ORMCorpus] = relationship(back_populates="datasets")
 

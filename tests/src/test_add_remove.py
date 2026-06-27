@@ -71,7 +71,7 @@ def test_datasets(api):
             json={
                 "name": "test_dataset",
                 "corpus_name": "test_corpus_datasets",
-                "min_relevance": 3,
+                "relevance_threshold": 3,
             },
         ).status_code
         == 201
@@ -82,7 +82,7 @@ def test_datasets(api):
         {
             "name": "test_dataset",
             "corpus_name": "test_corpus_datasets",
-            "min_relevance": 3,
+            "relevance_threshold": 3,
             "num_queries": 0,
         }
     ]
@@ -94,7 +94,7 @@ def test_datasets(api):
             json={
                 "name": "test_dataset",
                 "corpus_name": "test_corpus_datasets",
-                "min_relevance": 1,
+                "relevance_threshold": 1,
             },
         ).status_code
         == 409
@@ -107,7 +107,7 @@ def test_datasets(api):
             json={
                 "name": "test_dataset",
                 "corpus_name": "invalid_corpus",
-                "min_relevance": 1,
+                "relevance_threshold": 1,
             },
         ).status_code
         == 409
@@ -141,7 +141,7 @@ def test_queries_documents(api):
         json={
             "name": "test_dataset",
             "corpus_name": "test_corpus_queries_documents",
-            "min_relevance": 1,
+            "relevance_threshold": 1,
         },
     )
     assert (
