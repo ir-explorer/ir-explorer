@@ -1,4 +1,4 @@
-from paradedb.sqlalchemy import indexing
+from paradedb.sqlalchemy import indexing, tokenizer
 from sqlalchemy import (
     Column,
     Computed,
@@ -102,35 +102,27 @@ class ORMQRel(ORMBase):
     __tablename__ = "qrels"
 
 
-# TODO: update tokenizer and indexes once sqlalchemy-paradedb matures
-TOKENIZER_CONFIG = """
-'{
-    "text": {
-        "tokenizer": {
-            "type": "default",
-            "stemmer": "English",
-            "stopwords_language": "English"
-        }
-    }
-}'"""
+ENGLISH_TOKENIZER = tokenizer.unicode_words(
+    options={"stemmer": "English", "stopwords_language": "English"}
+)
 
 Index(
     "ix_queries_search",
     indexing.BM25Field(ORMQuery.__table__.c.pkey),
-    indexing.BM25Field(ORMQuery.__table__.c.text),
-    indexing.BM25Field(ORMQuery.__table__.c.description),
+    indexing.BM25Field(ORMQuery.__table__.c.text, tokenizer=ENGLISH_TOKENIZER),
+    indexing.BM25Field(ORMQuery.__table__.c.description, tokenizer=ENGLISH_TOKENIZER),
     indexing.BM25Field(ORMQuery.__table__.c.dataset_pkey),
     postgresql_using="bm25",
-    postgresql_with={"key_field": "pkey", "text_fields": TOKENIZER_CONFIG},
+    postgresql_with={"key_field": "pkey"},
 )
 
 
 Index(
     "ix_documents_search",
     indexing.BM25Field(ORMDocument.__table__.c.pkey),
-    indexing.BM25Field(ORMDocument.__table__.c.title),
-    indexing.BM25Field(ORMDocument.__table__.c.text),
+    indexing.BM25Field(ORMDocument.__table__.c.title, tokenizer=ENGLISH_TOKENIZER),
+    indexing.BM25Field(ORMDocument.__table__.c.text, tokenizer=ENGLISH_TOKENIZER),
     indexing.BM25Field(ORMDocument.__table__.c.corpus_pkey),
     postgresql_using="bm25",
-    postgresql_with={"key_field": "pkey", "text_fields": TOKENIZER_CONFIG},
+    postgresql_with={"key_field": "pkey"},
 )
