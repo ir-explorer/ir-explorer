@@ -34,14 +34,15 @@ Display a relevance score in the context of its dataset's observed range and bin
       style={`left: ${columnPosition}%`}>
       <Fa icon={faCaretDown} />
     </div>
-    {#each scaleValues as value, index (value)}
-      <div
-        class:bg-success={value >= relevance.threshold}
-        class:bg-error={value < relevance.threshold}
-        class:border-r={index === scaleValues.length - 1}
-        class="h-1.25 w-4 shrink-0 border-y border-l">
-      </div>
-    {/each}
+    <div class="flex gap-px">
+      {#each scaleValues as value (value)}
+        <div
+          class:bg-success={value >= relevance.threshold}
+          class:bg-error={value < relevance.threshold}
+          class="h-1.5 w-4 shrink-0">
+        </div>
+      {/each}
+    </div>
   </div>
   <span>{relevance.max}</span>
 </div>

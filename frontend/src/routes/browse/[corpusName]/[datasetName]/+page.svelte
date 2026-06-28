@@ -137,7 +137,7 @@
             <p class="min-w-0 text-sm leading-5 font-medium text-secondary">
               <IconWithText icon={documentIcon} text={d.id} />
             </p>
-            <div class="shrink-0">
+            <div class="ml-auto shrink-0">
               <RelevanceIndicator relevance={d.relevance} />
             </div>
           </div>

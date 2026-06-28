@@ -157,7 +157,7 @@
             <p class="min-w-0 text-xs text-base-content/60">
               <IconWithText icon={datasetIcon} text={q.datasetName} />
             </p>
-            <div class="shrink-0">
+            <div class="ml-auto shrink-0">
               <RelevanceIndicator relevance={q.relevance} />
             </div>
           </div>
