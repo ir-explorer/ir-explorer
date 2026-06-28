@@ -26,8 +26,8 @@ export interface Dataset {
   name: string;
   corpusName: string;
   relevanceThreshold: number;
-  minRelevance: number | null;
-  maxRelevance: number | null;
+  minRelevance: number;
+  maxRelevance: number;
   numQueries: number;
 }
 

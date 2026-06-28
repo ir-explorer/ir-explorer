@@ -72,12 +72,15 @@ export function snippetParts(
  * @returns The relevance information used by frontend views.
  */
 export function parseRelevance(item: Record<string, unknown>): RelevanceInfo {
-  const datasetInfo = item["dataset_info"] as Record<string, unknown>;
+  const datasetRelevanceInfo = item["dataset_relevance_info"] as Record<
+    string,
+    unknown
+  >;
 
   return {
     score: item["relevance"],
-    threshold: datasetInfo["relevance_threshold"],
-    min: datasetInfo["min_relevance"],
-    max: datasetInfo["max_relevance"],
+    threshold: datasetRelevanceInfo["relevance_threshold"],
+    min: datasetRelevanceInfo["min_relevance"],
+    max: datasetRelevanceInfo["max_relevance"],
   } as RelevanceInfo;
 }

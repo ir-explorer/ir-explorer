@@ -83,8 +83,8 @@ def test_datasets(api):
             "name": "test_dataset",
             "corpus_name": "test_corpus_datasets",
             "relevance_threshold": 3,
-            "min_relevance": None,
-            "max_relevance": None,
+            "min_relevance": 2,
+            "max_relevance": 3,
             "num_queries": 0,
         }
     ]

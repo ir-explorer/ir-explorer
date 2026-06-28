@@ -22,7 +22,7 @@ from llm.util import get_summary_prompt
 from models import (
     Corpus,
     Dataset,
-    DatasetInfo,
+    DatasetRelevanceInfo,
     Document,
     DocumentInfo,
     Paginated,
@@ -147,8 +147,20 @@ class BrowseController(Controller):
             select(
                 ORMDataset,
                 func.coalesce(sq_dataset_statistics.c.num_queries, 0),
-                sq_dataset_statistics.c.min_relevance,
-                sq_dataset_statistics.c.max_relevance,
+                func.least(
+                    ORMDataset.relevance_threshold - 1,
+                    func.coalesce(
+                        sq_dataset_statistics.c.min_relevance,
+                        ORMDataset.relevance_threshold - 1,
+                    ),
+                ),
+                func.greatest(
+                    ORMDataset.relevance_threshold - 1,
+                    func.coalesce(
+                        sq_dataset_statistics.c.max_relevance,
+                        ORMDataset.relevance_threshold,
+                    ),
+                ),
             )
             .outerjoin(sq_dataset_statistics)
             .join(ORMCorpus)
@@ -166,12 +178,7 @@ class BrowseController(Controller):
                 max_relevance=max_relevance,
                 num_queries=num_queries,
             )
-            for (
-                dataset,
-                num_queries,
-                min_relevance,
-                max_relevance,
-            ) in result
+            for dataset, num_queries, min_relevance, max_relevance in result
         ]
 
     @get(path="/get_queries", cache=True)
@@ -676,8 +683,14 @@ class BrowseController(Controller):
         sql = (
             select(
                 ORMQRel,
-                sq_dataset_relevance_range.c.min_relevance,
-                sq_dataset_relevance_range.c.max_relevance,
+                func.least(
+                    ORMDataset.relevance_threshold - 1,
+                    sq_dataset_relevance_range.c.min_relevance,
+                ),
+                func.greatest(
+                    ORMDataset.relevance_threshold - 1,
+                    sq_dataset_relevance_range.c.max_relevance,
+                ),
             )
             .select_from(ORMQRel)
             .join(ORMQuery)
@@ -715,7 +728,7 @@ class BrowseController(Controller):
                         title=qrel.document.title,
                         text=qrel.document.text,
                     ),
-                    dataset_info=DatasetInfo(
+                    dataset_relevance_info=DatasetRelevanceInfo(
                         name=qrel.query.dataset.name,
                         corpus_name=qrel.query.dataset.corpus.name,
                         relevance_threshold=qrel.query.dataset.relevance_threshold,
@@ -724,11 +737,7 @@ class BrowseController(Controller):
                     ),
                     relevance=qrel.relevance,
                 )
-                for (
-                    qrel,
-                    min_relevance,
-                    max_relevance,
-                ) in result
+                for qrel, min_relevance, max_relevance in result
             ],
             offset=offset,
             total_num_items=total_num_results,
