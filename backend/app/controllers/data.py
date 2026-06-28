@@ -84,7 +84,7 @@ class DataController(Controller):
                 "corpus_pkey": select(ORMCorpus.pkey)
                 .filter_by(name=data.corpus_name)
                 .scalar_subquery(),
-                "min_relevance": data.min_relevance,
+                "relevance_threshold": data.relevance_threshold,
             }
         )
 

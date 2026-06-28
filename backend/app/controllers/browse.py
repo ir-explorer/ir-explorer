@@ -22,6 +22,7 @@ from llm.util import get_summary_prompt
 from models import (
     Corpus,
     Dataset,
+    DatasetRelevanceInfo,
     Document,
     DocumentInfo,
     Paginated,
@@ -46,8 +47,36 @@ from sqlalchemy.orm import joinedload
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
+    from sqlalchemy.sql.selectable import Subquery
 
 # TODO: remove pyright ignores once sqlalchemy-paradedb matures
+
+
+def _dataset_statistics_subquery() -> "Subquery":
+    return (
+        select(
+            ORMQuery.dataset_pkey,
+            func.count(func.distinct(ORMQuery.pkey)).label("num_queries"),
+            func.min(ORMQRel.relevance).label("min_relevance"),
+            func.max(ORMQRel.relevance).label("max_relevance"),
+        )
+        .outerjoin(ORMQRel)
+        .group_by(ORMQuery.dataset_pkey)
+        .subquery()
+    )
+
+
+def _dataset_relevance_range_subquery() -> "Subquery":
+    return (
+        select(
+            ORMQuery.dataset_pkey,
+            func.min(ORMQRel.relevance).label("min_relevance"),
+            func.max(ORMQRel.relevance).label("max_relevance"),
+        )
+        .join(ORMQRel)
+        .group_by(ORMQuery.dataset_pkey)
+        .subquery()
+    )
 
 
 class BrowseController(Controller):
@@ -112,15 +141,28 @@ class BrowseController(Controller):
         :param corpus_name: The name of the corpus.
         :return: The list of datasets.
         """
-        sq_queries = (
-            select(ORMQuery.dataset_pkey, func.count().label("count"))
-            .group_by(ORMQuery.dataset_pkey)
-            .subquery()
-        )
+        sq_dataset_statistics = _dataset_statistics_subquery()
 
         sql = (
-            select(ORMDataset, func.coalesce(sq_queries.c.count, 0))
-            .outerjoin(sq_queries)
+            select(
+                ORMDataset,
+                func.coalesce(sq_dataset_statistics.c.num_queries, 0),
+                func.least(
+                    ORMDataset.relevance_threshold - 1,
+                    func.coalesce(
+                        sq_dataset_statistics.c.min_relevance,
+                        ORMDataset.relevance_threshold - 1,
+                    ),
+                ),
+                func.greatest(
+                    ORMDataset.relevance_threshold - 1,
+                    func.coalesce(
+                        sq_dataset_statistics.c.max_relevance,
+                        ORMDataset.relevance_threshold,
+                    ),
+                ),
+            )
+            .outerjoin(sq_dataset_statistics)
             .join(ORMCorpus)
             .where(ORMCorpus.name == corpus_name)
             .order_by(ORMDataset.name.asc())
@@ -131,10 +173,12 @@ class BrowseController(Controller):
             Dataset(
                 name=dataset.name,
                 corpus_name=corpus_name,
-                min_relevance=dataset.min_relevance,
+                relevance_threshold=dataset.relevance_threshold,
+                min_relevance=min_relevance,
+                max_relevance=max_relevance,
                 num_queries=num_queries,
             )
-            for dataset, num_queries in result
+            for dataset, num_queries, min_relevance, max_relevance in result
         ]
 
     @get(path="/get_queries", cache=True)
@@ -230,7 +274,7 @@ class BrowseController(Controller):
                 ORMQuery.text,
                 ORMQuery.description,
                 func.count()
-                .filter(ORMQRel.relevance >= ORMDataset.min_relevance)
+                .filter(ORMQRel.relevance >= ORMDataset.relevance_threshold)
                 .label("count"),
                 ORMDataset.name,
             )
@@ -284,7 +328,7 @@ class BrowseController(Controller):
             select(
                 ORMQuery,
                 func.count(ORMQRel.document_pkey).filter(
-                    ORMQRel.relevance >= ORMDataset.min_relevance
+                    ORMQRel.relevance >= ORMDataset.relevance_threshold
                 ),
             )
             .join(ORMDataset)
@@ -337,7 +381,7 @@ class BrowseController(Controller):
             select(
                 ORMDocument,
                 func.count(ORMQRel.query_pkey).filter(
-                    ORMQRel.relevance >= ORMDataset.min_relevance
+                    ORMQRel.relevance >= ORMDataset.relevance_threshold
                 ),
             )
             .join(ORMCorpus)
@@ -439,7 +483,7 @@ class BrowseController(Controller):
         select_clause_sq = [
             document_pkey,
             func.count()
-            .filter(ORMQRel.relevance >= ORMDataset.min_relevance)
+            .filter(ORMQRel.relevance >= ORMDataset.relevance_threshold)
             .label("count"),
         ]
         group_by_clause = [document_pkey]
@@ -567,7 +611,7 @@ class BrowseController(Controller):
 
         where_clause = [
             ORMCorpus.name == corpus_name,
-            ORMQRel.relevance >= ORMDataset.min_relevance,
+            ORMQRel.relevance >= ORMDataset.relevance_threshold,
         ]
         if document_id is not None:
             where_clause.append(ORMDocument.id == document_id)
@@ -634,14 +678,31 @@ class BrowseController(Controller):
         else:
             order_by_clause = (ORMQRel.query_pkey, ORMQRel.document_pkey)
 
+        sq_dataset_relevance_range = _dataset_relevance_range_subquery()
+
         sql = (
-            select(ORMQRel)
+            select(
+                ORMQRel,
+                func.least(
+                    ORMDataset.relevance_threshold - 1,
+                    sq_dataset_relevance_range.c.min_relevance,
+                ),
+                func.greatest(
+                    ORMDataset.relevance_threshold - 1,
+                    sq_dataset_relevance_range.c.max_relevance,
+                ),
+            )
+            .select_from(ORMQRel)
             .join(ORMQuery)
             .join(ORMDocument)
             .join(ORMDataset)
             .join(ORMCorpus)
+            .join(
+                sq_dataset_relevance_range,
+                ORMDataset.pkey == sq_dataset_relevance_range.c.dataset_pkey,
+            )
             .options(
-                joinedload(ORMQRel.document).joinedload(ORMDocument.corpus),
+                joinedload(ORMQRel.document),
                 joinedload(ORMQRel.query)
                 .joinedload(ORMQuery.dataset)
                 .joinedload(ORMDataset.corpus),
@@ -653,7 +714,7 @@ class BrowseController(Controller):
         )
 
         total_num_results = (await db_transaction.execute(sql_count)).scalar_one()
-        result = (await db_transaction.execute(sql)).scalars()
+        result = (await db_transaction.execute(sql)).all()
         return Paginated[QRel](
             items=[
                 QRel(
@@ -667,11 +728,16 @@ class BrowseController(Controller):
                         title=qrel.document.title,
                         text=qrel.document.text,
                     ),
+                    dataset_relevance_info=DatasetRelevanceInfo(
+                        name=qrel.query.dataset.name,
+                        corpus_name=qrel.query.dataset.corpus.name,
+                        relevance_threshold=qrel.query.dataset.relevance_threshold,
+                        min_relevance=min_relevance,
+                        max_relevance=max_relevance,
+                    ),
                     relevance=qrel.relevance,
-                    corpus_name=qrel.document.corpus.name,
-                    dataset_name=qrel.query.dataset.name,
                 )
-                for qrel in result
+                for qrel, min_relevance, max_relevance in result
             ],
             offset=offset,
             total_num_items=total_num_results,

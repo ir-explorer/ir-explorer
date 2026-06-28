@@ -35,16 +35,21 @@ class DatasetInfo:
 
     name: str
     corpus_name: str
-    min_relevance: int = 1
+    relevance_threshold: int
 
 
 @dataclass
-class Dataset:
-    """Dataset with attributes, associated corpus, and statistics."""
+class DatasetRelevanceInfo(DatasetInfo):
+    """Dataset attributes including its relevance range."""
 
-    name: str
-    corpus_name: str
     min_relevance: int
+    max_relevance: int
+
+
+@dataclass
+class Dataset(DatasetRelevanceInfo):
+    """Dataset with attributes and statistics."""
+
     num_queries: int
 
 
@@ -108,8 +113,7 @@ class QRel:
 
     query_info: QueryInfo
     document_info: DocumentInfo
-    corpus_name: str
-    dataset_name: str
+    dataset_relevance_info: DatasetRelevanceInfo
     relevance: int
 
 

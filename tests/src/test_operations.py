@@ -26,7 +26,7 @@ def setup_data(api):
         json={
             "name": "c1-ds1",
             "corpus_name": "c1",
-            "min_relevance": 1,
+            "relevance_threshold": 1,
         },
     )
     requests.post(
@@ -57,7 +57,7 @@ def setup_data(api):
         json={
             "name": "c1-ds2",
             "corpus_name": "c1",
-            "min_relevance": 3,
+            "relevance_threshold": 3,
         },
     )
     requests.post(
@@ -103,7 +103,7 @@ def setup_data(api):
         json={
             "name": "c2-ds1",
             "corpus_name": "c2",
-            "min_relevance": 1,
+            "relevance_threshold": 1,
         },
     )
     requests.post(
@@ -151,13 +151,17 @@ def test_get_datasets(api):
             {
                 "name": "c1-ds1",
                 "corpus_name": "c1",
-                "min_relevance": 1,
+                "relevance_threshold": 1,
+                "min_relevance": 0,
+                "max_relevance": 3,
                 "num_queries": 4,
             },
             {
                 "name": "c1-ds2",
                 "corpus_name": "c1",
-                "min_relevance": 3,
+                "relevance_threshold": 3,
+                "min_relevance": 0,
+                "max_relevance": 3,
                 "num_queries": 4,
             },
         ],
@@ -169,7 +173,9 @@ def test_get_datasets(api):
             {
                 "name": "c2-ds1",
                 "corpus_name": "c2",
-                "min_relevance": 1,
+                "relevance_threshold": 1,
+                "min_relevance": 0,
+                "max_relevance": 2,
                 "num_queries": 2,
             },
         ],
@@ -454,6 +460,28 @@ def test_get_queries(api):
 
 
 def test_get_qrels(api):
+    c1_ds1 = {
+        "name": "c1-ds1",
+        "corpus_name": "c1",
+        "relevance_threshold": 1,
+        "min_relevance": 0,
+        "max_relevance": 3,
+    }
+    c1_ds2 = {
+        "name": "c1-ds2",
+        "corpus_name": "c1",
+        "relevance_threshold": 3,
+        "min_relevance": 0,
+        "max_relevance": 3,
+    }
+    c2_ds1 = {
+        "name": "c2-ds1",
+        "corpus_name": "c2",
+        "relevance_threshold": 1,
+        "min_relevance": 0,
+        "max_relevance": 2,
+    }
+
     assert (
         requests.get(
             f"{api}/get_qrels",
@@ -476,8 +504,7 @@ def test_get_qrels(api):
                     "description": "desc 1",
                 },
                 "document_info": _dinfo,
-                "corpus_name": "c1",
-                "dataset_name": "c1-ds1",
+                "dataset_relevance_info": c1_ds1,
                 "relevance": 3,
             },
             {
@@ -487,8 +514,7 @@ def test_get_qrels(api):
                     "description": "desc 2",
                 },
                 "document_info": _dinfo,
-                "corpus_name": "c1",
-                "dataset_name": "c1-ds1",
+                "dataset_relevance_info": c1_ds1,
                 "relevance": 3,
             },
             {
@@ -498,8 +524,7 @@ def test_get_qrels(api):
                     "description": "desc 1",
                 },
                 "document_info": _dinfo,
-                "corpus_name": "c1",
-                "dataset_name": "c1-ds2",
+                "dataset_relevance_info": c1_ds2,
                 "relevance": 3,
             },
             {
@@ -509,8 +534,7 @@ def test_get_qrels(api):
                     "description": "desc 2",
                 },
                 "document_info": _dinfo,
-                "corpus_name": "c1",
-                "dataset_name": "c1-ds2",
+                "dataset_relevance_info": c1_ds2,
                 "relevance": 3,
             },
         ],
@@ -539,8 +563,7 @@ def test_get_qrels(api):
                     "title": "title 2",
                     "text": "c1 def ghi",
                 },
-                "corpus_name": "c1",
-                "dataset_name": "c1-ds1",
+                "dataset_relevance_info": c1_ds1,
                 "relevance": 1,
             },
             {
@@ -550,8 +573,7 @@ def test_get_qrels(api):
                     "title": "title 4",
                     "text": "c1 jkl mno",
                 },
-                "corpus_name": "c1",
-                "dataset_name": "c1-ds1",
+                "dataset_relevance_info": c1_ds1,
                 "relevance": 3,
             },
         ],
@@ -574,8 +596,7 @@ def test_get_qrels(api):
                     "title": "title 1",
                     "text": "c2 abc def",
                 },
-                "corpus_name": "c2",
-                "dataset_name": "c2-ds1",
+                "dataset_relevance_info": c2_ds1,
                 "relevance": 2,
             },
             {
@@ -589,8 +610,7 @@ def test_get_qrels(api):
                     "title": "title 2",
                     "text": "c2 def ghi",
                 },
-                "corpus_name": "c2",
-                "dataset_name": "c2-ds1",
+                "dataset_relevance_info": c2_ds1,
                 "relevance": 2,
             },
         ],
@@ -613,8 +633,7 @@ def test_get_qrels(api):
                     "title": "title 1",
                     "text": "c2 abc def",
                 },
-                "corpus_name": "c2",
-                "dataset_name": "c2-ds1",
+                "dataset_relevance_info": c2_ds1,
                 "relevance": 2,
             }
         ],
@@ -656,8 +675,7 @@ def test_get_qrels(api):
                     "title": "title 2",
                     "text": "c2 def ghi",
                 },
-                "corpus_name": "c2",
-                "dataset_name": "c2-ds1",
+                "dataset_relevance_info": c2_ds1,
                 "relevance": 2,
             },
         ],
