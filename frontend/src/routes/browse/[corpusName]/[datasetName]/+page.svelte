@@ -4,9 +4,10 @@
   import MetaDisplay from "$lib/components/browse/MetaDisplay.svelte";
   import type { PaginatedListSnapshot } from "$lib/components/browse/PaginatedList.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
+  import RelevanceIndicator from "$lib/components/browse/RelevanceIndicator.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
-  import { documentIcon, queryIcon, relevanceIcon } from "$lib/icons";
+  import { documentIcon, queryIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
     OrderByOption,
@@ -132,15 +133,13 @@
       {/snippet}
       {#snippet item(d: RelevantDocument)}
         <div class="min-w-0">
-          <div class="flex min-w-0 items-center gap-x-3">
+          <div class="flex min-w-0 items-center gap-x-4">
             <p class="min-w-0 text-sm leading-5 font-medium text-secondary">
               <IconWithText icon={documentIcon} text={d.id} />
             </p>
-            <p class="shrink-0 text-xs text-base-content/60">
-              <IconWithText
-                icon={relevanceIcon}
-                text={d.relevance.score.toString()} />
-            </p>
+            <div class="shrink-0">
+              <RelevanceIndicator relevance={d.relevance} />
+            </div>
           </div>
           <p class="mt-1 text-sm">
             {truncate(d.text, selectedOptions.snippetLength)}

@@ -5,15 +5,11 @@
   import MetaDisplay from "$lib/components/browse/MetaDisplay.svelte";
   import type { PaginatedListSnapshot } from "$lib/components/browse/PaginatedList.svelte";
   import PaginatedList from "$lib/components/browse/PaginatedList.svelte";
+  import RelevanceIndicator from "$lib/components/browse/RelevanceIndicator.svelte";
   import SizeIndicator from "$lib/components/browse/SizeIndicator.svelte";
   import TextDisplay from "$lib/components/browse/TextDisplay.svelte";
   import IconWithText from "$lib/components/IconWithText.svelte";
-  import {
-    datasetIcon,
-    documentIcon,
-    queryIcon,
-    relevanceIcon,
-  } from "$lib/icons";
+  import { datasetIcon, documentIcon, queryIcon } from "$lib/icons";
   import { selectedOptions } from "$lib/options.svelte";
   import type {
     Dataset,
@@ -154,18 +150,16 @@
       {/snippet}
       {#snippet item(q: RelevantQuery)}
         <div class="min-w-0">
-          <div class="flex min-w-0 items-center gap-x-3">
+          <div class="flex min-w-0 items-center gap-x-4">
             <p class="min-w-0 text-sm font-medium text-secondary">
               <IconWithText icon={queryIcon} text={q.id} />
             </p>
             <p class="min-w-0 text-xs text-base-content/60">
               <IconWithText icon={datasetIcon} text={q.datasetName} />
             </p>
-            <p class="shrink-0 text-xs text-base-content/60">
-              <IconWithText
-                icon={relevanceIcon}
-                text={q.relevance.score.toString()} />
-            </p>
+            <div class="shrink-0">
+              <RelevanceIndicator relevance={q.relevance} />
+            </div>
           </div>
           <p class="mt-1 text-sm leading-relaxed">
             {truncate(q.text, selectedOptions.snippetLength)}
